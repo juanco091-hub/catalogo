@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catálogo JAV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuerza a que el texto de las descripciones largas ocupe todas las líneas necesarias */
+        .descripcion-video {
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        /* Elimina el molesto recuadro azul al pulsar botones en celulares */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased select-none">
+
+    <header class="sticky top-0 z-50 bg-gray-950 border-b border-gray-800 shadow-md px-4 py-3">
+        <div class="flex justify-between items-center mb-1">
+            <div>
+                <h1 class="text-xl font-black tracking-wider text-red-500 m-0 leading-tight">JAV</h1>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Videos para adultos producidos en Japón</p>
+            </div>
+            <button id="btn-inicio" class="bg-red-600 hover:bg-red-700 text-white text-xs font-black px-3 py-2 rounded shadow transition-all active:scale-95">
+                INICIO
+            </button>
+        </div>
+
+        <div id="zona-filtros-busqueda"></div>
+    </header>
+
+    <main class="p-4 min-h-[calc(100vh-145px)]">
+        <div id="contenedor-principal"></div>
+    </main>
+
+    <footer class="bg-gray-950 border-t border-gray-800 p-3 sticky bottom-0 z-40">
+        <div id="paginacion" class="flex justify-center items-center gap-2 flex-wrap text-sm"></div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
