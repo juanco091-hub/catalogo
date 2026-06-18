@@ -2,7 +2,6 @@
 // CONFIGURACIÓN GLOBAL
 // ==========================================
 const CONFIG = {
-    // Texto informativo que puedes cambiar cuando quieras
     subtituloEstado: "(Todo el contenido se puede ver en línea y descargar)",
     
     // ENLACES DE TU GOOGLE SHEETS EN FORMATO CSV
@@ -17,17 +16,15 @@ let BD_ACTRICES = [];
 let BD_VIDEOS = [];
 let datosFiltrados = []; 
 
-let vistaActual = "inicio"; // "inicio" o "actriz"
+let vistaActual = "inicio"; 
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-// Estados de ordenamiento (Alternan entre True y False al pulsar)
 let ordenAlfabeticoAsc = true; 
-let ordenRecienteAsc = false; // False = Más nuevo primero (por defecto)
-let ordenEstrenoAsc = false;   // False = Más nuevo primero
-let ordenSubidaAsc = false;    // False = Más nuevo primero
+let ordenRecienteAsc = false; 
+let ordenEstrenoAsc = false;   
+let ordenSubidaAsc = false;    
 
-// Elementos de la interfaz
 const btnInicio = document.getElementById("btn-inicio");
 const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
 const contenedorPrincipal = document.getElementById("contenedor-principal");
@@ -38,15 +35,10 @@ const contenedorPaginacion = document.getElementById("paginacion");
 // ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
     btnInicio.addEventListener("click", irAInicio);
-    
-    // Conectarse a Google Sheets en tiempo real
     await cargarDatosDesdeSheets();
-    
-    // Mostrar la pantalla principal
     irAInicio();
 });
 
-// Lector en tiempo real de Google Sheets
 async function cargarDatosDesdeSheets() {
     try {
         const [resActrices, resVideos] = await Promise.all([
@@ -55,7 +47,7 @@ async function cargarDatosDesdeSheets() {
         ]);
         
         if (!resActrices.ok || !resVideos.ok) {
-            throw new Error("Uno o ambos enlaces de Google Sheets devolvieron un error.");
+            throw new Error("Error en la descarga de Sheets");
         }
         
         const csvActrices = await resActrices.text();
@@ -65,40 +57,51 @@ async function cargarDatosDesdeSheets() {
         BD_VIDEOS = csvAJson(csvVideos);
         
     } catch (error) {
-        console.error("Error cargando los datos reales:", error);
-        alert("Error al conectar con Google Sheets. Asegúrate de haber publicado correctamente las pestañas como CSV.");
+        console.error("Error cargando los datos:", error);
+        alert("Error al conectar con Google Sheets.");
     }
 }
 
-// Convertidor automático mejorado: detecta comas o puntos y comas automáticamente
+// Convertidor de CSV ultra preciso para evitar cortes en nombres con espacios
 function csvAJson(csv) {
     const lineas = csv.split(/\r?\n/);
     if (lineas.length === 0 || !lineas[0].trim()) return [];
     
-    // Detectar si el documento usa comas (,) o punto y coma (;) como separador regional
     const primeraLinea = lineas[0];
     const separador = primeraLinea.includes(";") ? ";" : ",";
     
-    // Separar los encabezados limpiando espacios y comillas exteriores
     const columnas = primeraLinea.split(separador).map(c => c.trim().replace(/^["']|["']$/g, ""));
     const resultado = [];
     
     for (let i = 1; i < lineas.length; i++) {
-        if (!lineas[i].trim()) continue;
+        const linea = lineas[i].trim();
+        if (!linea) continue;
         
         let valores = [];
         if (separador === ",") {
-            // Regla para comas respetando textos largos con comas por dentro
-            valores = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lineas[i].split(",");
+            // Divide por comas respetando los textos que están entre comillas dobles
+            let dentroDeComillas = false;
+            let valorActual = "";
+            for (let j = 0; j < linea.length; j++) {
+                let char = linea[j];
+                if (char === '"') {
+                    dentroDeComillas = !dentroDeComillas;
+                } else if (char === ',' && !dentroDeComillas) {
+                    valores.push(valorActual);
+                    valorActual = "";
+                } else {
+                    valorActual += char;
+                }
+            }
+            valores.push(valorActual);
         } else {
-            // Regla simple para punto y coma (;)
-            valores = lineas[i].split(";");
+            valores = linea.split(";");
         }
         
         const fila = {};
         columnas.forEach((col, index) => {
             let valor = valores[index] ? valores[index].trim() : "";
-            valor = valor.replace(/^["']|["']$/g, ""); // Quitar comillas exteriores si existen
+            valor = valor.replace(/^["']|["']$/g, ""); // Limpiar comillas sobrantes
             fila[col] = valor;
         });
         resultado.push(fila);
@@ -115,10 +118,8 @@ function irAInicio() {
     paginaActual = 1;
     datosFiltrados = [...BD_ACTRICES];
     
-    // Orden predeterminado: Alfabético A-Z tal como se inicia
     datosFiltrados.sort((a, b) => (a.Actriz || "").localeCompare(b.Actriz || ""));
 
-    // Dibujar buscador y filtros en el encabezado fijo
     zonaFiltrosBusqueda.innerHTML = `
         <p class="text-center text-[11px] font-bold text-yellow-400 my-1">${CONFIG.subtituloEstado}</p>
         <div class="relative my-1.5">
@@ -169,27 +170,17 @@ function alternarOrdenReciente() {
     irAInicioUIActualizada();
 }
 
-function irAInicioUIActualizada() {
-    document.getElementById("btn-filtro-alfa").textContent = `Ordenar Alfabéticamente (${ordenAlfabeticoAsc ? "A ➔ Z" : "Z ➔ A"})`;
-    document.getElementById("btn-filtro-reciente").textContent = ordenRecienteAsc ? "Ordenar por Más Antiguos" : "Recién Actualizado";
-    mostrarContenidoUI();
-}
-
 // ==========================================
-// CONTROL DE LA PÁGINA DE LA ACTRIZ (VIDEOS)
+// PÁGINA DE LA ACTRIZ (VIDEOS)
 // ==========================================
 function irAPaginaActriz(nombreActriz) {
     vistaActual = "actriz";
     actrizSeleccionada = nombreActriz;
     paginaActual = 1;
     
-    // FILTRADO EN MEMORIA: Extrae solo los videos vinculados a ella de forma exacta
     datosFiltrados = BD_VIDEOS.filter(v => v.Actriz && v.Actriz.toLowerCase().trim() === nombreActriz.toLowerCase().trim());
-    
-    // Orden por defecto de videos: Más nuevos primero (Fecha Subida Descendente)
     datosFiltrados.sort((a,b) => new Date(b.FechaSubida) - new Date(a.FechaSubida));
 
-    // Cambiar el Encabezado Fijo (Sin buscador, muestra el nombre de la Actriz)
     zonaFiltrosBusqueda.innerHTML = `
         <p class="text-center text-[11px] font-bold text-yellow-400 my-1">${CONFIG.subtituloEstado}</p>
         <h2 class="text-center font-black text-lg tracking-wide text-white uppercase border-b border-gray-800 pb-1.5 pt-0.5">${nombreActriz}</h2>
@@ -232,8 +223,14 @@ function alternarFiltroVideos(tipo) {
     mostrarContenidoUI();
 }
 
+function irAInicioUIActualizada() {
+    document.getElementById("btn-filtro-alfa").textContent = `Ordenar Alfabéticamente (${ordenAlfabeticoAsc ? "A ➔ Z" : "Z ➔ A"})`;
+    document.getElementById("btn-filtro-reciente").textContent = ordenRecienteAsc ? "Ordenar por Más Antiguos" : "Recién Actualizado";
+    mostrarContenidoUI();
+}
+
 // ==========================================
-// RENDERIZADOR RENDIMIENTO ULTRA MÓVIL
+// RENDERIZADOR RÁPIDO
 // ==========================================
 function mostrarContenidoUI() {
     contenedorPrincipal.innerHTML = "";
@@ -256,7 +253,9 @@ function mostrarContenidoUI() {
         
         bloquePaginado.forEach(actriz => {
             if (!actriz.Actriz) return;
+            // Convierte correctamente nombres completos (ej: "fabiola_mercedes.jpg")
             const nombreImagen = actriz.Actriz.toLowerCase()
+                                       .normalize("NFD")
                                        .replace(/[\u0300-\u036f]/g, "")
                                        .replace(/ñ/g, "n")
                                        .replace(/\s+/g, "_");
