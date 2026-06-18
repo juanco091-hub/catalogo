@@ -183,7 +183,7 @@ function irAPaginaActriz(nombreActriz) {
 
     zonaFiltrosBusqueda.innerHTML = `
         <p class="text-center text-[11px] font-bold text-yellow-400 my-1">${CONFIG.subtituloEstado}</p>
-        <h2 class="text-center font-black text-lg tracking-wide text-white uppercase border-b border-gray-800 pb-1.5 pt-0.5">${nombreActriz}</h2>
+        <h2 class="text-center font-bold text-lg tracking-wide text-white border-b border-gray-800 pb-1.5 pt-0.5">${nombreActriz}</h2>
         <div class="grid grid-cols-2 gap-2 text-[11px] font-black mt-2">
             <button id="btn-filtro-estreno" class="bg-gray-800 hover:bg-gray-700 py-2.5 px-1 rounded text-center border border-gray-700 uppercase text-gray-200">
                 Fecha de Estreno ${ordenEstrenoAsc ? "▲" : "▼"}
@@ -267,7 +267,7 @@ function mostrarContenidoUI() {
                     <img src="portadas/${nombreImagen}.jpg" alt="${actriz.Actriz}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/333x500/1f2937/9ca3af?text=SIN+PORTADA'">
                 </div>
                 <div class="p-2 flex flex-col flex-grow justify-between text-center bg-gray-950">
-                    <h3 class="font-black text-xs uppercase tracking-tight text-gray-200 line-clamp-1">${actriz.Actriz}</h3>
+                    <h3 class="font-bold text-xs tracking-tight text-gray-200 line-clamp-1">${actriz.Actriz}</h3>
                     <button class="w-full bg-red-600 font-extrabold text-[10px] py-2 rounded mt-2 text-white uppercase tracking-wider">VER CONTENIDO</button>
                 </div>
             `;
