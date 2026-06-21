@@ -18,22 +18,22 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-// Control de Filtros - Página Principal
+// Control de Filtros - Página Principal (Nuevos estados independientes)
 let tipoOrdenInicio = "alfabetico"; // "alfabetico" o "actualizacion"
 let ordenAlfabeticoAsc = true;       // true: A-Z, false: Z-A
 let ordenRecienActualizado = true;   // true: Recién Actualizado, false: Más Antiguos
 
-// Control de Filtros - Página de Actriz
+// Control de Filtros - Página de Actriz (Alterna entre criterios de fecha)
 let criterioFechaVideos = "estreno"; // "estreno" o "subida"
 
-// Elementos fijos del DOM
+// Elementos fijos del DOM original
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
 const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
 const datalistActrices = document.getElementById("lista-actrices");
 const btnInicio = document.getElementById("btn-inicio");
 
-// Variable global para recordar el texto del buscador y no perder el foco
+// Variable para retener el texto escrito y evitar perder el foco
 let textoBuscadoGuardado = "";
 
 // ==========================================
@@ -62,13 +62,13 @@ function irAInicio(registrarHistorial = true) {
     vistaActual = "inicio";
     actrizSeleccionada = null;
     paginaActual = 1;
-    textoBuscadoGuardado = ""; // Limpiar texto de búsqueda al volver al inicio
+    textoBuscadoGuardado = ""; // Limpiar buscador al volver
     
     if (registrarHistorial) {
         history.pushState({ vista: "inicio" }, "", " ");
     }
     
-    // Al volver al inicio, forzamos el rediseño completo de la zona superior
+    // Forzamos la reconstrucción del buscador al regresar a la vista de inicio
     construirControlesSuperioresUI(true);
     procesarFiltrosYRenderizado();
 }
@@ -97,6 +97,7 @@ function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
     
+    // Limpieza exacta de las cabeceras del CSV original
     const encabezados = lineas[0].split(',').map(h => 
         h.trim()
          .replace(/^"|"$/g, '')
@@ -151,10 +152,10 @@ function actualizarDatalistSugerencias() {
 }
 
 // ==========================================
-// CONSTRUCCIÓN DINÁMICA DE CONTROLES (UI)
+// CONSTRUCCIÓN CONTROLADA DE LA UI SUPERIOR
 // ==========================================
-function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
-    // Si estamos en la vista de videos, siempre redibujamos el panel de la actriz
+function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
+    // VISTA DE LA ACTRIZ (Nombre grande, sin texto redundante, 1 filtro alternable)
     if (vistaActual === "videos") {
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
@@ -175,10 +176,11 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
         return;
     }
 
-    // En el INICIO, si ya existe el buscador, solo actualizamos los estilos de los botones para no romper el foco
+    // VISTA DE INICIO (Evitamos reescribir el input si ya existe para conservar el foco)
     const buscadorExiste = document.getElementById("buscador-actriz");
     
     if (buscadorExiste && !forzarReconstruccionCompleta) {
+        // Solo cambiamos los textos y clases de los botones inferiores de filtros
         const btnAlfa = document.getElementById("filtro-alfabetico");
         const btnActu = document.getElementById("filtro-actualizado");
         
@@ -192,7 +194,7 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
         return;
     }
 
-    // Creación inicial o forzada de los controles de la página principal
+    // Creación base inicial de los controles de la página principal
     const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
     const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
@@ -213,7 +215,7 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
         </div>
     `;
 
-    // Vinculación de eventos al buscador recién creado
+    // Evento del buscador que actualiza los datos sin redibujar el input
     const inputBuscador = document.getElementById("buscador-actriz");
     inputBuscador.addEventListener("input", (e) => {
         textoBuscadoGuardado = e.target.value;
@@ -221,11 +223,12 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
         procesarFiltrosYRenderizado();
     });
 
+    // Filtros con lógica de alternancia independiente
     document.getElementById("filtro-alfabetico").addEventListener("click", () => {
         if (tipoOrdenInicio === "alfabetico") {
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
         } else {
-            tipoOrdenInicio = "alfabetico";
+            tipoOrdenInicio = "alfabetico"; 
         }
         paginaActual = 1;
         construirControlesSuperioresUI();
@@ -234,9 +237,9 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
 
     document.getElementById("filtro-actualizado").addEventListener("click", () => {
         if (tipoOrdenInicio === "actualizacion") {
-            ordenRecienActualizado = !ordenRecienActualizado;
+            ordenRecienActualizado = !ordenRecienActualizado; 
         } else {
-            tipoOrdenInicio = "actualizacion";
+            tipoOrdenInicio = "actualizacion"; 
         }
         paginaActual = 1;
         construirControlesSuperioresUI();
@@ -245,7 +248,7 @@ function construirControlesSuperioresUI(forzarReconstruccion Completa = false) {
 }
 
 // ==========================================
-// PROCESAMIENTO LOGÍCO Y FILTRADO DE DATOS
+// FILTRADO Y ORDENAMIENTO LÓGICO DE DATOS
 // ==========================================
 function procesarFiltrosYRenderizado() {
     if (vistaActual === "inicio") {
@@ -283,10 +286,11 @@ function procesarFiltrosYRenderizado() {
             video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
         );
 
+        // Mapeo exacto del CSV para ordenar de más nuevo a más antiguo
         auxiliares.sort((a, b) => {
-            const campoFecha = criterioFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaDeSubida || 0);
-            const campoFechaB = criterioFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaDeSubida || 0);
-            return new Date(campoFechaB) - new Date(campoFecha);
+            const campoFechaA = criterioFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaSubida || 0);
+            const campoFechaB = criterioFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaSubida || 0);
+            return new Date(campoFechaB) - new Date(campoFechaA);
         });
 
         datosFiltrados = auxiliares;
@@ -295,7 +299,7 @@ function procesarFiltrosYRenderizado() {
 }
 
 // ==========================================
-// RENDERIZADO DE ELEMENTOS EN EL GRID
+// IMPRESIÓN DE TARJETAS EN EL GRID
 // ==========================================
 function mostrarContenidoUI(limiteElementos) {
     contenedorPrincipal.innerHTML = "";
@@ -338,7 +342,7 @@ function mostrarContenidoUI(limiteElementos) {
                 
                 history.pushState({ vista: "videos", actriz: actrizSeleccionada, pagina: 1 }, "", `?actriz=${nombreLimpio}`);
                 
-                construirControlesSuperioresUI();
+                construirControlesSuperioresUI(true);
                 procesarFiltrosYRenderizado();
             });
             contenedorPrincipal.appendChild(tarjeta);
@@ -348,6 +352,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
+            // Retirado 'uppercase' general. Solo el código va forzado. Las resoluciones (1080p, etc.) quedan idénticas al Excel.
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
