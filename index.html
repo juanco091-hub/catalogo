@@ -15,15 +15,24 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
-        /* Animación para la franja publicitaria en movimiento (Ralentizada a 25s) */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+        
+        /* NUEVA ANIMACIÓN MARQUEE: Carrusel continuo perfecto frase por frase */
+        @keyframes marquee-continuo {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
         }
-        .animacion-marquee {
-            display: inline-block;
+        .contenedor-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee-continuo 35s linear infinite;
+        }
+        .bloque-frases {
+            display: flex;
             white-space: nowrap;
-            animation: marquee 25s linear infinite;
+        }
+        /* Separación uniforme e idéntica entre las frases */
+        .frase-item {
+            padding-right: 80px; 
         }
     </style>
 </head>
@@ -41,8 +50,15 @@
         </div>
 
         <div class="w-full bg-red-950/40 border-y border-red-900/30 py-1 mb-2 overflow-hidden rounded">
-            <div class="animacion-marquee text-[10px] font-black text-red-400 tracking-wide uppercase">
-                🔥 ¡Todo el contenido se puede ver en línea y descargar de forma directa! 🔥                                                            🔥 ¡Solicita tu acceso al whatsapp 983072104! 🔥
+            <div class="contenedor-marquee text-[10px] font-black text-red-400 tracking-wide uppercase">
+                <div class="bloque-frases">
+                    <span class="frase-item">🔥 ¡Todo el contenido se puede ver en línea y descargar de forma directa! 🔥</span>
+                    <span class="frase-item">🔥 ¡Solicita tu acceso al whatsapp 983072104! 🔥</span>
+                </div>
+                <div class="bloque-frases">
+                    <span class="frase-item">🔥 ¡Todo el contenido se puede ver en línea y descargar de forma directa! 🔥</span>
+                    <span class="frase-item">🔥 ¡Solicita tu acceso al whatsapp 983072104! 🔥</span>
+                </div>
             </div>
         </div>
 
