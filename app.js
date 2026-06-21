@@ -18,13 +18,13 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-// Control de Filtros - Página Principal (Nuevos estados independientes)
+// Control de Filtros - Página Principal (Estados independientes)
 let tipoOrdenInicio = "alfabetico"; // "alfabetico" o "actualizacion"
 let ordenAlfabeticoAsc = true;       // true: A-Z, false: Z-A
 let ordenRecienActualizado = true;   // true: Recién Actualizado, false: Más Antiguos
 
-// Control de Filtros - Página de Actriz (Alterna entre criterios de fecha)
-let criterioFechaVideos = "estreno"; // "estreno" o "subida"
+// Control de Filtros - Página de Actriz (Alterna criterios de fecha)
+let criterionFechaVideos = "estreno"; // "estreno" o "subida"
 
 // Elementos fijos del DOM original
 const contenedorPrincipal = document.getElementById("contenedor-principal");
@@ -33,7 +33,7 @@ const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
 const datalistActrices = document.getElementById("lista-actrices");
 const btnInicio = document.getElementById("btn-inicio");
 
-// Variable para retener el texto escrito y evitar perder el foco
+// Variable global para retener el texto del buscador y evitar perder el foco
 let textoBuscadoGuardado = "";
 
 // ==========================================
@@ -62,13 +62,12 @@ function irAInicio(registrarHistorial = true) {
     vistaActual = "inicio";
     actrizSeleccionada = null;
     paginaActual = 1;
-    textoBuscadoGuardado = ""; // Limpiar buscador al volver
+    textoBuscadoGuardado = ""; 
     
     if (registrarHistorial) {
         history.pushState({ vista: "inicio" }, "", " ");
     }
     
-    // Forzamos la reconstrucción del buscador al regresar a la vista de inicio
     construirControlesSuperioresUI(true);
     procesarFiltrosYRenderizado();
 }
@@ -97,7 +96,6 @@ function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
     
-    // Limpieza exacta de las cabeceras del CSV original
     const encabezados = lineas[0].split(',').map(h => 
         h.trim()
          .replace(/^"|"$/g, '')
@@ -152,35 +150,34 @@ function actualizarDatalistSugerencias() {
 }
 
 // ==========================================
-// CONSTRUCCIÓN CONTROLADA DE LA UI SUPERIOR
+// CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
 // ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
-    // VISTA DE LA ACTRIZ (Nombre grande, sin texto redundante, 1 filtro alternable)
+    // VISTA DE LA ACTRIZ (Estilo de filtro unificado sin bordes y en color rojo)
     if (vistaActual === "videos") {
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
                 <div class="flex flex-col">
                     <h2 class="text-xl font-black text-white leading-tight tracking-tight">${actrizSeleccionada}</h2>
                 </div>
-                <button id="filtro-videos-fecha" class="text-[11px] font-black text-red-500 bg-gray-950 border border-gray-800 px-2 py-1 rounded transition-colors hover:border-red-600">
-                    Ordenar: ${criterioFechaVideos === 'estreno' ? 'Fecha de estreno' : 'Fecha de Subida'}
+                <button id="filtro-videos-fecha" class="text-[11px] font-black text-red-500 transition-colors">
+                    <span>Ordenar: ${criterionFechaVideos === 'estreno' ? 'Fecha de estreno' : 'Fecha de Subida'}</span>
                 </button>
             </div>
         `;
 
         document.getElementById("filtro-videos-fecha").addEventListener("click", () => {
-            criterioFechaVideos = criterioFechaVideos === "estreno" ? "subida" : "estreno";
+            criterionFechaVideos = criterionFechaVideos === "estreno" ? "subida" : "estreno";
             construirControlesSuperioresUI();
             procesarFiltrosYRenderizado();
         });
         return;
     }
 
-    // VISTA DE INICIO (Evitamos reescribir el input si ya existe para conservar el foco)
+    // VISTA DE INICIO
     const buscadorExiste = document.getElementById("buscador-actriz");
     
     if (buscadorExiste && !forzarReconstruccionCompleta) {
-        // Solo cambiamos los textos y clases de los botones inferiores de filtros
         const btnAlfa = document.getElementById("filtro-alfabetico");
         const btnActu = document.getElementById("filtro-actualizado");
         
@@ -194,7 +191,6 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         return;
     }
 
-    // Creación base inicial de los controles de la página principal
     const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
     const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
@@ -215,7 +211,6 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         </div>
     `;
 
-    // Evento del buscador que actualiza los datos sin redibujar el input
     const inputBuscador = document.getElementById("buscador-actriz");
     inputBuscador.addEventListener("input", (e) => {
         textoBuscadoGuardado = e.target.value;
@@ -223,12 +218,11 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         procesarFiltrosYRenderizado();
     });
 
-    // Filtros con lógica de alternancia independiente
     document.getElementById("filtro-alfabetico").addEventListener("click", () => {
         if (tipoOrdenInicio === "alfabetico") {
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
         } else {
-            tipoOrdenInicio = "alfabetico"; 
+            tipoOrdenInicio = "alfabetico";
         }
         paginaActual = 1;
         construirControlesSuperioresUI();
@@ -237,9 +231,9 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 
     document.getElementById("filtro-actualizado").addEventListener("click", () => {
         if (tipoOrdenInicio === "actualizacion") {
-            ordenRecienActualizado = !ordenRecienActualizado; 
+            ordenRecienActualizado = !ordenRecienActualizado;
         } else {
-            tipoOrdenInicio = "actualizacion"; 
+            tipoOrdenInicio = "actualizacion";
         }
         paginaActual = 1;
         construirControlesSuperioresUI();
@@ -248,7 +242,7 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 }
 
 // ==========================================
-// FILTRADO Y ORDENAMIENTO LÓGICO DE DATOS
+// PROCESAMIENTO LOGÍCO Y FILTRADO DE DATOS
 // ==========================================
 function procesarFiltrosYRenderizado() {
     if (vistaActual === "inicio") {
@@ -286,10 +280,9 @@ function procesarFiltrosYRenderizado() {
             video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
         );
 
-        // Mapeo exacto del CSV para ordenar de más nuevo a más antiguo
         auxiliares.sort((a, b) => {
-            const campoFechaA = criterioFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaSubida || 0);
-            const campoFechaB = criterioFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaSubida || 0);
+            const campoFechaA = criterionFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaSubida || 0);
+            const campoFechaB = criterionFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaSubida || 0);
             return new Date(campoFechaB) - new Date(campoFechaA);
         });
 
@@ -299,7 +292,7 @@ function procesarFiltrosYRenderizado() {
 }
 
 // ==========================================
-// IMPRESIÓN DE TARJETAS EN EL GRID
+// RENDERIZADO DE LAS PORTADAS Y TARJETAS EN EL GRID
 // ==========================================
 function mostrarContenidoUI(limiteElementos) {
     contenedorPrincipal.innerHTML = "";
@@ -352,7 +345,6 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // Retirado 'uppercase' general. Solo el código va forzado. Las resoluciones (1080p, etc.) quedan idénticas al Excel.
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
