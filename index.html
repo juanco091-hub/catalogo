@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catálogo JAV</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Fuerza a que el texto de las descripciones largas ocupe todas las líneas necesarias */
-        .descripcion-video {
-            word-wrap: break-word;
-            white-space: normal;
-        }
-        /* Elimina el molesto recuadro azul al pulsar botones en celulares */
-        body {
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* Animación para la franja publicitaria en movimiento */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animacion-marquee {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 15s linear infinite;
-        }
-    </style>
-</head>
-<body class="bg-gray-900 text-gray-100 font-sans antialiased select-none">
-
-    <header class="sticky top-0 z-50 bg-gray-950 border-b border-gray-800 shadow-md px-4 pt-3 pb-2">
+<header class="sticky top-0 z-50 bg-gray-950 border-b border-gray-800 shadow-md px-4 pt-3 pb-2">
         <div class="flex justify-between items-center mb-2">
             <div>
                 <h1 class="text-3xl font-black tracking-tighter text-red-500 m-0 leading-none">JAV</h1>
@@ -46,16 +15,10 @@
             </div>
         </div>
 
-        <div id="zona-filtros-busqueda"></div>
+        <div id="contenedor-buscador" class="mb-2">
+            <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
+                class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
+        </div>
+
+        <div id="zona-filtros"></div>
     </header>
-
-    <main class="p-4 min-h-[calc(100vh-140px)]">
-        <div id="contenedor-principal" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"></div>
-        <div id="contenedor-paginacion" class="flex justify-center items-center gap-1.5 mt-6 pb-8"></div>
-    </main>
-
-    <datalist id="lista-actrices"></datalist>
-
-    <script src="app.js"></script>
-</body>
-</html>
