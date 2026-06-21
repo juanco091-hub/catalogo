@@ -19,7 +19,7 @@ let actrizSeleccionada = null;
 let paginaActual = 1;
 
 let ordenAlfabeticoAsc = true; 
-let ordenRecienActualizado = true;
+let ordenRecienActualizado = true; // Por defecto inicia ordenado por novedades
 let ordenVideosEstreno = true;
 
 // Elementos del DOM
@@ -85,7 +85,7 @@ async function cargarDatosDesdeSheets() {
     }
 }
 
-// Parser CSV nativo
+// Parser CSV nativo corregido
 function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
@@ -114,7 +114,6 @@ function dividirLineaCsv(linea) {
     for (let i = 0; i < linea.length; i++) {
         const caracter = linea[i];
         if (caracter === '"') {
-            withinQuotes = !dentroDeComillas; // corrección lógica simple interna
             dentroDeComillas = !dentroDeComillas;
         } else if (caracter === ',' && !dentroDeComillas) {
             campos.push(campoActual);
@@ -157,17 +156,18 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        auxiliares.sort((a, b) => {
-            const nombreA = (a.Nombre || "").toLowerCase();
-            const nombreB = (b.Nombre || "").toLowerCase();
-            return ordenAlfabeticoAsc ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
-        });
-
-        if (!ordenAlfabeticoAsc) {
+        // Lógica de ordenamiento según el filtro activo
+        if (ordenRecienActualizado) {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
                 const fechaB = new Date(b.UltimaActualizacion || 0);
-                return ordenRecienActualizado ? fechaB - fechaA : fechaA - fechaB;
+                return fechaB - fechaA;
+            });
+        } else {
+            auxiliares.sort((a, b) => {
+                const nombreA = (a.Nombre || "").toLowerCase();
+                const nombreB = (b.Nombre || "").toLowerCase();
+                return ordenAlfabeticoAsc ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
             });
         }
 
@@ -197,18 +197,20 @@ function construirControlesSuperioresUI() {
     zonaFiltrosBusqueda.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        // Mantiene el buscador arriba y los filtros planos en una línea limpia abajo
+        // El color rojo cambia dinámicamente según el estado del filtro
+        const claseAlfabetico = !ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
+        const claseActualizado = ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
+
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex flex-col gap-2">
-                <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
-                    class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
+                <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" \n                    class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
                 
-                <div class="flex items-center gap-4 px-1 text-[11px] font-bold text-gray-400">
-                    <button id="filtro-alfabetico" class="transition-colors hover:text-red-500">
+                <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide">
+                    <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
                         <span>Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}</span>
                     </button>
                     <span class="text-gray-800">|</span>
-                    <button id="filtro-actualizado" class="transition-colors ${ordenRecienActualizado ? 'text-red-500' : 'hover:text-red-500'}">
+                    <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
                         Recién Actualizado
                     </button>
                 </div>
@@ -222,19 +224,18 @@ function construirControlesSuperioresUI() {
         });
 
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
+            ordenRecienActualizado = false; 
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Cambia entre A-Z y Z-A al presionar consecutivamente
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
 
         document.getElementById("filtro-actualizado").addEventListener("click", () => {
-            ordenRecienActualizado = !ordenRecienActualizado;
-            ordenAlfabeticoAsc = false; 
+            ordenRecienActualizado = true; 
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
     } else {
-        // Encabezado de la actriz ordenado e impecable
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
                 <div class="flex flex-col">
@@ -273,6 +274,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800/60 rounded-md p-2 flex flex-col items-center text-center cursor-pointer active:scale-95 transition-all shadow-sm";
             
+            // Generación limpia del nombre del archivo en la carpeta portadas/
             const nombreLimpio = (actriz.Nombre || "")
                 .toLowerCase()
                 .normalize("NFD")
@@ -284,7 +286,7 @@ function mostrarContenidoUI(limiteElementos) {
                 <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
                     <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Nombre}" 
                          class="w-full h-full object-cover" loading="lazy" 
-                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';\">
+                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
                 </div>
                 <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Nombre || 'Anónima'}</h3>
             `;
@@ -306,7 +308,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // Renderiza la información extraída de tus columnas nuevas si existen
+            // Renderiza la información extraída de tus columnas nuevas del Excel
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
@@ -321,7 +323,7 @@ function mostrarContenidoUI(limiteElementos) {
                     <div class="w-full aspect-video bg-gray-900 rounded-md overflow-hidden relative border border-gray-800 shadow-inner">
                         <img src="portadas/${video.Codigo || 'default'}.jpg" alt="Portada Video" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy"
-                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%231f2937\\'><rect width=\\'20\\' height=\\'14\\' x=\\'2\\' y=\\'5\\' rx=\\'2\\' stroke-width=\\'1\\'/><path stroke-width=\\'1\\' d=\\'M10 11l5 3-5 3v-6z\\'/></svg>';\">
+                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%231f2937\\'><rect width=\\'20\\' height=\\'14\\' x=\\'2\\' y=\\'5\\' rx=\\'2\\' stroke-width=\\'1\\'/><path stroke-width=\\'1\\' d=\\'M10 11l5 3-5 3v-6z\\'/></svg>';">
                         
                         <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-active:bg-black/40 transition-colors">
                             <div class="w-12 h-12 bg-red-600/90 rounded-full flex items-center justify-center shadow-2xl transform active:scale-90 transition-transform">
