@@ -15,7 +15,7 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
-        /* Animación para la franja publicitaria en movimiento */
+        /* Animación para la franja publicitaria en movimiento (Ralentizada a 25s) */
         @keyframes marquee {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
@@ -23,7 +23,7 @@
         .animacion-marquee {
             display: inline-block;
             white-space: nowrap;
-            animation: marquee 15s linear infinite;
+            animation: marquee 25s linear infinite;
         }
     </style>
 </head>
@@ -42,7 +42,7 @@
 
         <div class="w-full bg-red-950/40 border-y border-red-900/30 py-1 mb-2 overflow-hidden rounded">
             <div class="animacion-marquee text-[10px] font-black text-red-400 tracking-wide uppercase">
-                🔥 ¡Todo el contenido se puede ver en línea y descargar de forma directa! 🔥                                                            🔥 ¡Solicita tu acceso al whatsapp 983072104! 🔥
+                🔥 ¡Todo el contenido se puede ver en línea y descargar de forma directa! 🔥                                                            🔥 ¡Solicita tu acceso al whatsapp 983072104! 🔥
             </div>
         </div>
 
