@@ -19,7 +19,7 @@ let actrizSeleccionada = null;
 let paginaActual = 1;
 
 let ordenAlfabeticoAsc = true; 
-let ordenRecienActualizado = true; // Por defecto inicia ordenado por novedades
+let ordenRecienActualizado = true; // Inicia por novedades (Rojo por defecto)
 let ordenVideosEstreno = true;
 
 // Elementos del DOM
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             paginaActual = evento.state.pagina || 1;
             procesarFiltrosYRenderizado();
         } else {
-            irAInicio(false); // Regresa a la lista general sin cerrar la app
+            irAInicio(false);
         }
     });
 });
@@ -85,12 +85,12 @@ async function cargarDatosDesdeSheets() {
     }
 }
 
-// Parser CSV nativo corregido
+// Parser CSV nativo robusto
 function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
     
-    const encabezados = dividirLineaCsv(lineas[0]);
+    const encabezados = dividirLineaCsv(lineas[0]).map(h => h.trim());
     const resultado = [];
 
     for (let i = 1; i < lineas.length; i++) {
@@ -99,7 +99,7 @@ function csvAJson(textoCsv) {
         const filaObjeto = {};
         
         encabezados.forEach((encabezado, indice) => {
-            filaObjeto[encabezado.trim()] = valores[indice] ? valores[indice].trim() : "";
+            filaObjeto[encabezado] = valores[indice] ? valores[indice].trim() : "";
         });
         resultado.push(filaObjeto);
     }
@@ -129,9 +129,10 @@ function dividirLineaCsv(linea) {
 function actualizarDatalistSugerencias() {
     datalistActrices.innerHTML = "";
     BD_ACTRICES.forEach(actriz => {
-        if (actriz.Nombre) {
+        // CORREGIDO: Se usa 'Actriz' en lugar de 'Nombre'
+        if (actriz.Actriz) {
             const option = document.createElement("option");
-            option.value = actriz.Nombre;
+            option.value = actriz.Actriz;
             datalistActrices.appendChild(option);
         }
     });
@@ -152,11 +153,11 @@ function procesarFiltrosYRenderizado() {
 
         if (terminoBusqueda) {
             auxiliares = auxiliares.filter(actriz => 
-                actriz.Nombre && actriz.Nombre.toLowerCase().includes(terminoBusqueda)
+                actriz.Actriz && actriz.Actriz.toLowerCase().includes(terminoBusqueda)
             );
         }
 
-        // Lógica de ordenamiento según el filtro activo
+        // Lógica de ordenamiento corregida para coincidir con tus filtros visuales
         if (ordenRecienActualizado) {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
@@ -165,8 +166,8 @@ function procesarFiltrosYRenderizado() {
             });
         } else {
             auxiliares.sort((a, b) => {
-                const nombreA = (a.Nombre || "").toLowerCase();
-                const nombreB = (b.Nombre || "").toLowerCase();
+                const nombreA = (a.Actriz || "").toLowerCase();
+                const nombreB = (b.Actriz || "").toLowerCase();
                 return ordenAlfabeticoAsc ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
             });
         }
@@ -197,19 +198,20 @@ function construirControlesSuperioresUI() {
     zonaFiltrosBusqueda.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        // El color rojo cambia dinámicamente según el estado del filtro
+        // CORREGIDO: El color cambia a rojo dinámicamente según el filtro activo
         const claseAlfabetico = !ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
         const claseActualizado = ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex flex-col gap-2">
-                <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" \n                    class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
+                <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
+                    class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
                 
                 <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide">
                     <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
                         <span>Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}</span>
                     </button>
-                    <span class="text-gray-800">|</span>
+                    <span class="text-gray-700">|</span>
                     <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
                         Recién Actualizado
                     </button>
@@ -225,7 +227,7 @@ function construirControlesSuperioresUI() {
 
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
             ordenRecienActualizado = false; 
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Cambia entre A-Z y Z-A al presionar consecutivamente
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
@@ -274,8 +276,8 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800/60 rounded-md p-2 flex flex-col items-center text-center cursor-pointer active:scale-95 transition-all shadow-sm";
             
-            // Generación limpia del nombre del archivo en la carpeta portadas/
-            const nombreLimpio = (actriz.Nombre || "")
+            // CORREGIDO: Se genera el nombre usando la columna real 'Actriz'
+            const nombreLimpio = (actriz.Actriz || "")
                 .toLowerCase()
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
@@ -284,19 +286,18 @@ function mostrarContenidoUI(limiteElementos) {
 
             tarjeta.innerHTML = `
                 <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
-                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Nombre}" 
+                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
                          class="w-full h-full object-cover" loading="lazy" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
                 </div>
-                <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Nombre || 'Anónima'}</h3>
+                <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Actriz || 'Anónima'}</h3>
             `;
             
             tarjeta.addEventListener("click", () => {
-                actrizSeleccionada = actriz.Nombre;
+                actrizSeleccionada = actriz.Actriz;
                 vistaActual = "videos";
                 paginaActual = 1;
                 
-                // Agrega estado al historial para capturar el botón atrás físico de Android
                 history.pushState({ vista: "videos", actriz: actrizSeleccionada, pagina: 1 }, "", `?actriz=${nombreLimpio}`);
                 
                 procesarFiltrosYRenderizado();
@@ -308,7 +309,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // Renderiza la información extraída de tus columnas nuevas del Excel
+            // CORREGIDO: Extrae de forma limpia 'Formato', 'Resolucion' y 'Tamano' del CSV mapeado
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
@@ -359,7 +360,7 @@ function construirPaginacionUI(limiteElementos) {
             paginaActual = i;
             
             if (vistaActual === "videos") {
-                history.replaceState({ vista: "videos", actriz: actrizSeleccionada, pagina: paginaActual }, "", `?actriz=${actrizSeleccionada.toLowerCase().replace(/\s+/g, "_")}&p=${i}`);
+                history.replaceState({ vista: "videos", actress: actrizSeleccionada, pagina: paginaActual }, "", `?actriz=${actrizSeleccionada.toLowerCase().replace(/\s+/g, "_")}&p=${i}`);
             }
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
