@@ -2,6 +2,7 @@
 // CONFIGURACIÓN GLOBAL
 // ==========================================
 const CONFIG = {
+    subtituloEstado: "(Todo el contenido se puede ver en línea y descargar)",
     urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=0&single=true&output=csv",
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
@@ -17,7 +18,6 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-// Ajustado exactamente a cómo iniciaba tu app original
 let ordenAlfabeticoAsc = true; 
 let ordenRecienActualizado = false; 
 let ordenVideosEstreno = true;
@@ -39,15 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
         irAInicio();
     });
 
-    // CAPTURA EL BOTÓN FÍSICO "ATRÁS" DE ANDROID
+    // CORRECCIÓN CRÍTICA PARA CELULARES: Validación segura del objeto state
     window.addEventListener("popstate", (evento) => {
-        if (evento.state && evento.state.vista === "videos") {
+        if (evento && evento.state && evento.state.vista === "videos") {
             actrizSeleccionada = evento.state.actriz;
             vistaActual = "videos";
             paginaActual = evento.state.pagina || 1;
             procesarFiltrosYRenderizado();
         } else {
-            irAInicio(false); // Regresa al inicio de forma segura sin salirse de la web
+            irAInicio(false); 
         }
     });
 });
@@ -76,7 +76,7 @@ async function cargarDatosDesdeSheets() {
 
         actualizarDatalistSugerencias();
         
-        // Inicializa el estado base del navegador
+        // Inicializa de forma segura el historial en dispositivos móviles
         history.replaceState({ vista: "inicio" }, "", " ");
         
         procesarFiltrosYRenderizado();
@@ -85,7 +85,7 @@ async function cargarDatosDesdeSheets() {
     }
 }
 
-// Tu función original exacta para procesar el CSV
+// Tu función original exacta (procesamiento nativo de la ñ y Tamano)
 function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
@@ -95,7 +95,7 @@ function csvAJson(textoCsv) {
          .replace(/^"|"$/g, '')
          .normalize("NFD")
          .replace(/[\u0300-\u036f]/g, "")
-         .replace(/ñ/g, "n") // Esto hace que 'Tamano' sea procesado correctamente
+         .replace(/ñ/g, "n")
     );
     
     const resultado = [];
@@ -162,7 +162,6 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        // Tu lógica original de ordenamiento cruzada corregida
         if (ordenRecienActualizado) {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
@@ -188,7 +187,7 @@ function procesarFiltrosYRenderizado() {
         auxiliares.sort((a, b) => {
             const fechaA = new Date(a.FechaEstreno || 0);
             const fechaB = new Date(b.FechaEstreno || 0);
-            return ordenVideosEstreno ? fechaB - fechaA : fechaA - fechaB;
+            return fechaB - fechaA;
         });
 
         datosFiltrados = auxiliares;
@@ -203,7 +202,6 @@ function construirControlesSuperioresUI() {
     zonaFiltrosBusqueda.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        // CAMBIO DE COLOR EN TIEMPO REAL: Se pinta de rojo únicamente el botón que está activo
         const claseAlfabetico = !ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
         const claseActualizado = ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
@@ -225,7 +223,6 @@ function construirControlesSuperioresUI() {
         `;
 
         const buscador = document.getElementById("buscador-actriz");
-        buscador.value = (datosFiltrados === BD_ACTRICES || !BuscadorInput) ? "" : buscador.value;
         
         buscador.addEventListener("input", () => {
             paginaActual = 1;
@@ -234,7 +231,7 @@ function construirControlesSuperioresUI() {
 
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
             ordenRecienActualizado = false; 
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Cambia la dirección si se vuelve a pulsar
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
@@ -283,7 +280,6 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800/60 rounded-md p-2 flex flex-col items-center text-center cursor-pointer active:scale-95 transition-all shadow-sm";
             
-            // Lógica original exacta para resolver tus fotos locales de GitHub
             const nombreLimpio = (actriz.Actriz || "")
                 .toLowerCase()
                 .normalize("NFD")
@@ -293,8 +289,7 @@ function mostrarContenidoUI(limiteElementos) {
 
             tarjeta.innerHTML = `
                 <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
-                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
-                         class="w-full h-full object-cover" loading="lazy" 
+                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" \n                         class="w-full h-full object-cover" loading="lazy" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
                 </div>
                 <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Actriz || 'Anónima'}</h3>
@@ -305,7 +300,6 @@ function mostrarContenidoUI(limiteElementos) {
                 vistaActual = "videos";
                 paginaActual = 1;
                 
-                // Registra en el historial para Android
                 history.pushState({ vista: "videos", actriz: actrizSeleccionada, pagina: 1 }, "", `?actriz=${nombreLimpio}`);
                 
                 procesarFiltrosYRenderizado();
@@ -317,7 +311,6 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // UNIFICACIÓN DE DETALLES TÉCNICOS SOLICITADOS
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
