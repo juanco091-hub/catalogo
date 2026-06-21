@@ -2,7 +2,6 @@
 // CONFIGURACIÓN GLOBAL
 // ==========================================
 const CONFIG = {
-    // ENLACES DE TU GOOGLE SHEETS EN FORMATO CSV
     urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=0&single=true&output=csv",
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
@@ -18,8 +17,9 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
+// Ajustado exactamente a cómo iniciaba tu app original
 let ordenAlfabeticoAsc = true; 
-let ordenRecienActualizado = true; // Inicia por novedades (Rojo por defecto)
+let ordenRecienActualizado = false; 
 let ordenVideosEstreno = true;
 
 // Elementos del DOM
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         irAInicio();
     });
 
-    // CONTROL DEL BOTÓN "ATRÁS" DE ANDROID (HISTORIAL)
+    // CAPTURA EL BOTÓN FÍSICO "ATRÁS" DE ANDROID
     window.addEventListener("popstate", (evento) => {
         if (evento.state && evento.state.vista === "videos") {
             actrizSeleccionada = evento.state.actriz;
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             paginaActual = evento.state.pagina || 1;
             procesarFiltrosYRenderizado();
         } else {
-            irAInicio(false);
+            irAInicio(false); // Regresa al inicio de forma segura sin salirse de la web
         }
     });
 });
@@ -76,60 +76,65 @@ async function cargarDatosDesdeSheets() {
 
         actualizarDatalistSugerencias();
         
-        // Inicializar historial
+        // Inicializa el estado base del navegador
         history.replaceState({ vista: "inicio" }, "", " ");
         
         procesarFiltrosYRenderizado();
     } catch (error) {
-        contenedorPrincipal.innerHTML = `<p class="col-span-2 text-center text-red-500 font-bold py-8 text-sm">Error cargando el catálogo.</p>`;
+        contenedorPrincipal.innerHTML = `<p class="col-span-2 text-center text-red-500 font-bold py-8 text-sm">Error cargando los datos.</p>`;
     }
 }
 
-// Parser CSV nativo robusto
+// Tu función original exacta para procesar el CSV
 function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
     
-    const encabezados = dividirLineaCsv(lineas[0]).map(h => h.trim());
+    const encabezados = lineas[0].split(',').map(h => 
+        h.trim()
+         .replace(/^"|"$/g, '')
+         .normalize("NFD")
+         .replace(/[\u0300-\u036f]/g, "")
+         .replace(/ñ/g, "n") // Esto hace que 'Tamano' sea procesado correctamente
+    );
+    
     const resultado = [];
 
     for (let i = 1; i < lineas.length; i++) {
         if (!lineas[i].trim()) continue;
-        const valores = dividirLineaCsv(lineas[i]);
-        const filaObjeto = {};
         
+        const valores = [];
+        let dentroDeComillas = false;
+        let valorActual = "";
+        const linea = lineas[i];
+
+        for (let j = 0; j < linea.length; j++) {
+            const caracter = linea[j];
+            if (caracter === '"') {
+                dentroDeComillas = !dentroDeComillas;
+            } else if (caracter === ',' && !dentroDeComillas) {
+                valores.push(valorActual);
+                valorActual = "";
+            } else {
+                valorActual += caracter;
+            }
+        }
+        valores.push(valorActual);
+
+        const filaObjeto = {};
         encabezados.forEach((encabezado, indice) => {
-            filaObjeto[encabezado] = valores[indice] ? valores[indice].trim() : "";
+            let val = valores[indice] ? valores[indice].trim() : "";
+            filaObjeto[encabezado] = val.replace(/^"|"$/g, '');
         });
+        
         resultado.push(filaObjeto);
     }
     return resultado;
 }
 
-function dividirLineaCsv(linea) {
-    const campos = [];
-    let dentroDeComillas = false;
-    let campoActual = "";
-
-    for (let i = 0; i < linea.length; i++) {
-        const caracter = linea[i];
-        if (caracter === '"') {
-            dentroDeComillas = !dentroDeComillas;
-        } else if (caracter === ',' && !dentroDeComillas) {
-            campos.push(campoActual);
-            campoActual = "";
-        } else {
-            campoActual += caracter;
-        }
-    }
-    campos.push(campoActual);
-    return campos.map(c => c.replace(/^"|"$/g, ''));
-}
-
 function actualizarDatalistSugerencias() {
     datalistActrices.innerHTML = "";
     BD_ACTRICES.forEach(actriz => {
-        // CORREGIDO: Se usa 'Actriz' en lugar de 'Nombre'
         if (actriz.Actriz) {
             const option = document.createElement("option");
             option.value = actriz.Actriz;
@@ -157,7 +162,7 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        // Lógica de ordenamiento corregida para coincidir con tus filtros visuales
+        // Tu lógica original de ordenamiento cruzada corregida
         if (ordenRecienActualizado) {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
@@ -198,7 +203,7 @@ function construirControlesSuperioresUI() {
     zonaFiltrosBusqueda.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        // CORREGIDO: El color cambia a rojo dinámicamente según el filtro activo
+        // CAMBIO DE COLOR EN TIEMPO REAL: Se pinta de rojo únicamente el botón que está activo
         const claseAlfabetico = !ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
         const claseActualizado = ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
@@ -220,6 +225,8 @@ function construirControlesSuperioresUI() {
         `;
 
         const buscador = document.getElementById("buscador-actriz");
+        buscador.value = (datosFiltrados === BD_ACTRICES || !BuscadorInput) ? "" : buscador.value;
+        
         buscador.addEventListener("input", () => {
             paginaActual = 1;
             procesarFiltrosYRenderizado();
@@ -227,7 +234,7 @@ function construirControlesSuperioresUI() {
 
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
             ordenRecienActualizado = false; 
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
+            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Cambia la dirección si se vuelve a pulsar
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
@@ -276,7 +283,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800/60 rounded-md p-2 flex flex-col items-center text-center cursor-pointer active:scale-95 transition-all shadow-sm";
             
-            // CORREGIDO: Se genera el nombre usando la columna real 'Actriz'
+            // Lógica original exacta para resolver tus fotos locales de GitHub
             const nombreLimpio = (actriz.Actriz || "")
                 .toLowerCase()
                 .normalize("NFD")
@@ -298,6 +305,7 @@ function mostrarContenidoUI(limiteElementos) {
                 vistaActual = "videos";
                 paginaActual = 1;
                 
+                // Registra en el historial para Android
                 history.pushState({ vista: "videos", actriz: actrizSeleccionada, pagina: 1 }, "", `?actriz=${nombreLimpio}`);
                 
                 procesarFiltrosYRenderizado();
@@ -309,7 +317,7 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // CORREGIDO: Extrae de forma limpia 'Formato', 'Resolucion' y 'Tamano' del CSV mapeado
+            // UNIFICACIÓN DE DETALLES TÉCNICOS SOLICITADOS
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
@@ -360,7 +368,7 @@ function construirPaginacionUI(limiteElementos) {
             paginaActual = i;
             
             if (vistaActual === "videos") {
-                history.replaceState({ vista: "videos", actress: actrizSeleccionada, pagina: paginaActual }, "", `?actriz=${actrizSeleccionada.toLowerCase().replace(/\s+/g, "_")}&p=${i}`);
+                history.replaceState({ vista: "videos", actriz: actrizSeleccionada, pagina: paginaActual }, "", `?actriz=${actrizSeleccionada.toLowerCase().replace(/\s+/g, "_")}&p=${i}`);
             }
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
