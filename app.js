@@ -225,8 +225,8 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
             <select id="select-filtro-inicio" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
                 <option value="reciente">▼ Recién Actualizado</option>
                 <option value="antiguo">▲ Más Antiguos</option>
-                <option value="az">▲ Ordenar A-Z</option>
-                <option value="za">▼ Ordenar Z-A</option>
+                <option value="az">▲ Alfabético A-Z</option>
+                <option value="za">▼ Alfabético Z-A</option>
             </select>
         </div>
     `;
