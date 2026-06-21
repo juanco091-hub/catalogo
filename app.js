@@ -18,14 +18,20 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-let ordenAlfabeticoAsc = true; 
-let ordenRecienActualizado = false; 
-let ordenVideosEstreno = true;
+// Control de Filtros - Página Principal
+let tipoOrdenInicio = "alfabetico"; // "alfabetico" o "actualizacion"
+let ordenAlfabeticoAsc = true;       // true: A-Z, false: Z-A
+let ordenRecienActualizado = true;   // true: Recién Actualizado, false: Más Antiguos
+
+// Control de Filtros - Página de Actriz
+let criterioFechaVideos = "estreno"; // "estreno" o "subida"
 
 // Elementos del DOM
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
-const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
+const contenedorBuscador = document.getElementById("contenedor-buscador");
+const buscadorInput = document.getElementById("buscador-actriz");
+const zonaFiltros = document.getElementById("zona-filtros");
 const datalistActrices = document.getElementById("lista-actrices");
 const btnInicio = document.getElementById("btn-inicio");
 
@@ -35,11 +41,16 @@ const btnInicio = document.getElementById("btn-inicio");
 document.addEventListener("DOMContentLoaded", () => {
     cargarDatosDesdeSheets();
     
+    // Escuchar el buscador permanentemente sin reconstruir el nodo
+    buscadorInput.addEventListener("input", () => {
+        paginaActual = 1;
+        procesarFiltrosYRenderizado();
+    });
+
     btnInicio.addEventListener("click", () => {
         irAInicio();
     });
 
-    // CORRECCIÓN CRÍTICA PARA CELULARES: Validación segura del objeto state
     window.addEventListener("popstate", (evento) => {
         if (evento && evento.state && evento.state.vista === "videos") {
             actrizSeleccionada = evento.state.actriz;
@@ -56,6 +67,7 @@ function irAInicio(registrarHistorial = true) {
     vistaActual = "inicio";
     actrizSeleccionada = null;
     paginaActual = 1;
+    buscadorInput.value = ""; // Limpiar buscador al volver al inicio
     
     if (registrarHistorial) {
         history.pushState({ vista: "inicio" }, "", " ");
@@ -76,7 +88,6 @@ async function cargarDatosDesdeSheets() {
 
         actualizarDatalistSugerencias();
         
-        // Inicializa de forma segura el historial en dispositivos móviles
         history.replaceState({ vista: "inicio" }, "", " ");
         
         procesarFiltrosYRenderizado();
@@ -85,7 +96,6 @@ async function cargarDatosDesdeSheets() {
     }
 }
 
-// Tu función original exacta (procesamiento nativo de la ñ y Tamano)
 function csvAJson(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
@@ -147,14 +157,14 @@ function actualizarDatalistSugerencias() {
 // CONTROL DE FILTROS Y PROCESAMIENTO
 // ==========================================
 function procesarFiltrosYRenderizado() {
-    construirControlesSuperioresUI();
+    construirControlesFiltrosUI();
 
     if (vistaActual === "inicio") {
+        contenedorBuscador.style.display = "block"; // Mostrar buscador en el inicio
         contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
+        
         let auxiliares = [...BD_ACTRICES];
-
-        const BuscadorInput = document.getElementById("buscador-actriz");
-        const terminoBusqueda = BuscadorInput ? BuscadorInput.value.toLowerCase().trim() : "";
+        const terminoBusqueda = buscadorInput.value.toLowerCase().trim();
 
         if (terminoBusqueda) {
             auxiliares = auxiliares.filter(actriz => 
@@ -162,11 +172,12 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        if (ordenRecienActualizado) {
+        // Lógica de ordenamiento según el filtro activo de la Página Principal
+        if (tipoOrdenInicio === "actualizacion") {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
                 const fechaB = new Date(b.UltimaActualizacion || 0);
-                return fechaB - fechaA;
+                return ordenRecienActualizado ? fechaB - fechaA : fechaA - fechaB;
             });
         } else {
             auxiliares.sort((a, b) => {
@@ -179,15 +190,20 @@ function procesarFiltrosYRenderizado() {
         datosFiltrados = auxiliares;
         mostrarContenidoUI(20);
     } else {
+        contenedorBuscador.style.display = "none"; // Ocultar buscador en la página de la actriz
         contenedorPrincipal.className = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3";
+        
         let auxiliares = BD_VIDEOS.filter(video => 
             video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
         );
 
+        // Lógica de ordenamiento por las columnas exactas del excel mapeadas sin acentos:
+        // "Fecha de estreno" -> FechaEstreno  ||  "Fecha de Subida" -> FechaDeSubida
         auxiliares.sort((a, b) => {
-            const fechaA = new Date(a.FechaEstreno || 0);
-            const fechaB = new Date(b.FechaEstreno || 0);
-            return fechaB - fechaA;
+            const campoFecha = criterioFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaDeSubida || 0);
+            const campoFechaB = criterioFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaDeSubida || 0);
+            
+            return new Date(campoFechaB) - new Date(campoFecha);
         });
 
         datosFiltrados = auxiliares;
@@ -198,64 +214,61 @@ function procesarFiltrosYRenderizado() {
 // ==========================================
 // CONSTRUCCIÓN DE LA INTERFAZ DE USUARIO (UI)
 // ==========================================
-function construirControlesSuperioresUI() {
-    zonaFiltrosBusqueda.innerHTML = "";
+function construirControlesFiltrosUI() {
+    zonaFiltros.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        const claseAlfabetico = !ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
-        const claseActualizado = ordenRecienActualizado ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
+        // Asignar colores rojos basados en cuál de los dos filtros está activo globalmente
+        const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
+        const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
-        zonaFiltrosBusqueda.innerHTML = `
-            <div class="flex flex-col gap-2">
-                <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
-                    class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200">
-                
-                <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide">
-                    <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
-                        <span>Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}</span>
-                    </button>
-                    <span class="text-gray-700">|</span>
-                    <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
-                        Recién Actualizado
-                    </button>
-                </div>
+        zonaFiltros.innerHTML = `
+            <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide pt-1">
+                <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
+                    <span>Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}</span>
+                </button>
+                <span class="text-gray-700">|</span>
+                <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
+                    <span>${ordenRecienActualizado ? 'Recién Actualizado' : 'Más Antiguos'}</span>
+                </button>
             </div>
         `;
 
-        const buscador = document.getElementById("buscador-actriz");
-        
-        buscador.addEventListener("input", () => {
-            paginaActual = 1;
-            procesarFiltrosYRenderizado();
-        });
-
+        // Eventos independientes para cambiar y alternar estados internos
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
-            ordenRecienActualizado = false; 
-            ordenAlfabeticoAsc = !ordenAlfabeticoAsc; 
+            if (tipoOrdenInicio === "alfabetico") {
+                ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Alterna dirección si ya estaba activo
+            } else {
+                tipoOrdenInicio = "alfabetico"; // Activa este filtro
+            }
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
 
         document.getElementById("filtro-actualizado").addEventListener("click", () => {
-            ordenRecienActualizado = true; 
+            if (tipoOrdenInicio === "actualizacion") {
+                ordenRecienActualizado = !ordenRecienActualizado; // Alterna dirección si ya estaba activo
+            } else {
+                tipoOrdenInicio = "actualizacion"; // Activa este filtro
+            }
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
     } else {
-        zonaFiltrosBusqueda.innerHTML = `
+        // Vista de Actriz personalizada: Texto más grande, sin redundancias y filtro por tipo de fecha
+        zonaFiltros.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
                 <div class="flex flex-col">
-                    <span class="text-[9px] text-red-500 font-bold uppercase tracking-wider">Actriz Seleccionada</span>
-                    <h2 class="text-base font-black text-white leading-tight">${actrizSeleccionada}</h2>
+                    <h2 class="text-xl font-black text-white leading-tight tracking-tight">${actrizSeleccionada}</h2>
                 </div>
-                <button id="filtro-videos-fecha" class="text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors">
-                    Ordenar: ${ordenVideosEstreno ? 'Recientes' : 'Antiguos'}
+                <button id="filtro-videos-fecha" class="text-[11px] font-black text-red-500 bg-gray-950 border border-gray-800 px-2 py-1 rounded transition-colors hover:border-red-600">
+                    Ordenar: ${criterioFechaVideos === 'estreno' ? 'Fecha de estreno' : 'Fecha de Subida'}
                 </button>
             </div>
         `;
 
         document.getElementById("filtro-videos-fecha").addEventListener("click", () => {
-            ordenVideosEstreno = !ordenVideosEstreno;
+            criterioFechaVideos = criterioFechaVideos === "estreno" ? "subida" : "estreno";
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
@@ -289,7 +302,8 @@ function mostrarContenidoUI(limiteElementos) {
 
             tarjeta.innerHTML = `
                 <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
-                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" \n                         class="w-full h-full object-cover" loading="lazy" 
+                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
+                         class="w-full h-full object-cover" loading="lazy" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
                 </div>
                 <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Actriz || 'Anónima'}</h3>
@@ -311,14 +325,15 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
+            // Eliminada la clase global uppercase. Solo el Código va forzado en mayúsculas mediante un span interno.
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
                 : '';
 
             tarjeta.innerHTML = `
-                <h3 class="font-mono text-red-500 font-black text-xs tracking-wide uppercase">
-                    [${video.Codigo || 'SIN CÓDIGO'}]${textoDetalles}
+                <h3 class="font-mono text-red-500 font-black text-xs tracking-wide">
+                    <span class="uppercase">[${video.Codigo || 'SIN CÓDIGO'}]</span>${textoDetalles}
                 </h3>
                 
                 <a href="${video.URL || '#'}" target="_blank" class="block group w-full">
