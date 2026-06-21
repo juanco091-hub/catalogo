@@ -220,23 +220,34 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 
     document.getElementById("filtro-alfabetico").addEventListener("click", () => {
         if (tipoOrdenInicio === "alfabetico") {
+            // Si ya estaba en alfabético, alternamos su dirección (A-Z <-> Z-A)
             ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
         } else {
+            // Si veníamos de otro filtro, cambiamos a alfabético 
             tipoOrdenInicio = "alfabetico";
+            // OPCIONAL: Fuerza a que siempre inicie en A-Z al cambiar de filtro
+            // ordenAlfabeticoAsc = true; 
         }
+        
+        // Al alternar el filtro, reiniciamos la paginación y actualizamos todo
         paginaActual = 1;
-        construirControlesSuperioresUI();
+        construirControlesSuperioresUI(true); // Forzamos reconstrucción para reflejar textos exactos
         procesarFiltrosYRenderizado();
     });
 
     document.getElementById("filtro-actualizado").addEventListener("click", () => {
         if (tipoOrdenInicio === "actualizacion") {
+            // Si ya estaba en actualización, alternamos su dirección (Recientes <-> Antiguos)
             ordenRecienActualizado = !ordenRecienActualizado;
         } else {
+            // Si veníamos de otro filtro, cambiamos a actualización
             tipoOrdenInicio = "actualizacion";
+            // OPCIONAL: Fuerza a que siempre inicie en Recién Actualizado al cambiar de filtro
+            // ordenRecienActualizado = true;
         }
+        
         paginaActual = 1;
-        construirControlesSuperioresUI();
+        construirControlesSuperioresUI(true); // Forzamos reconstrucción para reflejar textos exactos
         procesarFiltrosYRenderizado();
     });
 }
