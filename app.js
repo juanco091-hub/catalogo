@@ -183,10 +183,10 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         
         if (btnAlfa && btnActu) {
             btnAlfa.className = `transition-colors ${tipoOrdenInicio === "alfabetico" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
-            btnAlfa.querySelector("span").textContent = `Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}`;
+            btnAlfa.querySelector("span").textContent = `${ordenAlfabeticoAsc ? '▲ Ordenar A-Z' : '▼ Ordenar Z-A'}`;
             
             btnActu.className = `transition-colors ${tipoOrdenInicio === "actualizacion" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
-            btnActu.querySelector("span").textContent = ordenRecienActualizado ? 'Recién Actualizado' : 'Más Antiguos';
+            btnActu.querySelector("span").textContent = ordenRecienActualizado ? '▼ Recién Actualizado' : '▲ Más Antiguos';
         }
         return;
     }
