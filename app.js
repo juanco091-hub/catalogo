@@ -182,17 +182,17 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         const btnActu = document.getElementById("filtro-actualizado");
         
         if (btnAlfa && btnActu) {
-            btnAlfa.className = `transition-colors ${tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold'}`;
+            btnAlfa.className = `transition-colors ${tipoOrdenInicio === "alfabetico" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
             btnAlfa.querySelector("span").textContent = `Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}`;
             
-            btnActu.className = `transition-colors ${tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold'}`;
+            btnActu.className = `transition-colors ${tipoOrdenInicio === "actualizacion" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
             btnActu.querySelector("span").textContent = ordenRecienActualizado ? 'Recién Actualizado' : 'Más Antiguos';
         }
         return;
     }
 
-    const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
-    const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
+    const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-white font-black' : 'text-gray-400 font-bold';
+    const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-white font-black' : 'text-gray-400 font-bold';
 
     zonaFiltrosBusqueda.innerHTML = `
         <div id="contenedor-input-buscador" class="mb-2">
@@ -202,11 +202,11 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         </div>
         <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide pt-1">
             <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
-                <span>Ordenar ${ordenAlfabeticoAsc ? 'A-Z' : 'Z-A'}</span>
+                <span>${ordenAlfabeticoAsc ? '▲ Ordenar A-Z' : '▼ Ordenar Z-A'}</span>
             </button>
             <span class="text-gray-700">|</span>
             <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
-                <span>${ordenRecienActualizado ? 'Recién Actualizado' : 'Más Antiguos'}</span>
+                <span>${ordenRecienActualizado ? '▼ Recién Actualizado' : '▲ Más Antiguos'}</span>
             </button>
         </div>
     `;
