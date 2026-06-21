@@ -18,12 +18,10 @@ let vistaActual = "inicio";
 let actrizSeleccionada = null;
 let paginaActual = 1;
 
-// Control de Filtros - Página Principal (Estados independientes)
-let tipoOrdenInicio = "alfabetico"; // "alfabetico" o "actualizacion"
-let ordenAlfabeticoAsc = true;       // true: A-Z, false: Z-A
-let ordenRecienActualizado = true;   // true: Recién Actualizado, false: Más Antiguos
+// Control de Filtro Único para la Página Principal (Por defecto: recién actualizado)
+let filtroSelectInicio = "reciente"; // Valores posibles: "reciente", "antiguo", "az", "za"
 
-// Control de Filtros - Página de Actriz (Alterna criterios de fecha)
+// Control de Filtros - Página de Actriz
 let criterionFechaVideos = "estreno"; // "estreno" o "subida"
 
 // Elementos fijos del DOM original
@@ -33,7 +31,6 @@ const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
 const datalistActrices = document.getElementById("lista-actrices");
 const btnInicio = document.getElementById("btn-inicio");
 
-// Variable global para retener el texto del buscador y evitar perder el foco
 let textoBuscadoGuardado = "";
 
 // ==========================================
@@ -47,11 +44,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.addEventListener("popstate", (evento) => {
-        if (evento && evento.state && evento.state.vista === "videos") {
-            actrizSeleccionada = evento.state.actriz;
-            vistaActual = "videos";
+        if (evento && evento.state) {
+            vistaActual = evento.state.vista || "inicio";
             paginaActual = evento.state.pagina || 1;
-            procesarFiltrosYRenderizado();
+            textoBuscadoGuardado = evento.state.busqueda || "";
+            
+            if (vistaActual === "videos") {
+                actrizSeleccionada = evento.state.actriz;
+                criterionFechaVideos = evento.state.criterionFecha || "estreno";
+            } else {
+                actrizSeleccionada = null;
+                filtroSelectInicio = evento.state.filtro || "reciente";
+            }
+            
+            construirControlesSuperioresUI(true);
+            procesarFiltrosYRenderizado(false);
         } else {
             irAInicio(false); 
         }
@@ -63,13 +70,19 @@ function irAInicio(registrarHistorial = true) {
     actrizSeleccionada = null;
     paginaActual = 1;
     textoBuscadoGuardado = ""; 
+    filtroSelectInicio = "reciente"; // Siempre vuelve al valor por defecto al hacer clic en INICIO
     
     if (registrarHistorial) {
-        history.pushState({ vista: "inicio" }, "", " ");
+        history.pushState({ 
+            vista: "inicio", 
+            pagina: paginaActual, 
+            filtro: filtroSelectInicio, 
+            busqueda: textoBuscadoGuardado 
+        }, "", " ");
     }
     
     construirControlesSuperioresUI(true);
-    procesarFiltrosYRenderizado();
+    procesarFiltrosYRenderizado(false);
 }
 
 async function cargarDatosDesdeSheets() {
@@ -83,10 +96,17 @@ async function cargarDatosDesdeSheets() {
         BD_VIDEOS = csvAJson(respuestaVideos);
 
         actualizarDatalistSugerencias();
-        history.replaceState({ vista: "inicio" }, "", " ");
+        
+        // Estado inicial de la app guardado en el historial
+        history.replaceState({ 
+            vista: "inicio", 
+            pagina: paginaActual, 
+            filtro: filtroSelectInicio, 
+            busqueda: textoBuscadoGuardado 
+        }, "", " ");
         
         construirControlesSuperioresUI(true);
-        procesarFiltrosYRenderizado();
+        procesarFiltrosYRenderizado(false);
     } catch (error) {
         contenedorPrincipal.innerHTML = `<p class="col-span-2 text-center text-red-500 font-bold py-8 text-sm">Error cargando los datos.</p>`;
     }
@@ -153,7 +173,6 @@ function actualizarDatalistSugerencias() {
 // CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
 // ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
-    // VISTA DE LA ACTRIZ (Estilo de filtro unificado sin bordes y en color rojo)
     if (vistaActual === "videos") {
         zonaFiltrosBusqueda.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
@@ -168,31 +187,32 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 
         document.getElementById("filtro-videos-fecha").addEventListener("click", () => {
             criterionFechaVideos = criterionFechaVideos === "estreno" ? "subida" : "estreno";
+            
+            // Actualizar el historial al cambiar filtro de videos
+            const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
+            history.replaceState({ 
+                vista: "videos", 
+                actriz: actrizSeleccionada, 
+                pagina: paginaActual, 
+                criterionFecha: criterionFechaVideos 
+            }, "", `?actriz=${nombreLimpio}&p=${paginaActual}`);
+            
             construirControlesSuperioresUI();
-            procesarFiltrosYRenderizado();
+            procesarFiltrosYRenderizado(false);
         });
         return;
     }
 
-    // VISTA DE INICIO
+    // VISTA DE INICIO (Con la lista desplegable solicitada)
     const buscadorExiste = document.getElementById("buscador-actriz");
     
     if (buscadorExiste && !forzarReconstruccionCompleta) {
-        const btnAlfa = document.getElementById("filtro-alfabetico");
-        const btnActu = document.getElementById("filtro-actualizado");
-        
-        if (btnAlfa && btnActu) {
-            btnAlfa.className = `transition-colors ${tipoOrdenInicio === "alfabetico" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
-            btnAlfa.querySelector("span").textContent = `${ordenAlfabeticoAsc ? '▲ Ordenar A-Z' : '▼ Ordenar Z-A'}`;
-            
-            btnActu.className = `transition-colors ${tipoOrdenInicio === "actualizacion" ? 'text-white font-black' : 'text-gray-400 font-bold'}`;
-            btnActu.querySelector("span").textContent = ordenRecienActualizado ? '▼ Recién Actualizado' : '▲ Más Antiguos';
+        const selectFiltro = document.getElementById("select-filtro-inicio");
+        if (selectFiltro) {
+            selectFiltro.value = filtroSelectInicio;
         }
         return;
     }
-
-    const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-white font-black' : 'text-gray-400 font-bold';
-    const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-white font-black' : 'text-gray-400 font-bold';
 
     zonaFiltrosBusqueda.innerHTML = `
         <div id="contenedor-input-buscador" class="mb-2">
@@ -200,14 +220,14 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
                 class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200"
                 value="${textoBuscadoGuardado}">
         </div>
-        <div class="flex items-center gap-4 px-1 text-[11px] tracking-wide pt-1">
-            <button id="filtro-alfabetico" class="transition-colors ${claseAlfabetico}">
-                <span>${ordenAlfabeticoAsc ? '▲ Ordenar A-Z' : '▼ Ordenar Z-A'}</span>
-            </button>
-            <span class="text-gray-700">|</span>
-            <button id="filtro-actualizado" class="transition-colors ${claseActualizado}">
-                <span>${ordenRecienActualizado ? '▼ Recién Actualizado' : '▲ Más Antiguos'}</span>
-            </button>
+        <div class="flex items-center gap-2 px-1 text-[11px] tracking-wide pt-1 text-gray-400">
+            <label for="select-filtro-inicio" class="font-bold shrink-0">Ordenar por:</label>
+            <select id="select-filtro-inicio" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
+                <option value="reciente">▼ Recién Actualizado</option>
+                <option value="antiguo">▲ Más Antiguos</option>
+                <option value="az">▲ Ordenar A-Z</option>
+                <option value="za">▼ Ordenar Z-A</option>
+            </select>
         </div>
     `;
 
@@ -215,40 +235,23 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     inputBuscador.addEventListener("input", (e) => {
         textoBuscadoGuardado = e.target.value;
         paginaActual = 1;
-        procesarFiltrosYRenderizado();
+        procesarFiltrosYRenderizado(true); // Guarda en el historial el cambio de búsqueda
     });
 
-    document.getElementById("filtro-alfabetico").addEventListener("click", () => {
-
-        tipoOrdenInicio = "alfabetico";
+    const selectFiltro = document.getElementById("select-filtro-inicio");
+    selectFiltro.value = filtroSelectInicio;
     
+    selectFiltro.addEventListener("change", (e) => {
+        filtroSelectInicio = e.target.value;
         paginaActual = 1;
-    
-        procesarFiltrosYRenderizado();
-    
-        ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
-    
-        construirControlesSuperioresUI();
-    });
-
-    document.getElementById("filtro-actualizado").addEventListener("click", () => {
-
-        tipoOrdenInicio = "actualizacion";
-    
-        paginaActual = 1;
-    
-        procesarFiltrosYRenderizado();
-    
-        ordenRecienActualizado = !ordenRecienActualizado;
-    
-        construirControlesSuperioresUI();
+        procesarFiltrosYRenderizado(true); // Guarda en el historial el cambio de filtro
     });
 }
 
 // ==========================================
-// PROCESAMIENTO LOGÍCO Y FILTRADO DE DATOS
+// PROCESAMIENTO LÓGICO Y FILTRADO DE DATOS
 // ==========================================
-function procesarFiltrosYRenderizado() {
+function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
     if (vistaActual === "inicio") {
         contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
         
@@ -261,21 +264,28 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        if (tipoOrdenInicio === "actualizacion") {
-            auxiliares.sort((a, b) => {
-                const fechaA = new Date(a.UltimaActualizacion || 0);
-                const fechaB = new Date(b.UltimaActualizacion || 0);
-                return ordenRecienActualizado ? fechaB - fechaA : fechaA - fechaB;
-            });
-        } else {
-            auxiliares.sort((a, b) => {
-                const nombreA = (a.Actriz || "").toLowerCase();
-                const nombreB = (b.Actriz || "").toLowerCase();
-                return ordenAlfabeticoAsc ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
-            });
+        // Procesamiento según la opción seleccionada en el menú desplegable
+        if (filtroSelectInicio === "reciente") {
+            auxiliares.sort((a, b) => new Date(b.UltimaActualizacion || 0) - new Date(a.UltimaActualizacion || 0));
+        } else if (filtroSelectInicio === "antiguo") {
+            auxiliares.sort((a, b) => new Date(a.UltimaActualizacion || 0) - new Date(b.UltimaActualizacion || 0));
+        } else if (filtroSelectInicio === "az") {
+            auxiliares.sort((a, b) => (a.Actriz || "").toLowerCase().localeCompare((b.Actriz || "").toLowerCase()));
+        } else if (filtroSelectInicio === "za") {
+            auxiliares.sort((a, b) => (b.Actriz || "").toLowerCase().localeCompare((a.Actriz || "").toLowerCase()));
         }
 
         datosFiltrados = auxiliares;
+        
+        if (guardarEnHistorial) {
+            history.replaceState({ 
+                vista: "inicio", 
+                pagina: paginaActual, 
+                filtro: filtroSelectInicio, 
+                busqueda: textoBuscadoGuardado 
+            }, "", " ");
+        }
+        
         mostrarContenidoUI(20);
     } else {
         contenedorPrincipal.className = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3";
@@ -337,10 +347,16 @@ function mostrarContenidoUI(limiteElementos) {
                 vistaActual = "videos";
                 paginaActual = 1;
                 
-                history.pushState({ vista: "videos", actriz: actrizSeleccionada, pagina: 1 }, "", `?actriz=${nombreLimpio}`);
+                // Al entrar a los videos de una actriz, guardamos este estado en el historial
+                history.pushState({ 
+                    vista: "videos", 
+                    actriz: actrizSeleccionada, 
+                    pagina: 1, 
+                    criterionFecha: criterionFechaVideos 
+                }, "", `?actriz=${nombreLimpio}`);
                 
                 construirControlesSuperioresUI(true);
-                procesarFiltrosYRenderizado();
+                procesarFiltrosYRenderizado(false);
             });
             contenedorPrincipal.appendChild(tarjeta);
         });
@@ -399,11 +415,25 @@ function construirPaginacionUI(limiteElementos) {
             paginaActual = i;
             
             if (vistaActual === "videos") {
-                history.replaceState({ vista: "videos", actriz: actrizSeleccionada, pagina: paginaActual }, "", `?actriz=${actrizSeleccionada.toLowerCase().replace(/\s+/g, "_")}&p=${i}`);
+                const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
+                history.pushState({ 
+                    vista: "videos", 
+                    actriz: actrizSeleccionada, 
+                    pagina: paginaActual, 
+                    criterionFecha: criterionFechaVideos 
+                }, "", `?actriz=${nombreLimpio}&p=${i}`);
+            } else {
+                // Al cambiar de página en el inicio, actualizamos el historial para que recuerde en qué página se quedó
+                history.pushState({ 
+                    vista: "inicio", 
+                    pagina: paginaActual, 
+                    filtro: filtroSelectInicio, 
+                    busqueda: textoBuscadoGuardado 
+                }, "", " ");
             }
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            procesarFiltrosYRenderizado();
+            procesarFiltrosYRenderizado(false);
         });
         
         contenedorPaginacion.appendChild(boton);
