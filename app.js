@@ -70,15 +70,17 @@ function irAInicio(registrarHistorial = true) {
     actrizSeleccionada = null;
     paginaActual = 1;
     textoBuscadoGuardado = ""; 
-    filtroSelectInicio = "reciente"; // Siempre vuelve al valor por defecto al hacer clic en INICIO
+    filtroSelectInicio = "reciente"; // Regresa siempre al filtro por defecto
     
     if (registrarHistorial) {
-        history.pushState({ 
+        // En lugar de acumular páginas con pushState, reemplazamos el estado actual 
+        // para limpiar el rastro y simular una entrada limpia desde cero.
+        history.replaceState({ 
             vista: "inicio", 
             pagina: paginaActual, 
             filtro: filtroSelectInicio, 
             busqueda: textoBuscadoGuardado 
-        }, "", " ");
+        }, "", window.location.pathname); // Limpia parámetros de la URL (?actriz=...)
     }
     
     construirControlesSuperioresUI(true);
