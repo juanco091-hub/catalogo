@@ -41,7 +41,7 @@ const btnInicio = document.getElementById("btn-inicio");
 document.addEventListener("DOMContentLoaded", () => {
     cargarDatosDesdeSheets();
     
-    // Escuchar el buscador permanentemente sin reconstruir el nodo
+    // Escuchar el buscador de forma continua
     buscadorInput.addEventListener("input", () => {
         paginaActual = 1;
         procesarFiltrosYRenderizado();
@@ -67,7 +67,7 @@ function irAInicio(registrarHistorial = true) {
     vistaActual = "inicio";
     actrizSeleccionada = null;
     paginaActual = 1;
-    buscadorInput.value = ""; // Limpiar buscador al volver al inicio
+    buscadorInput.value = ""; 
     
     if (registrarHistorial) {
         history.pushState({ vista: "inicio" }, "", " ");
@@ -87,9 +87,7 @@ async function cargarDatosDesdeSheets() {
         BD_VIDEOS = csvAJson(respuestaVideos);
 
         actualizarDatalistSugerencias();
-        
         history.replaceState({ vista: "inicio" }, "", " ");
-        
         procesarFiltrosYRenderizado();
     } catch (error) {
         contenedorPrincipal.innerHTML = `<p class="col-span-2 text-center text-red-500 font-bold py-8 text-sm">Error cargando los datos.</p>`;
@@ -160,7 +158,7 @@ function procesarFiltrosYRenderizado() {
     construirControlesFiltrosUI();
 
     if (vistaActual === "inicio") {
-        contenedorBuscador.style.display = "block"; // Mostrar buscador en el inicio
+        contenedorBuscador.style.display = "block"; 
         contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
         
         let auxiliares = [...BD_ACTRICES];
@@ -172,7 +170,6 @@ function procesarFiltrosYRenderizado() {
             );
         }
 
-        // Lógica de ordenamiento según el filtro activo de la Página Principal
         if (tipoOrdenInicio === "actualizacion") {
             auxiliares.sort((a, b) => {
                 const fechaA = new Date(a.UltimaActualizacion || 0);
@@ -190,19 +187,16 @@ function procesarFiltrosYRenderizado() {
         datosFiltrados = auxiliares;
         mostrarContenidoUI(20);
     } else {
-        contenedorBuscador.style.display = "none"; // Ocultar buscador en la página de la actriz
+        contenedorBuscador.style.display = "none"; 
         contenedorPrincipal.className = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3";
         
         let auxiliares = BD_VIDEOS.filter(video => 
             video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
         );
 
-        // Lógica de ordenamiento por las columnas exactas del excel mapeadas sin acentos:
-        // "Fecha de estreno" -> FechaEstreno  ||  "Fecha de Subida" -> FechaDeSubida
         auxiliares.sort((a, b) => {
             const campoFecha = criterioFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaDeSubida || 0);
             const campoFechaB = criterioFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaDeSubida || 0);
-            
             return new Date(campoFechaB) - new Date(campoFecha);
         });
 
@@ -212,13 +206,12 @@ function procesarFiltrosYRenderizado() {
 }
 
 // ==========================================
-// CONSTRUCCIÓN DE LA INTERFAZ DE USUARIO (UI)
+// CONSTRUCCIÓN DE LOS BOTONES DE FILTROS (UI)
 // ==========================================
 function construirControlesFiltrosUI() {
     zonaFiltros.innerHTML = "";
 
     if (vistaActual === "inicio") {
-        // Asignar colores rojos basados en cuál de los dos filtros está activo globalmente
         const claseAlfabetico = tipoOrdenInicio === "alfabetico" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
         const claseActualizado = tipoOrdenInicio === "actualizacion" ? 'text-red-500 font-black' : 'text-gray-400 font-bold';
 
@@ -234,12 +227,11 @@ function construirControlesFiltrosUI() {
             </div>
         `;
 
-        // Eventos independientes para cambiar y alternar estados internos
         document.getElementById("filtro-alfabetico").addEventListener("click", () => {
             if (tipoOrdenInicio === "alfabetico") {
-                ordenAlfabeticoAsc = !ordenAlfabeticoAsc; // Alterna dirección si ya estaba activo
+                ordenAlfabeticoAsc = !ordenAlfabeticoAsc;
             } else {
-                tipoOrdenInicio = "alfabetico"; // Activa este filtro
+                tipoOrdenInicio = "alfabetico";
             }
             paginaActual = 1;
             procesarFiltrosYRenderizado();
@@ -247,15 +239,14 @@ function construirControlesFiltrosUI() {
 
         document.getElementById("filtro-actualizado").addEventListener("click", () => {
             if (tipoOrdenInicio === "actualizacion") {
-                ordenRecienActualizado = !ordenRecienActualizado; // Alterna dirección si ya estaba activo
+                ordenRecienActualizado = !ordenRecienActualizado;
             } else {
-                tipoOrdenInicio = "actualizacion"; // Activa este filtro
+                tipoOrdenInicio = "actualizacion";
             }
             paginaActual = 1;
             procesarFiltrosYRenderizado();
         });
     } else {
-        // Vista de Actriz personalizada: Texto más grande, sin redundancias y filtro por tipo de fecha
         zonaFiltros.innerHTML = `
             <div class="flex items-center justify-between px-1 py-1">
                 <div class="flex flex-col">
@@ -275,6 +266,9 @@ function construirControlesFiltrosUI() {
     }
 }
 
+// ==========================================
+// RENDERIZADO DE CONTENIDO EN EL GRID
+// ==========================================
 function mostrarContenidoUI(limiteElementos) {
     contenedorPrincipal.innerHTML = "";
     
@@ -310,6 +304,7 @@ function mostrarContenidoUI(limiteElementos) {
             `;
             
             tarjeta.addEventListener("click", () => {
+                actrizSeleccionada = actress => actriz.Actriz;
                 actrizSeleccionada = actriz.Actriz;
                 vistaActual = "videos";
                 paginaActual = 1;
@@ -325,7 +320,6 @@ function mostrarContenidoUI(limiteElementos) {
             const tarjeta = document.createElement("div");
             tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
             
-            // Eliminada la clase global uppercase. Solo el Código va forzado en mayúsculas mediante un span interno.
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
                 ? ` • <span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''}</span> • <span class="text-gray-400 font-bold">${video.Tamano || ''}</span>` 
