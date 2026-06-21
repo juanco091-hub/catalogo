@@ -15,31 +15,47 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
+        /* Animación fluida para la franja publicitaria en movimiento */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animacion-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans antialiased select-none">
 
-    <header class="sticky top-0 z-50 bg-gray-950 border-b border-gray-800 shadow-md px-4 py-3">
-        <div class="flex justify-between items-center mb-1">
+    <header class="sticky top-0 z-50 bg-gray-950 border-b border-gray-800 shadow-md">
+        <div class="px-4 py-3 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black tracking-wider text-red-500 m-0 leading-tight">JAV</h1>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Videos para adultos producidos en Japón</p>
+                <h1 class="text-3xl font-black tracking-tighter text-red-500 m-0 leading-none">JAV</h1>
+                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-1">Videos para adultos producidos en Japón</p>
             </div>
-            <button id="btn-inicio" class="bg-red-600 hover:bg-red-700 text-white text-xs font-black px-3 py-2 rounded shadow transition-all active:scale-95">
+            <button id=\"btn-inicio\" class="bg-red-600 hover:bg-red-700 text-white text-xs font-black px-4 py-2 rounded shadow transition-all active:scale-95">
                 INICIO
             </button>
         </div>
 
-        <div id="zona-filtros-busqueda"></div>
+        <div class="w-full bg-red-950/40 border-y border-red-900/50 py-1 overflow-hidden">
+            <div class="animacion-marquee text-xs font-bold text-red-400 tracking-wide">
+                🔥 ¡TODO EL CONTENIDO SE PUEDE VER EN LÍNEA Y DESCARGAR DE FORMA DIRECTA! 🔥
+            </div>
+        </div>
+
+        <div id="zona-filtros-busqueda" class="px-4 pb-3 pt-2"></div>
     </header>
 
-    <main class="p-4 min-h-[calc(100vh-145px)]">
-        <div id="contenedor-principal"></div>
+    <main class="p-4 min-h-[calc(100vh-140px)]">
+        <div id="contenedor-principal" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"></div>
+        
+        <div id="contenedor-paginacion" class="flex justify-center items-center gap-1.5 mt-6 pb-8"></div>
     </main>
 
-    <footer class="bg-gray-950 border-t border-gray-800 p-3 sticky bottom-0 z-40">
-        <div id="paginacion" class="flex justify-center items-center gap-2 flex-wrap text-sm"></div>
-    </footer>
+    <datalist id="lista-actrices"></datalist>
 
     <script src="app.js"></script>
 </body>
