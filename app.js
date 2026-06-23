@@ -406,6 +406,7 @@ function mostrarContenidoUI(limiteElementos) {
     }
     
     construirPaginacionUI(limiteElementos);
+    window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function construirPaginacionUI(limiteElementos) {
