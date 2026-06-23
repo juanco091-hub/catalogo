@@ -73,12 +73,14 @@ function irAInicio(registrarHistorial = true) {
     filtroSelectInicio = "reciente"; // Regresa siempre al filtro por defecto
     
     if (registrarHistorial) {
+        // En lugar de acumular páginas con pushState, reemplazamos el estado actual 
+        // para limpiar el rastro y simular una entrada limpia desde cero.
         history.replaceState({ 
             vista: "inicio", 
             pagina: paginaActual, 
             filtro: filtroSelectInicio, 
             busqueda: textoBuscadoGuardado 
-        }, "", window.location.pathname);
+        }, "", window.location.pathname); // Limpia parámetros de la URL (?actriz=...)
     }
     
     construirControlesSuperioresUI(true);
@@ -97,6 +99,7 @@ async function cargarDatosDesdeSheets() {
 
         actualizarDatalistSugerencias();
         
+        // Estado inicial de la app guardado en el historial
         history.replaceState({ 
             vista: "inicio", 
             pagina: paginaActual, 
@@ -171,6 +174,9 @@ function actualizarDatalistSugerencias() {
 // ==========================================
 // CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
 // ==========================================
+// ==========================================
+// CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
+// ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     if (vistaActual === "videos") {
         zonaFiltrosBusqueda.innerHTML = `
@@ -181,8 +187,8 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
                 <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400">
                     <label for="select-filtro-videos" class="font-bold shrink-0">Ordenar por:</label>
                     <select id="select-filtro-videos" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
-                        <option value="estreno"> Fecha de Estreno</option>
-                        <option value="subida"> Fecha de Subida</option>
+                        <option value="estreno">▼ Fecha de Estreno</option>
+                        <option value="subida">▼ Fecha de Subida</option>
                     </select>
                 </div>
             </div>
@@ -193,8 +199,9 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 
         selectFiltroVideos.addEventListener("change", (e) => {
             criterionFechaVideos = e.target.value;
-            paginaActual = 1;
+            paginaActual = 1; // Reinicia a la primera página al cambiar el orden
             
+            // Actualizar el historial al cambiar filtro de videos
             const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
             history.replaceState({ 
                 vista: "videos", 
@@ -208,6 +215,7 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         return;
     }
 
+    // VISTA DE INICIO (Se mantiene exactamente igual a tu diseño original)
     const buscadorExiste = document.getElementById("buscador-actriz");
     
     if (buscadorExiste && !forzarReconstruccionCompleta) {
@@ -268,6 +276,7 @@ function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
             );
         }
 
+        // Procesamiento según la opción seleccionada en el menú desplegable
         if (filtroSelectInicio === "reciente") {
             auxiliares.sort((a, b) => new Date(b.UltimaActualizacion || 0) - new Date(a.UltimaActualizacion || 0));
         } else if (filtroSelectInicio === "antiguo") {
@@ -350,6 +359,7 @@ function mostrarContenidoUI(limiteElementos) {
                 vistaActual = "videos";
                 paginaActual = 1;
                 
+                // Al entrar a los videos de una actriz, guardamos este estado en el historial
                 history.pushState({ 
                     vista: "videos", 
                     actriz: actrizSeleccionada, 
@@ -425,6 +435,7 @@ function construirPaginacionUI(limiteElementos) {
                     criterionFecha: criterionFechaVideos 
                 }, "", `?actriz=${nombreLimpio}&p=${i}`);
             } else {
+                // Al cambiar de página en el inicio, actualizamos el historial para que recuerde en qué página se quedó
                 history.pushState({ 
                     vista: "inicio", 
                     pagina: paginaActual, 
