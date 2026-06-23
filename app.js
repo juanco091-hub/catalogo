@@ -370,7 +370,7 @@ function mostrarContenidoUI(limiteElementos) {
             
             const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
             const textoDetalles = tieneDetalles 
-                ? `<span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''} • ${video.Tamano || ''}</span>` 
+                ? `<span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''} / ${video.Tamano || ''}</span>` 
                 : '';
 
             tarjeta.innerHTML = `
