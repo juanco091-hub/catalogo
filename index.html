@@ -13,8 +13,6 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
-        
-        /* NUEVA ANIMACIÓN MARQUEE: Flujo continuo frase por frase */
         @keyframes marquee-lineal {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
@@ -30,6 +28,11 @@
         }
         .frase-item {
             padding-right: 120px; 
+        }
+
+        /* Estilo para inyectar los triángulos guía dentro de la lista desplegada sin alterar el texto cerrado */
+        select option::before {
+            content: attr(data-icon) " ";
         }
     </style>
 </head>
