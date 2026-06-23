@@ -181,8 +181,8 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
                 <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400">
                     <label for="select-filtro-videos" class="font-bold shrink-0">Ordenar por:</label>
                     <select id="select-filtro-videos" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
-                        <option value="estreno">▼ Fecha de Estreno</option>
-                        <option value="subida">▼ Fecha de Subida</option>
+                        <option value="estreno"> Fecha de Estreno</option>
+                        <option value="subida"> Fecha de Subida</option>
                     </select>
                 </div>
             </div>
