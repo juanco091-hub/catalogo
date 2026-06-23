@@ -253,58 +253,87 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
 // ==========================================
 // PROCESAMIENTO LÓGICO Y FILTRADO DE DATOS
 // ==========================================
-function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
-    if (vistaActual === "inicio") {
-        contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
-        
-        let auxiliares = [...BD_ACTRICES];
-        const terminoBusqueda = textoBuscadoGuardado.toLowerCase().trim();
+function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
+    if (vistaActual === "videos") {
+        zonaFiltrosBusqueda.innerHTML = `
+            <div class="flex items-center justify-between px-1 py-1">
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-black text-white leading-tight tracking-tight">${actrizSeleccionada}</h2>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400">
+                    <label for="select-filtro-videos" class="font-bold shrink-0">Ordenar por:</label>
+                    <select id="select-filtro-videos" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
+                        <option value="estreno">▼ Fecha de Estreno</option>
+                        <option value="subida">▼ Fecha de Subida</option>
+                    </select>
+                </div>
+            </div>
+        `;
 
-        if (terminoBusqueda) {
-            auxiliares = auxiliares.filter(actriz => 
-                actriz.Actriz && actriz.Actriz.toLowerCase().includes(terminoBusqueda)
-            );
-        }
+        const selectFiltroVideos = document.getElementById("select-filtro-videos");
+        selectFiltroVideos.value = criterionFechaVideos;
 
-        // Procesamiento según la opción seleccionada en el menú desplegable
-        if (filtroSelectInicio === "reciente") {
-            auxiliares.sort((a, b) => new Date(b.UltimaActualizacion || 0) - new Date(a.UltimaActualizacion || 0));
-        } else if (filtroSelectInicio === "antiguo") {
-            auxiliares.sort((a, b) => new Date(a.UltimaActualizacion || 0) - new Date(b.UltimaActualizacion || 0));
-        } else if (filtroSelectInicio === "az") {
-            auxiliares.sort((a, b) => (a.Actriz || "").toLowerCase().localeCompare((b.Actriz || "").toLowerCase()));
-        } else if (filtroSelectInicio === "za") {
-            auxiliares.sort((a, b) => (b.Actriz || "").toLowerCase().localeCompare((a.Actriz || "").toLowerCase()));
-        }
-
-        datosFiltrados = auxiliares;
-        
-        if (guardarEnHistorial) {
+        selectFiltroVideos.addEventListener("change", (e) => {
+            criterionFechaVideos = e.target.value;
+            paginaActual = 1; // Reinicia a la primera página al cambiar el orden
+            
+            // Actualizar el historial al cambiar filtro de videos
+            const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
             history.replaceState({ 
-                vista: "inicio", 
+                vista: "videos", 
+                actriz: actrizSeleccionada, 
                 pagina: paginaActual, 
-                filtro: filtroSelectInicio, 
-                busqueda: textoBuscadoGuardado 
-            }, "", " ");
-        }
-        
-        mostrarContenidoUI(20);
-    } else {
-        contenedorPrincipal.className = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3";
-        
-        let auxiliares = BD_VIDEOS.filter(video => 
-            video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
-        );
-
-        auxiliares.sort((a, b) => {
-            const campoFechaA = criterionFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaSubida || 0);
-            const campoFechaB = criterionFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaSubida || 0);
-            return new Date(campoFechaB) - new Date(campoFechaA);
+                criterionFecha: criterionFechaVideos 
+            }, "", `?actriz=${nombreLimpio}&p=${paginaActual}`);
+            
+            procesarFiltrosYRenderizado(false);
         });
-
-        datosFiltrados = auxiliares;
-        mostrarContenidoUI(10);
+        return;
     }
+
+    // VISTA DE INICIO (Se mantiene exactamente igual a tu diseño original)
+    const buscadorExiste = document.getElementById("buscador-actriz");
+    
+    if (buscadorExiste && !forzarReconstruccionCompleta) {
+        const selectFiltro = document.getElementById("select-filtro-inicio");
+        if (selectFiltro) {
+            selectFiltro.value = filtroSelectInicio;
+        }
+        return;
+    }
+
+    zonaFiltrosBusqueda.innerHTML = `
+        <div id="contenedor-input-buscador" class="mb-2">
+            <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
+                class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200"
+                value="${textoBuscadoGuardado}">
+        </div>
+        <div class="flex items-center gap-2 px-1 text-[11px] tracking-wide pt-1 text-gray-400">
+            <label for="select-filtro-inicio" class="font-bold shrink-0">Ordenar por:</label>
+            <select id="select-filtro-inicio" class="bg-gray-950 border border-gray-800 rounded px-2 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer">
+                <option value="reciente">▼ Recién Actualizado</option>
+                <option value="antiguo">▲ Más Antiguos</option>
+                <option value="az">▲ Alfabético A-Z</option>
+                <option value="za">▼ Alfabético Z-A</option>
+            </select>
+        </div>
+    `;
+
+    const inputBuscador = document.getElementById("buscador-actriz");
+    inputBuscador.addEventListener("input", (e) => {
+        textoBuscadoGuardado = e.target.value;
+        paginaActual = 1;
+        procesarFiltrosYRenderizado(true);
+    });
+
+    const selectFiltro = document.getElementById("select-filtro-inicio");
+    selectFiltro.value = filtroSelectInicio;
+    
+    selectFiltro.addEventListener("change", (e) => {
+        filtroSelectInicio = e.target.value;
+        paginaActual = 1;
+        procesarFiltrosYRenderizado(true);
+    });
 }
 
 // ==========================================
