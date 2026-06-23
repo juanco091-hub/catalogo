@@ -174,9 +174,6 @@ function actualizarDatalistSugerencias() {
 // ==========================================
 // CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
 // ==========================================
-// ==========================================
-// CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
-// ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     if (vistaActual === "videos") {
         zonaFiltrosBusqueda.innerHTML = `
