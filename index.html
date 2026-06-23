@@ -6,33 +6,30 @@
     <title>Catálogo JAV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Fuerza a que el texto de las descripciones largas ocupe todas las líneas necesarias */
         .descripcion-video {
             word-wrap: break-word;
             white-space: normal;
         }
-        /* Elimina el molesto recuadro azul al pulsar botones en celulares */
         body {
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* NUEVA ANIMACIÓN MARQUEE: Carrusel continuo perfecto frase por frase */
-        @keyframes marquee-continuo {
+        /* NUEVA ANIMACIÓN MARQUEE: Flujo continuo frase por frase */
+        @keyframes marquee-lineal {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
         }
         .contenedor-marquee {
             display: flex;
             width: max-content;
-            animation: marquee-continuo 35s linear infinite;
+            animation: marquee-lineal 40s linear infinite;
         }
         .bloque-frases {
             display: flex;
             white-space: nowrap;
         }
-        /* Separación uniforme e idéntica entre las frases */
         .frase-item {
-            padding-right: 80px; 
+            padding-right: 120px; 
         }
     </style>
 </head>
