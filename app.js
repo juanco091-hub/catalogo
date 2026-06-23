@@ -1,15 +1,9 @@
-// ==========================================
-// CONFIGURACIÓN GLOBAL
-// ==========================================
 const CONFIG = {
     subtituloEstado: "(Todo el contenido se puede ver en línea y descargar)",
     urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=0&single=true&output=csv",
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
 
-// ==========================================
-// ESTADO INTERNO DE LA WEB
-// ==========================================
 let BD_ACTRICES = [];
 let BD_VIDEOS = [];
 let datosFiltrados = []; 
@@ -28,9 +22,6 @@ const btnInicio = document.getElementById("btn-inicio");
 
 let textoBuscadoGuardado = "";
 
-// ==========================================
-// INICIALIZACIÓN DE LA APLICACIÓN
-// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     cargarDatosDesdeSheets();
 
@@ -163,9 +154,6 @@ function actualizarDatalistSugerencias() {
     });
 }
 
-// ==========================================
-// CONSTRUCCIÓN CONTROLADA DE LOS FILTROS SUPERIORES
-// ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     if (vistaActual === "videos") {
         // Modificado: Agregamos 'justify-end' y 'ml-auto' para empujar el filtro a la derecha
@@ -218,8 +206,6 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         return;
     }
 
-    // Modificado: Eliminamos los triángulos del texto visible de las <option> pero conservamos
-    // los valores originales en el atributo 'value' para mantener intacta tu lógica.
     zonaFiltrosBusqueda.innerHTML = `
         <div id="contenedor-input-buscador" class="mb-2">
             <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
@@ -257,9 +243,6 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     });
 }
 
-// ==========================================
-// PROCESAMIENTO LÓGICO Y FILTRADO DE DATOS
-// ==========================================
 function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
     if (vistaActual === "inicio") {
         contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
@@ -313,9 +296,6 @@ function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
     }
 }
 
-// ==========================================
-// RENDERIZADO DE LAS PORTADAS Y TARJETAS EN EL GRID
-// ==========================================
 function mostrarContenidoUI(limiteElementos) {
     contenedorPrincipal.innerHTML = "";
     
