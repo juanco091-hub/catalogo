@@ -168,17 +168,19 @@ function actualizarDatalistSugerencias() {
 // ==========================================
 function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
     if (vistaActual === "videos") {
+        // Modificado: Agregamos 'justify-end' y 'ml-auto' para empujar el filtro a la derecha
+        // y dejar más espacio libre al lado del nombre de la actriz.
         zonaFiltrosBusqueda.innerHTML = `
-            <div class="flex items-center justify-between px-1 py-1">
-                <div class="flex flex-col">
-                    <h2 class="text-xl font-black text-white leading-tight tracking-tight">${actrizSeleccionada}</h2>
+            <div class="flex items-center justify-between px-1 py-1 gap-4">
+                <div class="flex flex-col min-w-0">
+                    <h2 class="text-xl font-black text-white leading-tight tracking-tight truncate">${actrizSeleccionada}</h2>
                 </div>
-                <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400">
+                <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400 ml-auto shrink-0">
                     <label for="select-filtro-videos" class="font-bold shrink-0">Ordenar por:</label>
                     <div class="relative">
                         <select id="select-filtro-videos" class="bg-gray-950 border border-gray-800 rounded pl-2 pr-6 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer appearance-none">
-                            <option value="estreno">▼ Fecha de Estreno</option>
-                            <option value="subida">▼ Fecha de Subida</option>
+                            <option value="estreno">Fecha de Estreno</option>
+                            <option value="subida">Fecha de Subida</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-400 text-[9px]">▼</div>
                     </div>
@@ -216,6 +218,8 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
         return;
     }
 
+    // Modificado: Eliminamos los triángulos del texto visible de las <option> pero conservamos
+    // los valores originales en el atributo 'value' para mantener intacta tu lógica.
     zonaFiltrosBusqueda.innerHTML = `
         <div id="contenedor-input-buscador" class="mb-2">
             <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
@@ -226,10 +230,10 @@ function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
             <label for="select-filtro-inicio" class="font-bold shrink-0">Ordenar por:</label>
             <div class="relative">
                 <select id="select-filtro-inicio" class="bg-gray-950 border border-gray-800 rounded pl-2 pr-6 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer appearance-none">
-                    <option value="reciente">▼ Recién Actualizado</option>
-                    <option value="antiguo">▲ Más Antiguos</option>
-                    <option value="az">▲ Alfabético A-Z</option>
-                    <option value="za">▼ Alfabético Z-A</option>
+                    <option value="reciente">Recién Actualizado</option>
+                    <option value="antiguo">Más Antiguos</option>
+                    <option value="az">Alfabético A-Z</option>
+                    <option value="za">Alfabético Z-A</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-400 text-[9px]">▼</div>
             </div>
