@@ -365,7 +365,7 @@ function mostrarContenidoUI(limiteElementos) {
                 
                 <a href="${video.URL || '#'}" target="_blank" class="block group w-full">
                     <div class="w-full aspect-[3/2] bg-gray-900 rounded-md overflow-hidden relative border border-gray-800 shadow-inner">
-                        <img src="portadas/${video.Codigo || 'default'}.jpg" alt="Portada Video" 
+                        <img src="portadas/vid/${video.Codigo || 'default'}.jpg" alt="Portada Video" 
                              class="w-full h-full object-fill group-hover:scale-105 transition-transform duration-300" loading="lazy"
                              onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%231f2937\\'><rect width=\\'20\\' height=\\'14\\' x=\\'2\\' y=\\'5\\' rx=\\'2\\' stroke-width=\\'1\\'/><path stroke-width=\\'1\\' d=\\'M10 11l5 3-5 3v-6z\\'/></svg>';">
                         
