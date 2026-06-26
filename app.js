@@ -323,7 +323,7 @@ function mostrarContenidoUI(limiteElementos) {
 
             tarjeta.innerHTML = `
                 <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
-                    <img src="portadas/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
+                    <img src="portadas/act/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
                          class="w-full h-full object-cover" loading="lazy" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
                 </div>
