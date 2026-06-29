@@ -9,8 +9,7 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
-
-        /* --- Contenedor de la descripción --- */
+        
         .bloque-descripcion {
             position: relative;
         }
@@ -19,16 +18,14 @@
             word-wrap: break-word;
             white-space: normal;
         }
-        
-        /* Forzar 3 líneas con puntos suspensivos nativos */
+                
         .lineas-limitadas {
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;  
             overflow: hidden;
         }
-
-        /* El botón se posiciona exactamente abajo a la derecha de las 3 líneas */
+        
         .btn-ver-mas-inline {
             position: absolute;
             right: 0;
@@ -38,8 +35,7 @@
             /* Degradado negro hacia bg-gray-950 para tapar el texto que quede por debajo */
             background: linear-gradient(to left, #030712 70%, transparent);
         }
-
-        /* --- Componente Marquee Animado --- */
+        
         @keyframes marquee-lineal {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
