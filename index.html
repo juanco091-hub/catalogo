@@ -6,35 +6,66 @@
     <title>Catálogo JAV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* --- Configuración Base y Reseteos --- */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- Módulo de Descripciones Dinámicas (Ver más / Ocultar en la misma línea) --- */
         .descripcion-video {
             word-wrap: break-word;
             white-space: normal;
         }
-        
-        .lineas-limitadas {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;  
+
+        .contenedor-descripcion {
+            position: relative;
+            max-height: 4.5em; /* 3 líneas exactas basadas en el line-height */
+            line-height: 1.5em;
             overflow: hidden;
         }
 
-        body {
-            -webkit-tap-highlight-color: transparent;
+        /* Remueve el límite de altura cuando se expande el contenedor */
+        .contenedor-descripcion.expandido {
+            max-height: none;
         }
-                
+
+        /* Genera un bloque invisible que empuja al botón flotante hacia la tercera línea */
+        .contenedor-descripcion::before {
+            content: "";
+            float: left;
+            height: calc(4.5em - 14px); /* Altura de 3 líneas menos la altura del botón */
+            width: 0;
+        }
+
+        /* Alinea el botón a la derecha al final de la tercera línea interfiriendo con el flujo del texto */
+        .btn-inline {
+            float: right;
+            clear: right;
+            position: relative;
+            height: 14px;
+            line-height: 14px;
+            padding-left: 16px;
+            /* Degradado suave para ocultar letras que queden inmediatamente detrás de la acción */
+            background: linear-gradient(to left, #030712 75%, transparent);
+        }
+
+        /* --- Componente Marquee Animado --- */
         @keyframes marquee-lineal {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
         }
+        
         .contenedor-marquee {
             display: flex;
             width: max-content;
             animation: marquee-lineal 40s linear infinite;
         }
+        
         .bloque-frases {
             display: flex;
             white-space: nowrap;
         }
+        
         .frase-item {
             padding-right: 120px; 
         }
