@@ -387,15 +387,13 @@ function mostrarContenidoUI(limiteElementos) {
 
             const parrafoDesc = tarjeta.querySelector(".descripcion-video");
             const botonToggle = tarjeta.querySelector(".btn-toggle-descripcion");
-
-            // Calculamos de forma certera si el contenido desborda las 3 líneas
+            
             setTimeout(() => {
                 if (parrafoDesc.scrollHeight > parrafoDesc.clientHeight) {
                     botonToggle.classList.remove("hidden");
                 }
             }, 0);
-
-            // Manejo de eventos de expansión cambiando el layout de absoluto a estático
+            
             botonToggle.addEventListener("click", () => {
                 const estaLimitado = parrafoDesc.classList.contains("lineas-limitadas");
                 if (estaLimitado) {
