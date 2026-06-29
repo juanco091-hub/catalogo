@@ -380,31 +380,36 @@ function mostrarContenidoUI(limiteElementos) {
                 </a>
                 
                 <div class="pt-0.5">
-                    <p class="text-xs text-gray-300 leading-relaxed descripcion-video lineas-limitadas font-medium">${video.Descripcion || 'Sin descripción disponible.'}</p>
-                    <button class="btn-toggle-descripcion text-red-500 font-black text-[10px] mt-1 hidden uppercase tracking-wider focus:outline-none hover:underline">Ver más</button>
+                    <div class="contenedor-descripcion text-xs text-gray-300 leading-relaxed descripcion-video font-medium">
+                        <button class="btn-toggle-descripcion btn-inline text-red-500 font-black text-[10px] hidden uppercase tracking-wider focus:outline-none hover:underline">Ver más</button>
+                        <span>${video.Descripcion || 'Sin descripción disponible.'}</span>
+                    </div>
                 </div>
             `;
 
-            // Lógica para mostrar el botón "Ver más" solo si el texto realmente desborda las 3 líneas
-            const parrafoDesc = tarjeta.querySelector(".descripcion-video");
+            const contenedorDesc = tarjeta.querySelector(".contenedor-descripcion");
             const botonToggle = tarjeta.querySelector(".btn-toggle-descripcion");
 
-            // Ejecutamos tras añadir al DOM o usando un pequeño retraso para asegurar el cálculo de la altura
+            // Validamos si el contenido de texto excede la altura asignada a las 3 líneas
             setTimeout(() => {
-                if (parrafoDesc.scrollHeight > parrafoDesc.clientHeight) {
+                if (contenedorDesc.scrollHeight > contenedorDesc.clientHeight) {
                     botonToggle.classList.remove("hidden");
                 }
             }, 0);
 
-            // Evento para expandir o contraer el texto
+            // Manejador del estado de expansión e intercambio dinámico de clases
             botonToggle.addEventListener("click", () => {
-                const estaLimitado = parrafoDesc.classList.contains("lineas-limitadas");
-                if (estaLimitado) {
-                    parrafoDesc.classList.remove("lineas-limitadas");
+                const estaExpandido = contenedorDesc.classList.contains("expandido");
+                if (!estaExpandido) {
+                    contenedorDesc.classList.add("expandido");
                     botonToggle.textContent = "Ocultar";
+                    botonToggle.classList.remove("btn-inline");
+                    botonToggle.classList.add("block", "mt-1", "w-full", "text-right");
                 } else {
-                    parrafoDesc.classList.add("lineas-limitadas");
+                    contenedorDesc.classList.remove("expandido");
                     botonToggle.textContent = "Ver más";
+                    botonToggle.classList.add("btn-inline");
+                    botonToggle.classList.remove("block", "mt-1", "w-full", "text-right");
                 }
             });
 
