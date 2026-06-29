@@ -10,11 +10,18 @@
             word-wrap: break-word;
             white-space: normal;
         }
+        
+        .lineas-limitadas {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+
         body {
             -webkit-tap-highlight-color: transparent;
         }
-        
-        /* NUEVA ANIMACIÓN MARQUEE: Flujo continuo frase por frase */
+                
         @keyframes marquee-lineal {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
