@@ -379,8 +379,35 @@ function mostrarContenidoUI(limiteElementos) {
                     </div>
                 </a>
                 
-                <p class="text-xs text-gray-300 leading-relaxed pt-0.5 descripcion-video font-medium">${video.Descripcion || 'Sin descripción disponible.'}</p>
+                <div class="pt-0.5">
+                    <p class="text-xs text-gray-300 leading-relaxed descripcion-video lineas-limitadas font-medium">${video.Descripcion || 'Sin descripción disponible.'}</p>
+                    <button class="btn-toggle-descripcion text-red-500 font-black text-[10px] mt-1 hidden uppercase tracking-wider focus:outline-none hover:underline">Ver más</button>
+                </div>
             `;
+
+            // Lógica para mostrar el botón "Ver más" solo si el texto realmente desborda las 3 líneas
+            const parrafoDesc = tarjeta.querySelector(".descripcion-video");
+            const botonToggle = tarjeta.querySelector(".btn-toggle-descripcion");
+
+            // Ejecutamos tras añadir al DOM o usando un pequeño retraso para asegurar el cálculo de la altura
+            setTimeout(() => {
+                if (parrafoDesc.scrollHeight > parrafoDesc.clientHeight) {
+                    botonToggle.classList.remove("hidden");
+                }
+            }, 0);
+
+            // Evento para expandir o contraer el texto
+            botonToggle.addEventListener("click", () => {
+                const estaLimitado = parrafoDesc.classList.contains("lineas-limitadas");
+                if (estaLimitado) {
+                    parrafoDesc.classList.remove("lineas-limitadas");
+                    botonToggle.textContent = "Ocultar";
+                } else {
+                    parrafoDesc.classList.add("lineas-limitadas");
+                    botonToggle.textContent = "Ver más";
+                }
+            });
+
             contenedorPrincipal.appendChild(tarjeta);
         });
     }
