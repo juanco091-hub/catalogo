@@ -25,6 +25,7 @@ const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
 const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
 const btnVolverActrices = document.getElementById("btn-volver-actrices");
 const btnCatCen = document.getElementById("btn-cat-cen");
+const btnCatScen = document.getElementById("btn-cat-scen");
 const btnFooterWhatsapp = document.getElementById("btn-footer-whatsapp");
 const btnFooterSearch = document.getElementById("btn-footer-search");
 
