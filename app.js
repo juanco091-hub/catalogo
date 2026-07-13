@@ -555,16 +555,16 @@ function renderizarCuadrículaVideos() {
 
                 metaExpandido.innerHTML = `
                     <div class="flex flex-col gap-1.5 text-xs">
-                        <a href="#" data-actriz="${nombreActriz}" class="link-actriz inline-block text-base font-black text-yellow-500 hover:text-yellow-400 hover:underline transition-colors tracking-wide uppercase py-0.5">
+                        <a href="#" data-actriz="${nombreActriz}" class="link-actriz inline-block text-base font-black text-red-500 hover:text-red-400 hover:underline transition-colors tracking-wide uppercase py-0.5">
                             ${nombreActriz}
                         </a>
                         <div class="flex flex-col gap-0.5">
-                            <p><span class="text-yellow-500 font-bold">Fecha de subida:</span> <span class="text-white">${video.fechadesubida || '---'}</span></p>
-                            <p><span class="text-yellow-500 font-bold">Fecha de estreno:</span> <span class="text-white">${video.fechadeestreno || '---'}</span></p>
+                            <p><span class="text-red-500 font-bold">Fecha de subida:</span> <span class="text-white">${video.fechadesubida || '---'}</span></p>
+                            <p><span class="text-red-500 font-bold">Fecha de estreno:</span> <span class="text-white">${video.fechadeestreno || '---'}</span></p>
                         </div>
                     </div>
                     <div class="w-full text-right mt-1">
-                        <button class="btn-toggle-desc text-yellow-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
+                        <button class="btn-toggle-desc text-red-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
                             ocultar
                         </button>
                     </div>
