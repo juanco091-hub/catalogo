@@ -16,16 +16,13 @@ let criterioOrden = "reciente";
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
-
 const searchBarContainer = document.getElementById("search-bar-container");
 const inputBuscar = document.getElementById("input-buscar");
-
 const selectOrdenar = document.getElementById("select-ordenar");
 const mainTitle = document.getElementById("main-title");
 const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav");
 const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
 const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
-
 const btnVolverActrices = document.getElementById("btn-volver-actrices");
 const btnCatCen = document.getElementById("btn-cat-cen");
 const btnFooterWhatsapp = document.getElementById("btn-footer-whatsapp");
