@@ -358,11 +358,10 @@ function actualizarOpcionesSelectOrdenar() {
             <option value="reciente" class="bg-gray-900 text-white">Fecha de Subida</option>
             <option value="estreno" class="bg-gray-900 text-white">Fecha de Estreno</option>
             <option value="subesp" class="bg-gray-900 text-white">SubEsp</option>
-            <option value="mr" class="bg-gray-900 text-white">MR (Mosaico Removido)</option>
-            <option value="fsc" class="bg-gray-900 text-white">FSC (Fuga sin Censura)</option>
             <option value="amateur" class="bg-gray-900 text-white">Amateur</option>
             <option value="prodprof" class="bg-gray-900 text-white">Producción Profesional</option>
             <option value="prodext" class="bg-gray-900 text-white">Producción Extranjera</option>
+            <option value="vpf" class="bg-gray-900 text-white">VPF</option>
         `;
     } else {
         selectOrdenar.innerHTML = `
