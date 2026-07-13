@@ -495,7 +495,7 @@ function renderizarCuadrículaVideos() {
 
         tarjeta.innerHTML = `
             <div class="flex justify-between items-center text-xs font-mono tracking-wide w-full px-0.5">
-                <span class="text-yellow-500 font-black uppercase text-xs">[${codigoLimpio}]</span>
+                <span class="text-red-500 font-black uppercase text-xs">[${codigoLimpio}]</span>
                 <span class="text-gray-400 font-bold text-[11px]">${formato} ${resolucion} / ${tamano}</span>
             </div>
 
@@ -519,7 +519,7 @@ function renderizarCuadrículaVideos() {
                 <p class="texto-descripcion text-xs text-gray-300 font-medium leading-relaxed lineas-limitadas-2" id="texto-desc-${codigoLimpio}">
                     <span class="contenedor-flotante-ver-mas" id="wrapper-flotante-${codigoLimpio}">
                         <span class="text-gray-300 text-xs font-medium mr-1 select-none font-sans">...</span>
-                        <button class="btn-toggle-desc text-yellow-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
+                        <button class="btn-toggle-desc text-red-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
                             ver más
                         </button>
                     </span>
