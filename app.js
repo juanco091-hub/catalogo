@@ -1,6 +1,6 @@
 const CONFIG = {
-    urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=0&single=true&output=csv",
-    urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
+    urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX-IQxtjDJYB9gOVeoRDLeYCwpBYlmBSBHEPuPxgPL_xlZ1IUHvvyhZ7rgKvq6uMRwrlKESlBmHEjS/pub?gid=0&single=true&output=csv",
+    urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX-IQxtjDJYB9gOVeoRDLeYCwpBYlmBSBHEPuPxgPL_xlZ1IUHvvyhZ7rgKvq6uMRwrlKESlBmHEjS/pub?gid=1597144864&single=true&output=csv"
 };
 
 let BD_ACTRICES = []; 
