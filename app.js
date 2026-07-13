@@ -40,7 +40,7 @@ async function inicializarApp() {
     try {
         contenedorPrincipal.innerHTML = `
             <div class="flex flex-col items-center justify-center py-24 text-center gap-3">
-                <div class="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-xs font-bold text-gray-400 tracking-wide">Cargando base de datos...</p>
             </div>
         `;
