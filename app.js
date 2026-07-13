@@ -1,114 +1,124 @@
 const CONFIG = {
-    subtituloEstado: "(Todo el contenido se puede ver en línea y descargar)",
     urlSheetsActrices: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=0&single=true&output=csv",
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
 
-let BD_ACTRICES = [];
+let BD_ACTRICES = []; 
 let BD_VIDEOS = [];
+let LISTA_ACTRICES_UNICAS = []; 
 let datosFiltrados = []; 
 
-let vistaActual = "inicio"; 
-let actrizSeleccionada = null;
+let pestañaActiva = "todos"; 
+let actrizSeleccionada = null; 
 let paginaActual = 1;
-let filtroSelectInicio = "reciente"; 
-let criterionFechaVideos = "estreno"; 
+const LIMITE_POR_PAGINA = 20; 
+let criterioOrden = "reciente"; 
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
-const zonaFiltrosBusqueda = document.getElementById("zona-filtros-busqueda");
-const datalistActrices = document.getElementById("lista-actrices");
-const btnInicio = document.getElementById("btn-inicio");
 
-let textoBuscadoGuardado = "";
+const searchBarContainer = document.getElementById("search-bar-container");
+const inputBuscar = document.getElementById("input-buscar");
 
-document.addEventListener("DOMContentLoaded", () => {
-    cargarDatosDesdeSheets();
+const selectOrdenar = document.getElementById("select-ordenar");
+const mainTitle = document.getElementById("main-title");
+const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav");
+const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
+const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
 
-    btnInicio.addEventListener("click", () => {
-        irAInicio();
-    });
+const btnVolverActrices = document.getElementById("btn-volver-actrices");
+const btnCatCen = document.getElementById("btn-cat-cen");
+const btnFooterWhatsapp = document.getElementById("btn-footer-whatsapp");
+const btnFooterSearch = document.getElementById("btn-footer-search");
 
-    window.addEventListener("popstate", (evento) => {
-        if (evento && evento.state) {
-            vistaActual = evento.state.vista || "inicio";
-            paginaActual = evento.state.pagina || 1;
-            textoBuscadoGuardado = evento.state.busqueda || "";
-            
-            if (vistaActual === "videos") {
-                actrizSeleccionada = evento.state.actriz;
-                criterionFechaVideos = evento.state.criterionFecha || "estreno";
-            } else {
-                actrizSeleccionada = null;
-                filtroSelectInicio = evento.state.filtro || "reciente";
-            }
-            
-            construirControlesSuperioresUI(true);
-            procesarFiltrosYRenderizado(false);
-        } else {
-            irAInicio(false); 
-        }
-    });
-});
+const modalWhatsapp = document.getElementById("modal-whatsapp");
+const btnCerrarModal = document.getElementById("btn-cerrar-modal");
 
-function irAInicio(registrarHistorial = true) {
-    vistaActual = "inicio";
-    actrizSeleccionada = null;
-    paginaActual = 1;
-    textoBuscadoGuardado = ""; 
-    filtroSelectInicio = "reciente"; 
-    
-    if (registrarHistorial) {
-        history.replaceState({ 
-            vista: "inicio", 
-            pagina: paginaActual, 
-            filtro: filtroSelectInicio, 
-            busqueda: textoBuscadoGuardado 
-        }, "", window.location.pathname); 
-    }
-    
-    construirControlesSuperioresUI(true);
-    procesarFiltrosYRenderizado(false);
-}
+let pestanaPreviaAyuda = "todos";
+const modalAyuda = document.getElementById("modal-ayuda");
+const btnCerrarAyuda = document.getElementById("btn-cerrar-ayuda");
+const btnEntendidoAyuda = document.getElementById("btn-entendido-ayuda");
 
-async function cargarDatosDesdeSheets() {
+async function inicializarApp() {
     try {
-        const [respuestaActrices, respuestaVideos] = await Promise.all([
-            fetch(CONFIG.urlSheetsActrices).then(res => res.text()),
-            fetch(CONFIG.urlSheetsVideos).then(res => res.text())
+        contenedorPrincipal.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-24 text-center gap-3">
+                <div class="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs font-bold text-gray-400 tracking-wide">Cargando base de datos...</p>
+            </div>
+        `;
+        
+        const [resActrices, resVideos] = await Promise.all([
+            fetch(CONFIG.urlSheetsActrices).then(r => r.text()),
+            fetch(CONFIG.urlSheetsVideos).then(r => r.text())
         ]);
 
-        BD_ACTRICES = csvAJson(respuestaActrices);
-        BD_VIDEOS = csvAJson(respuestaVideos);
+        BD_ACTRICES = parsearCSV(resActrices);
+        BD_VIDEOS = parsearCSV(resVideos);
 
-        actualizarDatalistSugerencias();
+        generarListaActricesUnicas();
+        configurarEventos();
         
         history.replaceState({ 
-            vista: "inicio", 
-            pagina: paginaActual, 
-            filtro: filtroSelectInicio, 
-            busqueda: textoBuscadoGuardado 
-        }, "", " ");
-        
-        construirControlesSuperioresUI(true);
-        procesarFiltrosYRenderizado(false);
+            pestana: "todos", 
+            pagina: 1, 
+            actriz: null 
+        }, "", window.location.pathname);
+
+        actualizarOpcionesSelectOrdenar();
+        aplicarFiltrosYRenderizar();
+
     } catch (error) {
-        contenedorPrincipal.innerHTML = `<p class="col-span-2 text-center text-red-500 font-bold py-8 text-sm">Error cargando los datos.</p>`;
+        console.error("Error al inicializar:", error);
+        contenedorPrincipal.innerHTML = `
+            <div class="text-center py-20 px-4">
+                <p class="text-red-500 font-black text-xs">❌ ERROR DE CONEXIÓN</p>
+            </div>
+        `;
     }
 }
 
-function csvAJson(textoCsv) {
+window.addEventListener("popstate", (evento) => {
+    if (pestañaActiva === "ayuda") {
+        document.body.classList.remove("modal-abierto");
+        modalAyuda.classList.add("hidden");
+        pestañaActiva = pestanaPreviaAyuda;
+        actualizarUIHeadernavigation();
+        return;
+    }
+
+    if (evento && evento.state) {
+        pestañaActiva = evento.state.pestana || "todos";
+        paginaActual = evento.state.pagina || 1;
+        actrizSeleccionada = evento.state.actriz || null;
+        
+        document.body.classList.remove("modal-abierto");
+        modalAyuda.classList.add("hidden");
+        modalWhatsapp.classList.add("hidden");
+
+        actualizarUIHeadernavigation();
+        actualizarOpcionesSelectOrdenar();
+        aplicarFiltrosYRenderizar(); 
+    } else {
+        resetearAInicio();
+    }
+});
+
+function normalizarEncabezado(titulo) {
+    return titulo
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")                  
+        .replace(/[\u0300-\u036f]/g, "")   
+        .replace(/ñ/g, "n")                
+        .replace(/\s+/g, "");              
+}
+
+function parsearCSV(textoCsv) {
     const lineas = textoCsv.split(/\r?\n/);
     if (lineas.length === 0) return [];
     
-    const encabezados = lineas[0].split(',').map(h => 
-        h.trim()
-         .replace(/^"|"$/g, '')
-         .normalize("NFD")
-         .replace(/[\u0300-\u036f]/g, "")
-         .replace(/ñ/g, "n")
-    );
-    
+    const encabezados = lineas[0].split(',').map(h => normalizarEncabezado(h));
     const resultado = [];
 
     for (let i = 1; i < lineas.length; i++) {
@@ -143,321 +153,550 @@ function csvAJson(textoCsv) {
     return resultado;
 }
 
-function actualizarDatalistSugerencias() {
-    datalistActrices.innerHTML = "";
-    BD_ACTRICES.forEach(actriz => {
-        if (actriz.Actriz) {
-            const option = document.createElement("option");
-            option.value = actriz.Actriz;
-            datalistActrices.appendChild(option);
+function generarListaActricesUnicas() {
+    const mapaActrices = {};
+    BD_ACTRICES.forEach(a => {
+        if (a.actriz) {
+            mapaActrices[a.actriz.trim()] = a.ultimaactualizacion || "---";
         }
     });
+
+    const setActrices = new Set();
+    BD_VIDEOS.forEach(v => {
+        if (v.actriz && v.actriz.trim() !== "" && v.actriz.toLowerCase() !== "desconocida") {
+            setActrices.add(v.actriz.trim());
+        }
+    });
+
+    LISTA_ACTRICES_UNICAS = Array.from(setActrices).map(nombre => {
+        return {
+            actriz: nombre,
+            ultimaactualizacion: mapaActrices[nombre] || "---"
+        };
+    });
+
+    LISTA_ACTRICES_UNICAS.sort((a, b) => a.actriz.localeCompare(b.actriz));
 }
 
-function construirControlesSuperioresUI(forzarReconstruccionCompleta = false) {
-    if (vistaActual === "videos") {
-        // Modificado: Agregamos 'justify-end' y 'ml-auto' para empujar el filtro a la derecha
-        // y dejar más espacio libre al lado del nombre de la actriz.
-        zonaFiltrosBusqueda.innerHTML = `
-            <div class="flex items-center justify-between px-1 py-1 gap-4">
-                <div class="flex flex-col min-w-0">
-                    <h2 class="text-xl font-black text-white leading-tight tracking-tight truncate">${actrizSeleccionada}</h2>
-                </div>
-                <div class="flex items-center gap-2 text-[11px] tracking-wide text-gray-400 ml-auto shrink-0">
-                    <label for="select-filtro-videos" class="font-bold shrink-0">Ordenar por:</label>
-                    <div class="relative">
-                        <select id="select-filtro-videos" class="bg-gray-950 border border-gray-800 rounded pl-2 pr-6 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer appearance-none">
-                            <option value="estreno">Fecha de Estreno</option>
-                            <option value="subida">Fecha de Subida</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-400 text-[9px]">▼</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const selectFiltroVideos = document.getElementById("select-filtro-videos");
-        selectFiltroVideos.value = criterionFechaVideos;
-
-        selectFiltroVideos.addEventListener("change", (e) => {
-            criterionFechaVideos = e.target.value;
-            paginaActual = 1; 
+function configurarEventos() {
+    document.querySelectorAll(".tab-item").forEach(boton => {
+        boton.addEventListener("click", (e) => {
+            const tabTarget = e.currentTarget.getAttribute("data-tab");
             
-            const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
-            history.replaceState({ 
-                vista: "videos", 
-                actriz: actrizSeleccionada, 
-                pagina: paginaActual, 
-                criterionFecha: criterionFechaVideos 
-            }, "", `?actriz=${nombreLimpio}&p=${paginaActual}`);
+            if (!tabTarget) {
+                resetearAInicio();
+                return;
+            }
+
+            if (tabTarget === "ayuda") {
+                if (pestañaActiva === "ayuda") return;
+                
+                pestanaPreviaAyuda = pestañaActiva; 
+                pestañaActiva = "ayuda";
+                
+                document.body.classList.add("modal-abierto");
+                modalAyuda.classList.remove("hidden");
+                actualizarUIHeadernavigation();
+                history.pushState({ pestana: "ayuda" }, "", window.location.pathname);
+                return; 
+            }
+
+            pestañaActiva = tabTarget;
+            actrizSeleccionada = null;
+            paginaActual = 1;
             
-            procesarFiltrosYRenderizado(false);
+            searchBarContainer.classList.add("hidden");
+            inputBuscar.value = "";
+            actualizarPlaceholderBuscador();
+            actualizarUIHeadernavigation();
+            actualizarOpcionesSelectOrdenar();
+
+            history.pushState({ 
+                pestana: pestañaActiva, 
+                pagina: 1, 
+                actriz: null 
+            }, "", `?tab=${pestañaActiva}`);
+
+            aplicarFiltrosYRenderizar();
+            window.scrollTo(0, 0);
         });
-        return;
-    }
-
-    const buscadorExiste = document.getElementById("buscador-actriz");
-    
-    if (buscadorExiste && !forzarReconstruccionCompleta) {
-        const selectFiltro = document.getElementById("select-filtro-inicio");
-        if (selectFiltro) {
-            selectFiltro.value = filtroSelectInicio;
-        }
-        return;
-    }
-    
-    zonaFiltrosBusqueda.innerHTML = `
-        <div id="contenedor-input-buscador" class="mb-2">
-            <input type="text" id="buscador-actriz" placeholder="Buscar actriz..." list="lista-actrices" 
-                class="w-full bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-red-600 font-medium text-gray-200"
-                value="${textoBuscadoGuardado}">
-        </div>
-        <div class="flex items-center gap-2 px-1 text-[11px] tracking-wide pt-1 text-gray-400">
-            <label for="select-filtro-inicio" class="font-bold shrink-0">Ordenar por:</label>
-            <div class="relative">
-                <select id="select-filtro-inicio" class="bg-gray-950 border border-gray-800 rounded pl-2 pr-6 py-1 text-white font-black text-[11px] focus:outline-none focus:border-red-600 cursor-pointer appearance-none">
-                    <option value="reciente">Recién Actualizado</option>
-                    <option value="antiguo">Más Antiguos</option>
-                    <option value="az">Alfabético A-Z</option>
-                    <option value="za">Alfabético Z-A</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-400 text-[9px]">▼</div>
-            </div>
-        </div>
-    `;
-
-    const inputBuscador = document.getElementById("buscador-actriz");
-    inputBuscador.addEventListener("input", (e) => {
-        textoBuscadoGuardado = e.target.value;
-        paginaActual = 1;
-        procesarFiltrosYRenderizado(true);
     });
 
-    const selectFiltro = document.getElementById("select-filtro-inicio");
-    selectFiltro.value = filtroSelectInicio;
-    
-    selectFiltro.addEventListener("change", (e) => {
-        filtroSelectInicio = e.target.value;
+    btnCatCen.addEventListener("click", () => resetearAInicio());
+    mainTitle.addEventListener("click", () => resetearAInicio());
+
+    inputBuscar.addEventListener("input", () => {
         paginaActual = 1;
-        procesarFiltrosYRenderizado(true);
+        aplicarFiltrosYRenderizar();
+    });
+
+    selectOrdenar.addEventListener("change", (e) => {
+        criterioOrden = e.target.value;
+        paginaActual = 1;
+        aplicarFiltrosYRenderizar();
+        window.scrollTo(0, 0);
+    });
+
+    btnVolverActrices.addEventListener("click", () => {
+        resetearAInicio();
+    });
+
+    modalWhatsapp.addEventListener("click", (e) => {
+        if (e.target === modalWhatsapp) {
+            document.body.classList.remove("modal-abierto");
+            modalWhatsapp.classList.add("hidden");
+        }
+    });
+    btnFooterWhatsapp.addEventListener("click", () => {
+        document.body.classList.add("modal-abierto");
+        modalWhatsapp.classList.remove("hidden");
+    });
+    btnCerrarModal.addEventListener("click", () => {
+        document.body.classList.remove("modal-abierto");
+        modalWhatsapp.classList.add("hidden");
+    });
+
+    btnFooterSearch.addEventListener("click", () => {
+        searchBarContainer.classList.toggle("hidden");
+        if (!searchBarContainer.classList.contains("hidden")) {
+            actualizarPlaceholderBuscador();
+            
+            const header = document.querySelector("header");
+            const headerHeight = header ? header.offsetHeight : 0;
+            const mainElement = document.querySelector("main");
+            const mainTop = mainElement ? mainElement.getBoundingClientRect().top + window.pageYOffset : 0;
+            
+            window.scrollTo({
+                top: mainTop - headerHeight,
+                behavior: "auto"
+            });
+    
+            inputBuscar.focus({ preventScroll: true });
+        }
+    });
+
+    function cerrarGlosarioAyuda() {
+        document.body.classList.remove("modal-abierto");
+        modalAyuda.classList.add("hidden");
+        pestañaActiva = pestanaPreviaAyuda; 
+        actualizarUIHeadernavigation(); 
+            
+        if (history.state && history.state.pestana === "ayuda") {
+            history.back();
+        }
+    }
+
+    btnCerrarAyuda.addEventListener("click", cerrarGlosarioAyuda);
+    btnEntendidoAyuda.addEventListener("click", cerrarGlosarioAyuda);
+    modalAyuda.addEventListener("click", (e) => {
+        if (e.target === modalAyuda) cerrarGlosarioAyuda();
     });
 }
 
-function procesarFiltrosYRenderizado(guardarEnHistorial = false) {
-    if (vistaActual === "inicio") {
-        contenedorPrincipal.className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
-        
-        let auxiliares = [...BD_ACTRICES];
-        const terminoBusqueda = textoBuscadoGuardado.toLowerCase().trim();
+function actualizarPlaceholderBuscador() {
+    inputBuscar.placeholder = pestañaActiva === "actrices" ? "Buscar actriz..." : "Buscar...";
+}
 
-        if (terminoBusqueda) {
-            auxiliares = auxiliares.filter(actriz => 
-                actriz.Actriz && actriz.Actriz.toLowerCase().includes(terminoBusqueda)
-            );
-        }
+function resetearAInicio() {
+    pestañaActiva = "todos";
+    actrizSeleccionada = null;
+    paginaActual = 1;
+    criterioOrden = "reciente";
+    inputBuscar.value = "";
+    searchBarContainer.classList.add("hidden");
+    actualizarPlaceholderBuscador();
+    
+    document.body.classList.remove("modal-abierto");
+    modalAyuda.classList.add("hidden");
+    modalWhatsapp.classList.add("hidden");
+    
+    actualizarUIHeadernavigation();
+    actualizarOpcionesSelectOrdenar();
 
-        if (filtroSelectInicio === "reciente") {
-            auxiliares.sort((a, b) => new Date(b.UltimaActualizacion || 0) - new Date(a.UltimaActualizacion || 0));
-        } else if (filtroSelectInicio === "antiguo") {
-            auxiliares.sort((a, b) => new Date(a.UltimaActualizacion || 0) - new Date(b.UltimaActualizacion || 0));
-        } else if (filtroSelectInicio === "az") {
-            auxiliares.sort((a, b) => (a.Actriz || "").toLowerCase().localeCompare((b.Actriz || "").toLowerCase()));
-        } else if (filtroSelectInicio === "za") {
-            auxiliares.sort((a, b) => (b.Actriz || "").toLowerCase().localeCompare((a.Actriz || "").toLowerCase()));
-        }
+    contenedorPestanasNav.scrollLeft = 0;
 
-        datosFiltrados = auxiliares;
-        
-        if (guardarEnHistorial) {
-            history.replaceState({ 
-                vista: "inicio", 
-                pagina: paginaActual, 
-                filtro: filtroSelectInicio, 
-                busqueda: textoBuscadoGuardado 
-            }, "", " ");
-        }
-        
-        mostrarContenidoUI(20);
+    history.pushState({ pestana: "todos", pagina: 1, actriz: null }, "", window.location.pathname);
+    
+    aplicarFiltrosYRenderizar();
+    window.scrollTo(0, 0);
+}
+
+function actualizarUIHeadernavigation() {
+    if (pestañaActiva === "actriz_individual") {
+        contenedorPestanasNav.classList.add("hidden");
+        vistaActrizCabecera.classList.remove("hidden");
+        nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
     } else {
-        contenedorPrincipal.className = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3";
-        
-        let auxiliares = BD_VIDEOS.filter(video => 
-            video.Actriz && video.Actriz.toLowerCase() === actrizSeleccionada.toLowerCase()
-        );
+        contenedorPestanasNav.classList.remove("hidden");
+        vistaActrizCabecera.classList.add("hidden");
 
-        auxiliares.sort((a, b) => {
-            const campoFechaA = criterionFechaVideos === "estreno" ? (a.FechaEstreno || 0) : (a.FechaSubida || 0);
-            const campoFechaB = criterionFechaVideos === "estreno" ? (b.FechaEstreno || 0) : (b.FechaSubida || 0);
-            return new Date(campoFechaB) - new Date(campoFechaA);
+        document.querySelectorAll(".tab-item").forEach(b => {
+            const tabAttr = b.getAttribute("data-tab");
+            if (!tabAttr && pestañaActiva === "todos") {
+                b.className = "tab-item px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center";
+            } else if (tabAttr === pestañaActiva) {
+                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95";
+            } else {
+                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
+            }
         });
-
-        datosFiltrados = auxiliares;
-        mostrarContenidoUI(10);
     }
 }
 
-function mostrarContenidoUI(limiteElementos) {
+function actualizarOpcionesSelectOrdenar() {
+    selectOrdenar.innerHTML = "";
+
+    if (pestañaActiva === "actrices") {
+        selectOrdenar.innerHTML = `
+            <option value="reciente" class="bg-gray-900 text-white">Recién Actualizado</option>
+            <option value="antiguo" class="bg-gray-900 text-white">Más Antiguos</option>
+            <option value="az" class="bg-gray-900 text-white">Alfabético A-Z</option>
+            <option value="za" class="bg-gray-900 text-white">Alfabético Z-A</option>
+        `;
+    } else if (pestañaActiva === "actriz_individual") {
+        selectOrdenar.innerHTML = `
+            <option value="reciente" class="bg-gray-900 text-white">Fecha de Subida</option>
+            <option value="estreno" class="bg-gray-900 text-white">Fecha de Estreno</option>
+            <option value="subesp" class="bg-gray-900 text-white">SubEsp</option>
+            <option value="mr" class="bg-gray-900 text-white">MR (Mosaico Removido)</option>
+            <option value="fsc" class="bg-gray-900 text-white">FSC (Fuga sin Censura)</option>
+            <option value="amateur" class="bg-gray-900 text-white">Amateur</option>
+            <option value="prodprof" class="bg-gray-900 text-white">Producción Profesional</option>
+            <option value="prodext" class="bg-gray-900 text-white">Producción Extranjera</option>
+        `;
+    } else {
+        selectOrdenar.innerHTML = `
+            <option value="reciente" class="bg-gray-900 text-white">Fecha de Subida</option>
+            <option value="estreno" class="bg-gray-900 text-white">Fecha de Estreno</option>
+        `;
+    }
+    criterioOrden = "reciente";
+}
+
+function aplicarFiltrosYRenderizar() {
+    const textoBusqueda = inputBuscar.value.toLowerCase().trim();
+
+    if (pestañaActiva === "actrices") {
+        let actricesFiltradas = [...LISTA_ACTRICES_UNICAS];
+
+        if (textoBusqueda !== "") {
+            actricesFiltradas = actricesFiltradas.filter(a => a.actriz && a.actriz.toLowerCase().includes(textoBusqueda));
+        }
+
+        if (criterioOrden === "reciente") {
+            actricesFiltradas.sort((a, b) => new Date(b.ultimaactualizacion) - new Date(a.ultimaactualizacion));
+        } else if (criterioOrden === "antiguo") {
+            actricesFiltradas.sort((a, b) => new Date(a.ultimaactualizacion) - new Date(b.ultimaactualizacion));
+        } else if (criterioOrden === "az") {
+            actricesFiltradas.sort((a, b) => a.actriz.localeCompare(b.actriz));
+        } else if (criterioOrden === "za") {
+            actricesFiltradas.sort((a, b) => b.actriz.localeCompare(a.actriz));
+        }
+
+        datosFiltrados = actricesFiltradas;
+        renderizarListaActrices();
+        renderizarPaginacion(datosFiltrados.length);
+        return;
+    }
+
+    let videosFiltrados = [...BD_VIDEOS];
+
+    if (pestañaActiva === "actriz_individual" && actrizSeleccionada) {
+        videosFiltrados = videosFiltrados.filter(v => v.actriz && v.actriz.toLowerCase().trim() === actrizSeleccionada.toLowerCase().trim());
+    } else if (pestañaActiva === "amateur") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
+    } else if (pestañaActiva === "subesp") { 
+        videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
+    } else if (pestañaActiva === "mr") {
+        videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
+    } else if (pestañaActiva === "fsc") {
+        videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
+    } else if (pestañaActiva === "prodprof") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
+    } else if (pestañaActiva === "prodext") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
+    }
+
+    if (textoBusqueda !== "") {
+        videosFiltrados = videosFiltrados.filter(v => {
+            const matchCodigo = v.codigo && v.codigo.toLowerCase().includes(textoBusqueda);
+            const matchActriz = v.actriz && v.actriz.toLowerCase().includes(textoBusqueda);
+            const matchDesc = v.descripcion && v.descripcion.toLowerCase().includes(textoBusqueda);
+            return matchCodigo || matchActriz || matchDesc;
+        });
+    }
+
+    if (criterioOrden === "reciente") {
+        videosFiltrados.sort((a, b) => new Date(b.fechadesubida) - new Date(a.fechadesubida));
+    } else if (criterioOrden === "estreno") {
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno) - new Date(a.fechadeestreno));
+    } else if (criterioOrden === "subesp") {
+        videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
+    } else if (criterioOrden === "mr") {
+        videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
+    } else if (criterioOrden === "fsc") {
+        videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
+    } else if (criterioOrden === "amateur") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
+    } else if (criterioOrden === "prodprof") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
+    } else if (criterioOrden === "prodext") {
+        videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
+    }
+
+    datosFiltrados = videosFiltrados;
+    renderizarCuadrículaVideos();
+    renderizarPaginacion(datosFiltrados.length);
+}
+
+function irAPerfilActriz(nombreActriz) {
+    if (!nombreActriz || nombreActriz.toLowerCase() === "desconocida") return;
+    
+    actrizSeleccionada = nombreActriz;
+    pestañaActiva = "actriz_individual";
+    paginaActual = 1;
+    inputBuscar.value = "";
+    searchBarContainer.classList.add("hidden");
+    actualizarPlaceholderBuscador();
+    
+    actualizarUIHeadernavigation();
+    actualizarOpcionesSelectOrdenar();
+
+    const slug = nombreActriz.toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/ñ/g, "n")
+          .replace(/\s+/g, "_");
+
+    history.pushState({ 
+        pestana: "actriz_individual", 
+        pagina: 1, 
+        actriz: actrizSeleccionada 
+    }, "", `?actriz=${slug}`);
+
+    aplicarFiltrosYRenderizar();
+    window.scrollTo(0, 0);
+}
+
+function renderizarCuadrículaVideos() {
     contenedorPrincipal.innerHTML = "";
     
     if (datosFiltrados.length === 0) {
-        contenedorPrincipal.innerHTML = `<p class="col-span-full text-center text-gray-500 text-xs py-12 font-medium">No se encontraron elementos.</p>`;
-        contenedorPaginacion.innerHTML = "";
+        contenedorPrincipal.innerHTML = `<div class="text-center text-gray-500 py-20 text-xs font-bold tracking-wide">No se encontraron videos.</div>`;
         return;
     }
 
-    const indiceInicio = (paginaActual - 1) * limiteElementos;
-    const indiceFin = indiceInicio + limiteElementos;
-    const elementosPagina = datosFiltrados.slice(indiceInicio, indiceFin);
+    const indiceInicio = (paginaActual - 1) * LIMITE_POR_PAGINA;
+    const indiceFin = paginaActual * LIMITE_POR_PAGINA;
+    const videosPagina = datosFiltrados.slice(indiceInicio, indiceFin);
 
-    if (vistaActual === "inicio") {
-        elementosPagina.forEach(actriz => {
-            const tarjeta = document.createElement("div");
-            tarjeta.className = "bg-gray-950 border border-gray-800/60 rounded-md p-2 flex flex-col items-center text-center cursor-pointer active:scale-95 transition-all shadow-sm";
-            
-            const nombreLimpio = (actriz.Actriz || "")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/ñ/g, "n")
-                .replace(/\s+/g, "_");
+    videosPagina.forEach(video => {
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl flex flex-col p-3 gap-2 transition-all duration-300";
+        
+        const codigoLimpio = video.codigo ? video.codigo.trim() : "SIN CÓDIGO";
+        const formato = video.formato || "MP4";
+        const resolucion = video.resolucion || "1080p";
+        const tamano = video.tamano || "GB";
+        const nombreActriz = video.actriz || 'Desconocida';
+        const descripcionOriginal = video.descripcion || 'Sin descripción disponible.';
 
-            tarjeta.innerHTML = `
-                <div class="w-full aspect-[3/4] bg-gray-900 rounded overflow-hidden mb-2 relative border border-gray-800">
-                    <img src="portadas/act/${nombreLimpio}.jpg" alt="${actriz.Actriz}" 
-                         class="w-full h-full object-cover" loading="lazy" 
-                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%23374151\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'1\\' d=\\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\\'/></svg>';">
+        tarjeta.innerHTML = `
+            <div class="flex justify-between items-center text-xs font-mono tracking-wide w-full px-0.5">
+                <span class="text-yellow-500 font-black uppercase text-xs">[${codigoLimpio}]</span>
+                <span class="text-gray-400 font-bold text-[11px]">${formato} ${resolucion} / ${tamano}</span>
+            </div>
+
+            <div class="portada-contenedor block w-full group relative cursor-pointer">
+                <div class="relative bg-gray-950 aspect-[1.5/1] w-full flex items-center justify-center overflow-hidden rounded-lg border border-gray-800">
+                    <img src="portadas/vid/${codigoLimpio}.jpg" 
+                         onerror="this.src='portadas/vid/${codigoLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/600x400/111827/4b5563?text=${codigoLimpio}'" 
+                         class="w-full h-full object-cover">
+                    
+                    <div class="absolute inset-0 flex items-center justify-center transition-colors duration-300">
+                        <a href="${video.url || '#'}" target="_blank" class="play-trigger w-12 h-12 flex items-center justify-center rounded-full bg-red-600 text-white shadow-lg hover:scale-110 active:scale-95 transition-transform duration-300 pl-0.5 z-20">
+                            <svg class="w-6 h-6 fill-white pointer-events-none" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
-                <h3 class="text-xs font-black text-gray-200 tracking-tight line-clamp-1 w-full">${actriz.Actriz || 'Anónima'}</h3>
-            `;
-            
-            tarjeta.addEventListener("click", () => {
-                actrizSeleccionada = actriz.Actriz;
-                vistaActual = "videos";
-                paginaActual = 1;
-                
-                history.pushState({ 
-                    vista: "videos", 
-                    actriz: actrizSeleccionada, 
-                    pagina: 1, 
-                    criterionFecha: criterionFechaVideos 
-                }, "", `?actriz=${nombreLimpio}`);
-                
-                construirControlesSuperioresUI(true);
-                procesarFiltrosYRenderizado(false);
-            });
-            contenedorPrincipal.appendChild(tarjeta);
+            </div>
+
+            <div class="bloque-descripcion pt-1 relative">
+                <p class="texto-descripcion text-xs text-gray-300 font-medium leading-relaxed lineas-limitadas-2" id="texto-desc-${codigoLimpio}">
+                    <span class="contenedor-flotante-ver-mas" id="wrapper-flotante-${codigoLimpio}">
+                        <span class="text-gray-300 text-xs font-medium mr-1 select-none font-sans">...</span>
+                        <button class="btn-toggle-desc text-yellow-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
+                            ver más
+                        </button>
+                    </span>
+                    ${descripcionOriginal}
+                </p>
+                <div id="meta-expandido-${codigoLimpio}" class="hidden flex flex-col gap-2 pt-2 border-t border-gray-800/60 mt-2"></div>
+            </div>
+        `;
+
+        const textoDesc = tarjeta.querySelector(`#texto-desc-${codigoLimpio}`);
+        const wrapperFlotante = tarjeta.querySelector(`#wrapper-flotante-${codigoLimpio}`);
+        const metaExpandido = tarjeta.querySelector(`#meta-expandido-${codigoLimpio}`);
+        const portadaContenedor = tarjeta.querySelector(`.portada-contenedor`);
+        const playTrigger = tarjeta.querySelector(`.play-trigger`);
+
+        playTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
         });
-    } else {
-        elementosPagina.forEach(video => {
-            const tarjeta = document.createElement("div");
-            tarjeta.className = "bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-md";
-            
-            const tieneDetalles = video.Formato || video.Resolucion || video.Tamano;
-            const textoDetalles = tieneDetalles 
-                ? `<span class="text-gray-400 font-bold">${video.Formato || ''} ${video.Resolucion || ''} / ${video.Tamano || ''}</span>` 
-                : '';
 
-            tarjeta.innerHTML = `
-                <div class="flex justify-between items-center font-mono text-xs tracking-wide w-full">
-                    <h3 class="text-red-500 font-black uppercase">[${video.Codigo || 'SIN CÓDIGO'}]</h3>
-                    <div class="text-right">${textoDetalles}</div>
-                </div>
-                
-                <a href="${video.URL || '#'}" target="_blank" class="block group w-full">
-                    <div class="w-full aspect-[3/2] bg-gray-900 rounded-md overflow-hidden relative border border-gray-800 shadow-inner">
-                        <img src="portadas/vid/${video.Codigo || 'default'}.jpg" alt="Portada Video" 
-                             class="w-full h-full object-fill group-hover:scale-105 transition-transform duration-300" loading="lazy"
-                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'%231f2937\\'><rect width=\\'20\\' height=\\'14\\' x=\\'2\\' y=\\'5\\' rx=\\'2\\' stroke-width=\\'1\\'/><path stroke-width=\\'1\\' d=\\'M10 11l5 3-5 3v-6z\\'/></svg>';">
-                        
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-active:bg-black/40 transition-colors">
-                            <div class="w-12 h-12 bg-red-600/90 rounded-full flex items-center justify-center shadow-2xl transform active:scale-90 transition-transform">
-                                <svg class="w-6 h-6 text-white fill-current ml-0.5" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </div>
+        function conmutarEstado() {
+            const estaExpandido = !metaExpandido.classList.contains("hidden");
+
+            if (estaExpandido) {
+                metaExpandido.classList.add("hidden");
+                metaExpandido.innerHTML = ""; 
+                tarjeta.className = "bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl flex flex-col p-3 gap-2 transition-all duration-300";
+                textoDesc.className = "texto-descripcion text-xs text-gray-300 font-medium leading-relaxed lineas-limitadas-2";
+                wrapperFlotante.classList.remove("hidden");
+            } else {
+                tarjeta.className = "bg-gray-900 border-2 border-red-600/50 rounded-xl overflow-hidden shadow-xl flex flex-col p-3 gap-2 transition-all duration-300";
+                textoDesc.className = "texto-descripcion text-xs text-gray-300 font-medium lineas-expandidas";
+                wrapperFlotante.classList.add("hidden");
+
+                metaExpandido.innerHTML = `
+                    <div class="flex flex-col gap-1.5 text-xs">
+                        <a href="#" data-actriz="${nombreActriz}" class="link-actriz inline-block text-base font-black text-yellow-500 hover:text-yellow-400 hover:underline transition-colors tracking-wide uppercase py-0.5">
+                            ${nombreActriz}
+                        </a>
+                        <div class="flex flex-col gap-0.5">
+                            <p><span class="text-yellow-500 font-bold">Fecha de subida:</span> <span class="text-white">${video.fechadesubida || '---'}</span></p>
+                            <p><span class="text-yellow-500 font-bold">Fecha de estreno:</span> <span class="text-white">${video.fechadeestreno || '---'}</span></p>
                         </div>
                     </div>
-                </a>
-                
-                <div class="pt-0.5 bloque-descripcion">
-                    <p class="text-xs text-gray-300 leading-relaxed descripcion-video lineas-limitadas font-medium">${video.Descripcion || 'Sin descripción disponible.'}</p>
-                    <button class="btn-toggle-descripcion btn-ver-mas-inline text-red-500 font-black text-[10px] hidden uppercase tracking-wider focus:outline-none hover:underline">Ver más</button>
-                </div>
-            `;
+                    <div class="w-full text-right mt-1">
+                        <button class="btn-toggle-desc text-yellow-500 font-black text-[10px] uppercase tracking-wider hover:underline focus:outline-none">
+                            ocultar
+                        </button>
+                    </div>
+                `;
 
-            const parrafoDesc = tarjeta.querySelector(".descripcion-video");
-            const botonToggle = tarjeta.querySelector(".btn-toggle-descripcion");
-            
-            setTimeout(() => {
-                if (parrafoDesc.scrollHeight > parrafoDesc.clientHeight) {
-                    botonToggle.classList.remove("hidden");
+                const nuevoLinkActriz = metaExpandido.querySelector(".link-actriz");
+                if (nuevoLinkActriz) {
+                    nuevoLinkActriz.addEventListener("click", (el) => {
+                        el.preventDefault();
+                        el.stopPropagation();
+                        const act = el.currentTarget.getAttribute("data-actriz");
+                        irAPerfilActriz(act);
+                    });
                 }
-            }, 0);
-            
-            botonToggle.addEventListener("click", () => {
-                const estaLimitado = parrafoDesc.classList.contains("lineas-limitadas");
-                if (estaLimitado) {
-                    // Estado Expandido: Se muestra todo el texto
-                    parrafoDesc.classList.remove("lineas-limitadas");
-                    botonToggle.textContent = "Ocultar";
-                    
-                    // Modificamos las clases para que deje de pisar el texto y se mueva abajo a la derecha de todo el bloque
-                    botonToggle.classList.remove("btn-ver-mas-inline");
-                    botonToggle.classList.add("block", "w-full", "text-right", "mt-1");
-                } else {
-                    // Estado Colapsado: Volvemos a las 3 líneas con 'Ver más' inline
-                    parrafoDesc.classList.add("lineas-limitadas");
-                    botonToggle.textContent = "Ver más";
-                    
-                    // Restauramos la posición absoluta sobre la tercera línea
-                    botonToggle.classList.add("btn-ver-mas-inline");
-                    botonToggle.classList.remove("block", "w-full", "text-right", "mt-1");
-                }
-            });
 
-            contenedorPrincipal.appendChild(tarjeta);
+                metaExpandido.classList.remove("hidden");
+            }
+        }
+
+        tarjeta.addEventListener("click", (e) => {
+            if (e.target.classList.contains("btn-toggle-desc") || e.target.closest(".btn-toggle-desc")) {
+                conmutarEstado();
+            }
         });
-    }
-    
-    construirPaginacionUI(limiteElementos);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+
+        portadaContenedor.addEventListener("click", (e) => {
+            if (!e.target.closest(".play-trigger")) {
+                conmutarEstado();
+            }
+        });
+
+        contenedorPrincipal.appendChild(tarjeta);
+    });
 }
 
-function construirPaginacionUI(limiteElementos) {
+function renderizarListaActrices() {
+    contenedorPrincipal.innerHTML = "";
+
+    if (datosFiltrados.length === 0) {
+        contenedorPrincipal.innerHTML = `<div class="text-center text-gray-500 py-20 text-xs font-bold tracking-wide">No se encontraron actrices.</div>`;
+        return;
+    }
+
+    const indiceInicio = (paginaActual - 1) * LIMITE_POR_PAGINA;
+    const indiceFin = paginaActual * LIMITE_POR_PAGINA;
+    const actricesPagina = datosFiltrados.slice(indiceInicio, indiceFin);
+
+    const gridActrices = document.createElement("div");
+    gridActrices.className = "grid grid-cols-2 gap-3 w-full";
+
+    actricesPagina.forEach(actrizObj => {
+        const item = document.createElement("div");
+        item.className = "bg-gray-900 border border-gray-800 rounded-xl p-1.5 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform shadow-md";
+        
+        const nombreLimpio = actrizObj.actriz 
+            ? actrizObj.actriz.toLowerCase()
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/ñ/g, "n")
+                  .replace(/\s+/g, "_") 
+            : "default";
+
+        item.innerHTML = `
+            <div class="w-full aspect-[1/1.3333] rounded-lg bg-gray-950 border border-gray-800 overflow-hidden shadow">
+                <img src="portadas/act/${nombreLimpio}.jpg" 
+                     onerror="this.src='portadas/act/${nombreLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/300x400/111827/ffffff?text=${actrizObj.actriz.charAt(0)}'" 
+                     class="w-full h-full object-cover">
+            </div>
+            <h4 class="text-xs font-black text-gray-100 truncate w-full px-1 tracking-wide mt-1.5 uppercase">${actrizObj.actriz}</h4>
+        `;
+        
+        item.addEventListener("click", () => {
+            irAPerfilActriz(actrizObj.actriz);
+        });
+
+        gridActrices.appendChild(item);
+    });
+
+    contenedorPrincipal.appendChild(gridActrices);
+}
+
+function renderizarPaginacion(totalElementos) {
     contenedorPaginacion.innerHTML = "";
-    const totalPaginas = Math.ceil(datosFiltrados.length / limiteElementos);
-    
+    const totalPaginas = Math.ceil(totalElementos / LIMITE_POR_PAGINA);
+
     if (totalPaginas <= 1) return;
 
     for (let i = 1; i <= totalPaginas; i++) {
-        const boton = document.createElement("button");
-        boton.textContent = i;
-        boton.className = `w-9 h-9 rounded-md text-xs font-black transition-all ${paginaActual === i ? 'bg-red-600 text-white shadow scale-105' : 'bg-gray-800 text-gray-400 border border-gray-700'}`;
+        const botonPagina = document.createElement("button");
+        botonPagina.textContent = i;
+        botonPagina.className = `w-8 h-8 rounded-lg text-xs font-black transition-all active:scale-90 ${paginaActual === i ? 'bg-yellow-600 text-gray-950 shadow-md scale-105' : 'bg-gray-900 text-gray-400 border border-gray-800'}`;
         
-        boton.addEventListener("click", () => {
+        botonPagina.addEventListener("click", () => {
             paginaActual = i;
             
-            if (vistaActual === "videos") {
-                const nombreLimpio = actrizSeleccionada.toLowerCase().replace(/\s+/g, "_");
-                history.pushState({ 
-                    vista: "videos", 
-                    actriz: actrizSeleccionada, 
-                    pagina: paginaActual, 
-                    criterionFecha: criterionFechaVideos 
-                }, "", `?actriz=${nombreLimpio}&p=${i}`);
-            } else {
-                history.pushState({ 
-                    vista: "inicio", 
-                    pagina: paginaActual, 
-                    filtro: filtroSelectInicio, 
-                    busqueda: textoBuscadoGuardado 
-                }, "", " ");
+            let nuevaUrl = `?p=${i}`;
+            if (pestañaActiva === "actriz_individual" && actrizSeleccionada) {
+                const slug = actrizSeleccionada.toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/ñ/g, "n")
+                    .replace(/\s+/g, "_");
+                nuevaUrl = `?actriz=${slug}&p=${i}`;
+            } else if (pestañaActiva !== "todos") {
+                nuevaUrl = `?tab=${pestañaActiva}&p=${i}`;
             }
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            procesarFiltrosYRenderizado(false);
+
+            history.pushState({ 
+                pestana: pestañaActiva, 
+                pagina: paginaActual, 
+                actriz: actrizSeleccionada 
+            }, "", nuevaUrl);
+
+            if (pestañaActiva === "actrices") {
+                renderizarListaActrices();
+            } else {
+                renderizarCuadrículaVideos();
+            }
+            renderizarPaginacion(totalElementos);
+            window.scrollTo(0, 0);
         });
-        
-        contenedorPaginacion.appendChild(boton);
+
+        contenedorPaginacion.appendChild(botonPagina);
     }
 }
+
+window.addEventListener("DOMContentLoaded", inicializarApp);
