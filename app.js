@@ -655,7 +655,7 @@ function renderizarPaginacion(totalElementos) {
     for (let i = 1; i <= totalPaginas; i++) {
         const botonPagina = document.createElement("button");
         botonPagina.textContent = i;
-        botonPagina.className = `w-8 h-8 rounded-lg text-xs font-black transition-all active:scale-90 ${paginaActual === i ? 'bg-yellow-600 text-gray-950 shadow-md scale-105' : 'bg-gray-900 text-gray-400 border border-gray-800'}`;
+        botonPagina.className = `w-8 h-8 rounded-lg text-xs font-black transition-all active:scale-90 ${paginaActual === i ? 'bg-red-600 text-white shadow-md scale-105' : 'bg-gray-900 text-gray-400 border border-gray-800'}`;
         
         botonPagina.addEventListener("click", () => {
             paginaActual = i;
