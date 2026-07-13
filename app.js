@@ -429,16 +429,14 @@ function aplicarFiltrosYRenderizar() {
         videosFiltrados.sort((a, b) => new Date(b.fechadeestreno) - new Date(a.fechadeestreno));
     } else if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
-    } else if (criterioOrden === "mr") {
-        videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
-    } else if (criterioOrden === "fsc") {
-        videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
     } else if (criterioOrden === "amateur") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
     } else if (criterioOrden === "prodprof") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
     } else if (criterioOrden === "prodext") {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
+    } else if (criterioOrden === "vpf") {
+        videosFiltrados = videosFiltrados.filter(v => v.vpf && (v.vpf.toLowerCase().trim() === "si" || v.vpf.toLowerCase().trim() === "sí"));
     }
 
     datosFiltrados = videosFiltrados;
