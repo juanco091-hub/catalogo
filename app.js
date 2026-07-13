@@ -330,9 +330,9 @@ function actualizarUIHeadernavigation() {
         document.querySelectorAll(".tab-item").forEach(b => {
             const tabAttr = b.getAttribute("data-tab");
             if (!tabAttr && pestañaActiva === "todos") {
-                b.className = "tab-item px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center";
+                b.className = "tab-item px-4 py-2 rounded-full text-sm font-bold bg-red-600 text-white shadow transition-all active:scale-95 flex items-center justify-center";
             } else if (tabAttr === pestañaActiva) {
-                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95";
+                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-red-600 text-white shadow transition-all active:scale-95";
             } else {
                 b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
             }
