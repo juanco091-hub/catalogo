@@ -23,9 +23,18 @@ const inputBuscar = document.getElementById("input-buscar");
 const selectOrdenar = document.getElementById("select-ordenar");
 const mainTitle = document.getElementById("main-title");
 const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav");
+const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
+const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
 
-const btnHeaderHome = document.getElementById("btn-header-home");
-const btnHeaderActrices = document.getElementById("btn-header-actrices");
+// Nuevos selectores para el Banner Premium y Botón Historial
+const imgActrizBanner = document.getElementById("img-actriz-banner");
+const infoActualizacionBanner = document.getElementById("info-actualizacion-banner");
+const btnHistorial = document.getElementById("btn-historial");
+const dropdownHistorial = document.getElementById("dropdown-historial");
+const listaNombresAnteriores = document.getElementById("lista-nombres-anteriores");
+
+const btnVolverActrices = document.getElementById("btn-volver-actrices");
+const btnCatCen = document.getElementById("btn-cat-cen");
 const btnFooterWhatsapp = document.getElementById("btn-footer-whatsapp");
 const btnFooterSearch = document.getElementById("btn-footer-search");
 
@@ -93,6 +102,7 @@ window.addEventListener("popstate", (evento) => {
         document.body.classList.remove("modal-abierto");
         modalAyuda.classList.add("hidden");
         modalWhatsapp.classList.add("hidden");
+        if (dropdownHistorial) dropdownHistorial.classList.add("hidden");
 
         actualizarUIHeadernavigation();
         actualizarOpcionesSelectOrdenar();
@@ -177,9 +187,6 @@ function generarListaActricesUnicas() {
 }
 
 function configurarEventos() {
-    btnHeaderHome.addEventListener("click", () => resetearAInicio());
-    mainTitle.addEventListener("click", () => resetearAInicio());
-
     document.querySelectorAll(".tab-item").forEach(boton => {
         boton.addEventListener("click", (e) => {
             const tabTarget = e.currentTarget.getAttribute("data-tab");
@@ -223,6 +230,9 @@ function configurarEventos() {
         });
     });
 
+    btnCatCen.addEventListener("click", () => resetearAInicio());
+    mainTitle.addEventListener("click", () => resetearAInicio());
+
     inputBuscar.addEventListener("input", () => {
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
@@ -234,6 +244,22 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
     });
+
+    btnVolverActrices.addEventListener("click", () => {
+        resetearAInicio();
+    });
+
+    // Acción para abrir/cerrar el historial compacto
+    if (btnHistorial && dropdownHistorial) {
+        btnHistorial.addEventListener("click", (e) => {
+            e.stopPropagation();
+            dropdownHistorial.classList.toggle("hidden");
+        });
+        // Cerrar dropdown si se hace clic en cualquier otro lado
+        document.addEventListener("click", () => {
+            dropdownHistorial.classList.add("hidden");
+        });
+    }
 
     modalWhatsapp.addEventListener("click", (e) => {
         if (e.target === modalWhatsapp) {
@@ -303,11 +329,12 @@ function resetearAInicio() {
     document.body.classList.remove("modal-abierto");
     modalAyuda.classList.add("hidden");
     modalWhatsapp.classList.add("hidden");
+    if (dropdownHistorial) dropdownHistorial.classList.add("hidden");
     
     actualizarUIHeadernavigation();
     actualizarOpcionesSelectOrdenar();
 
-    if (contenedorPestanasNav) contenedorPestanasNav.scrollLeft = 0;
+    contenedorPestanasNav.scrollLeft = 0;
 
     history.pushState({ pestana: "todos", pagina: 1, actriz: null }, "", window.location.pathname);
     
@@ -315,31 +342,85 @@ function resetearAInicio() {
     window.scrollTo(0, 0);
 }
 
+// CONTROLADOR DE CABECERA TOTALMENTE OPTIMIZADO PARA EL BANNER STREAMING
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
         contenedorPestanasNav.classList.add("hidden");
-        btnHeaderHome.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95 flex items-center justify-center";
-        btnHeaderActrices.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
-    } else {
-        contenedorPestanasNav.classList.remove("hidden");
+        vistaActrizCabecera.classList.remove("hidden");
+        nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
+        
+        // Generar Slug de imagen idéntico al sistema de portadas de tu cuadrícula
+        const slug = actrizSeleccionada.toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/ñ/g, "n")
+              .replace(/\s+/g, "_");
 
-        if (pestañaActiva === "todos") {
-            btnHeaderHome.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center";
-            btnHeaderActrices.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
-        } else if (pestañaActiva === "actrices") {
-            btnHeaderHome.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95 flex items-center justify-center";
-            btnHeaderActrices.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95";
-        } else {
-            btnHeaderHome.className = "px-3.5 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95 flex items-center justify-center";
-            btnHeaderActrices.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
+        // Renderizado dinámico de la foto de fondo en el Banner Premium
+        if (imgActrizBanner) {
+            imgActrizBanner.src = `portadas/act/${slug}.jpg`;
+            imgActrizBanner.onerror = () => {
+                imgActrizBanner.src = `portadas/act/${slug}.png`;
+                imgActrizBanner.onerror = () => {
+                    imgActrizBanner.src = `https://placehold.co/600x400/111827/ffffff?text=${actrizSeleccionada.charAt(0)}`;
+                };
+            };
         }
 
-        document.querySelectorAll("#nav-tabs .tab-item").forEach(b => {
-            const tabAttr = b.getAttribute("data-tab");
-            if (tabAttr === pestañaActiva) {
-                b.className = "tab-item px-4 py-1.5 rounded-full text-xs font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95";
+        // Extraer y setear fecha de actualización en el Banner
+        const infoActrizObj = LISTA_ACTRICES_UNICAS.find(a => a.actriz === actrizSeleccionada);
+        const ultimaFec = infoActrizObj ? infoActrizObj.ultimaactualizacion : "---";
+        if (infoActualizacionBanner) {
+            infoActualizacionBanner.innerHTML = `ACTUALIZADO: <span class="text-gray-200">${ultimaFec}</span>`;
+        }
+
+        // CARGAR EL HISTORIAL DINÁMICO DESDE LA BASE DE DATOS (BD_ACTRICES)
+        if (listaNombresAnteriores) {
+            listaNombresAnteriores.innerHTML = "";
+            
+            // Filtramos en la base de actrices si la actriz seleccionada tiene registros
+            const registrosActriz = BD_ACTRICES.filter(a => a.actriz && a.actriz.trim().toLowerCase() === actrizSeleccionada.toLowerCase().trim());
+            
+            let nombresAnterioresEncontrados = [];
+            registrosActriz.forEach(reg => {
+                // Asumiendo que tu columna de Google Sheets se llama "historial" o "nombresanteriores"
+                // Modifica 'reg.historial' por el nombre exacto de la columna en tu Excel/Sheets si fuera necesario
+                const campoHistorial = reg.historial || reg.nombresanteriores || reg.nombres_anteriores;
+                if (campoHistorial && campoHistorial.trim() !== "" && campoHistorial.trim() !== "---") {
+                    // Si vienen separados por comas, los dividimos
+                    const separados = campoHistorial.split(',').map(n => n.trim());
+                    nombresAnterioresEncontrados.push(...separados);
+                }
+            });
+
+            // Eliminar duplicados si los hay
+            nombresAnterioresEncontrados = [...new Set(nombresAnterioresEncontrados)];
+
+            if (nombresAnterioresEncontrados.length > 0) {
+                nombresAnterioresEncontrados.forEach(nom => {
+                    const li = document.createElement("li");
+                    li.className = "px-2.5 py-1 hover:bg-gray-800 rounded-md font-semibold text-gray-300 transition-colors truncate";
+                    li.textContent = nom;
+                    listaNombresAnteriores.appendChild(li);
+                });
             } else {
-                b.className = "tab-item px-4 py-1.5 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
+                listaNombresAnteriores.innerHTML = `<li class="px-2 py-1 text-gray-500 italic text-[11px] text-center">Sin nombres previos</li>`;
+            }
+        }
+
+    } else {
+        contenedorPestanasNav.classList.remove("hidden");
+        vistaActrizCabecera.classList.add("hidden");
+        if (dropdownHistorial) dropdownHistorial.classList.add("hidden");
+
+        document.querySelectorAll(".tab-item").forEach(b => {
+            const tabAttr = b.getAttribute("data-tab");
+            if (!tabAttr && pestañaActiva === "todos") {
+                b.className = "tab-item px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center";
+            } else if (tabAttr === pestañaActiva) {
+                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95";
+            } else {
+                b.className = "tab-item px-5 py-2 rounded-full text-sm font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95";
             }
         });
     }
@@ -373,38 +454,6 @@ function actualizarOpcionesSelectOrdenar() {
         `;
     }
     criterioOrden = "reciente";
-}
-
-function construirHeroActriz(nombreActriz) {
-    const nombreLimpio = nombreActriz 
-        ? nombreActriz.toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/ñ/g, "n")
-              .replace(/\s+/g, "_") 
-        : "default";
-
-    const heroDiv = document.createElement("div");
-    heroDiv.className = "relative w-full bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl mb-2";
-    heroDiv.innerHTML = `
-        <div class="absolute inset-0 bg-cover bg-center blur-md opacity-20 transform scale-110" style="background-image: url('portadas/act/${nombreLimpio}.jpg');"></div>
-        <div class="relative z-10 p-4 flex gap-4 items-center">
-            <div class="w-24 h-32 shrink-0 rounded-xl bg-gray-950 border-2 border-yellow-500/50 overflow-hidden shadow-lg">
-                <img src="portadas/act/${nombreLimpio}.jpg" 
-                     onerror="this.src='portadas/act/${nombreLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/300x400/111827/ffffff?text=${nombreActriz.charAt(0)}'" 
-                     class="w-full h-full object-cover">
-            </div>
-            <div class="flex flex-col justify-center flex-grow min-w-0 pr-1">
-                <span class="inline-block bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[10px] font-black uppercase px-2 py-0.5 rounded-md w-max mb-1.5 tracking-wider">
-                    Perfil de Actriz
-                </span>
-                <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-wide leading-tight break-words">
-                    ${nombreActriz}
-                </h2>
-            </div>
-        </div>
-    `;
-    return heroDiv;
 }
 
 function aplicarFiltrosYRenderizar() {
@@ -514,17 +563,9 @@ function irAPerfilActriz(nombreActriz) {
 
 function renderizarCuadrículaVideos() {
     contenedorPrincipal.innerHTML = "";
-
-    // Si estamos en perfil de actriz, colocamos el Hero primero
-    if (pestañaActiva === "actriz_individual" && actrizSeleccionada) {
-        contenedorPrincipal.appendChild(construirHeroActriz(actrizSeleccionada));
-    }
     
     if (datosFiltrados.length === 0) {
-        const vacio = document.createElement("div");
-        vacio.className = "text-center text-gray-500 py-16 text-xs font-bold tracking-wide";
-        vacio.textContent = "No se encontraron videos.";
-        contenedorPrincipal.appendChild(vacio);
+        contenedorPrincipal.innerHTML = `<div class="text-center text-gray-500 py-20 text-xs font-bold tracking-wide">No se encontraron videos.</div>`;
         return;
     }
 
@@ -579,7 +620,7 @@ function renderizarCuadrículaVideos() {
             </div>
         `;
 
-        const textoDesc = tarjeta.querySelector(`#texto-desc-${codigoLimpio}`);
+        const textoDesc = tarjeta.querySelector(`#texto-desc-${codigoLiopio}` || `#texto-desc-${codigoLimpio}`);
         const wrapperFlotante = tarjeta.querySelector(`#wrapper-flotante-${codigoLimpio}`);
         const metaExpandido = tarjeta.querySelector(`#meta-expandido-${codigoLimpio}`);
         const portadaContenedor = tarjeta.querySelector(`.portada-contenedor`);
