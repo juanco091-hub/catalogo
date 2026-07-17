@@ -26,12 +26,13 @@ const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav")
 const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
 const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
 
-// Nuevos selectores para el Banner Premium y Botón Historial
+// Nuevos selectores añadidos quirúrgicamente para el Banner e Historial
+const contenedorCategoriasHeader = document.getElementById("contenedor-categorias-header");
 const imgActrizBanner = document.getElementById("img-actriz-banner");
-const infoActualizacionBanner = document.getElementById("info-actualizacion-banner");
 const btnHistorial = document.getElementById("btn-historial");
 const dropdownHistorial = document.getElementById("dropdown-historial");
 const listaNombresAnteriores = document.getElementById("lista-nombres-anteriores");
+const btnBannerTabActrices = document.getElementById("btn-banner-tab-actrices");
 
 const btnVolverActrices = document.getElementById("btn-volver-actrices");
 const btnCatCen = document.getElementById("btn-cat-cen");
@@ -249,13 +250,29 @@ function configurarEventos() {
         resetearAInicio();
     });
 
-    // Acción para abrir/cerrar el historial compacto
+    // Evento del botón Actrices integrado dentro del Banner Premium
+    if (btnBannerTabActrices) {
+        btnBannerTabActrices.addEventListener("click", () => {
+            pestañaActiva = "actrices";
+            actrizSeleccionada = null;
+            paginaActual = 1;
+            searchBarContainer.classList.add("hidden");
+            inputBuscar.value = "";
+            actualizarPlaceholderBuscador();
+            actualizarUIHeadernavigation();
+            actualizarOpcionesSelectOrdenar();
+            history.pushState({ pestana: "actrices", pagina: 1, actriz: null }, "", `?tab=actrices`);
+            aplicarFiltrosYRenderizar();
+            window.scrollTo(0, 0);
+        });
+    }
+
+    // Evento para abrir e intercalar la ventana flotante del historial
     if (btnHistorial && dropdownHistorial) {
         btnHistorial.addEventListener("click", (e) => {
             e.stopPropagation();
             dropdownHistorial.classList.toggle("hidden");
         });
-        // Cerrar dropdown si se hace clic en cualquier otro lado
         document.addEventListener("click", () => {
             dropdownHistorial.classList.add("hidden");
         });
@@ -342,21 +359,24 @@ function resetearAInicio() {
     window.scrollTo(0, 0);
 }
 
-// CONTROLADOR DE CABECERA TOTALMENTE OPTIMIZADO PARA EL BANNER STREAMING
+// CONTROLADOR DE DISEÑO ADAPTATIVO CON BANNER INTEGRADO Y REDIRECCIÓN DE ESTADOS
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
         contenedorPestanasNav.classList.add("hidden");
+        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.add("hidden"); // Ocultar CEN y S-CEN
         vistaActrizCabecera.classList.remove("hidden");
+        
+        // Mantener tipografía y tamaño exactos originales
+        nombreActrizTitulo.className = "text-base font-black text-yellow-500 uppercase tracking-wide truncate w-full";
         nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
         
-        // Generar Slug de imagen idéntico al sistema de portadas de tu cuadrícula
+        // Generar el slug exacto para renderizar la foto de fondo derecha
         const slug = actrizSeleccionada.toLowerCase()
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
               .replace(/ñ/g, "n")
               .replace(/\s+/g, "_");
 
-        // Renderizado dinámico de la foto de fondo en el Banner Premium
         if (imgActrizBanner) {
             imgActrizBanner.src = `portadas/act/${slug}.jpg`;
             imgActrizBanner.onerror = () => {
@@ -367,49 +387,37 @@ function actualizarUIHeadernavigation() {
             };
         }
 
-        // Extraer y setear fecha de actualización en el Banner
-        const infoActrizObj = LISTA_ACTRICES_UNICAS.find(a => a.actriz === actrizSeleccionada);
-        const ultimaFec = infoActrizObj ? infoActrizObj.ultimaactualizacion : "---";
-        if (infoActualizacionBanner) {
-            infoActualizacionBanner.innerHTML = `ACTUALIZADO: <span class="text-gray-200">${ultimaFec}</span>`;
-        }
-
-        // CARGAR EL HISTORIAL DINÁMICO DESDE LA BASE DE DATOS (BD_ACTRICES)
+        // Renderizado automático de los nombres anteriores en la lista
         if (listaNombresAnteriores) {
             listaNombresAnteriores.innerHTML = "";
-            
-            // Filtramos en la base de actrices si la actriz seleccionada tiene registros
             const registrosActriz = BD_ACTRICES.filter(a => a.actriz && a.actriz.trim().toLowerCase() === actrizSeleccionada.toLowerCase().trim());
-            
-            let nombresAnterioresEncontrados = [];
+            let nombresEncontrados = [];
             registrosActriz.forEach(reg => {
-                // Asumiendo que tu columna de Google Sheets se llama "historial" o "nombresanteriores"
-                // Modifica 'reg.historial' por el nombre exacto de la columna en tu Excel/Sheets si fuera necesario
                 const campoHistorial = reg.historial || reg.nombresanteriores || reg.nombres_anteriores;
                 if (campoHistorial && campoHistorial.trim() !== "" && campoHistorial.trim() !== "---") {
-                    // Si vienen separados por comas, los dividimos
                     const separados = campoHistorial.split(',').map(n => n.trim());
-                    nombresAnterioresEncontrados.push(...separados);
+                    nombresEncontrados.push(...separados);
                 }
             });
 
-            // Eliminar duplicados si los hay
-            nombresAnterioresEncontrados = [...new Set(nombresAnterioresEncontrados)];
+            nombresEncontrados = [...new Set(nombresEncontrados)];
 
-            if (nombresAnterioresEncontrados.length > 0) {
-                nombresAnterioresEncontrados.forEach(nom => {
+            if (nombresEncontrados.length > 0) {
+                nombresEncontrados.forEach(nom => {
                     const li = document.createElement("li");
-                    li.className = "px-2.5 py-1 hover:bg-gray-800 rounded-md font-semibold text-gray-300 transition-colors truncate";
+                    li.className = "px-1.5 py-0.5 hover:bg-gray-800 rounded text-gray-300 truncate font-medium";
                     li.textContent = nom;
                     listaNombresAnteriores.appendChild(li);
                 });
             } else {
-                listaNombresAnteriores.innerHTML = `<li class="px-2 py-1 text-gray-500 italic text-[11px] text-center">Sin nombres previos</li>`;
+                listaNombresAnteriores.innerHTML = `<li class="px-1.5 py-0.5 text-gray-500 italic text-[10px]">Sin nombres anteriores</li>`;
             }
         }
 
     } else {
+        // Restaurar estado global al salir del perfil individual
         contenedorPestanasNav.classList.remove("hidden");
+        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.remove("hidden"); // Mostrar de nuevo CEN y S-CEN
         vistaActrizCabecera.classList.add("hidden");
         if (dropdownHistorial) dropdownHistorial.classList.add("hidden");
 
@@ -620,7 +628,7 @@ function renderizarCuadrículaVideos() {
             </div>
         `;
 
-        const textoDesc = tarjeta.querySelector(`#texto-desc-${codigoLiopio}` || `#texto-desc-${codigoLimpio}`);
+        const textoDesc = tarjeta.querySelector(`#texto-desc-${codigoLimpio}`);
         const wrapperFlotante = tarjeta.querySelector(`#wrapper-flotante-${codigoLimpio}`);
         const metaExpandido = tarjeta.querySelector(`#meta-expandido-${codigoLimpio}`);
         const portadaContenedor = tarjeta.querySelector(`.portada-contenedor`);
