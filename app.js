@@ -718,14 +718,35 @@ function renderizarCuadrículaVideos() {
             }
         }
 
-        tarjeta.addEventListener("click", (e) => {
-            if (e.target.classList.contains("btn-toggle-desc") || e.target.closest(".btn-toggle-desc")) {
-                conmutarEstado();
+        let clicksPortada = 0;
+        let timerPortada = null;
+
+        portadaContenedor.addEventListener("click", (e) => {
+            // Si toca el botón de Play rojo, no hacemos nada de esto para que abra el video normal
+            if (e.target.closest(".play-trigger")) return;
+
+            clicksPortada++;
+
+            if (clicksPortada === 1) {
+                // Esperamos 250 milisegundos para ver si el usuario da un segundo toque
+                timerPortada = setTimeout(() => {
+                    clicksPortada = 0; // Reiniciamos el contador
+                    conmutarEstado();   // Un toque: Expande la descripción e información
+                }, 250);
+            } else if (clicksPortada === 2) {
+                clearTimeout(timerPortada); // Cancelamos la expansión del primer toque
+                clicksPortada = 0;          // Reiniciamos el contador
+                
+                // Doble toque: Vamos directo al perfil de la actriz de este video
+                if (nombreActriz && nombreActriz.toLowerCase() !== "desconocida") {
+                    irAPerfilActriz(nombreActriz);
+                }
             }
         });
 
-        portadaContenedor.addEventListener("click", (e) => {
-            if (!e.target.closest(".play-trigger")) {
+        // Mantenemos el click original solo si tocan explícitamente los botones de "ver más" / "ocultar"
+        tarjeta.addEventListener("click", (e) => {
+            if (e.target.classList.contains("btn-toggle-desc") || e.target.closest(".btn-toggle-desc")) {
                 conmutarEstado();
             }
         });
