@@ -136,30 +136,36 @@
             </div>
         </div>
 
-        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/7.5] relative flex flex-col justify-between p-4 overflow-hidden bg-no-repeat bg-[right_top] bg-[length:55%]">
-            <!-- Capa de degradado oscuro denso a la izquierda y transparente a la derecha -->
-            <div class="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/85 to-transparent z-0 pointer-events-none"></div>
+        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/8] relative flex flex-col justify-between p-4 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl">
+            
+            <!-- CONTENEDOR DE LA FOTO (Alineada a la derecha con máscara de desvanecimiento hacia la izquierda) -->
+            <div class="absolute top-0 right-0 h-full w-[60%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
+                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_50%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_50%,rgba(0,0,0,0))]">
+            </div>
+
+            <!-- Degradado de fondo protector para los textos del lado izquierdo -->
+            <div class="absolute inset-y-0 left-0 w-[60%] bg-gradient-to-r from-gray-950 via-gray-950/80 to-transparent z-0 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Botones de navegación debajo de él -->
-            <div class="flex flex-col gap-2 z-10 items-start">
+            <div class="flex flex-col gap-2.5 z-10 items-start">
                 <h1 class="text-2xl font-black tracking-tighter text-yellow-500 uppercase">
                     PORTAL <span class="text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">JAV</span>
                 </h1>
                 
-                <div class="flex gap-2 items-center">
-                    <button id="btn-volver-actrices" class="w-9 h-7 rounded-lg bg-gray-950 border border-gray-800 text-gray-400 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <div class="flex gap-2.5 items-center">
+                    <button id="btn-volver-actrices" class="w-10 h-8 rounded-xl bg-gray-950/90 border border-gray-800 text-gray-300 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
-                    <button id="btn-cabecera-actrices" class="px-4 h-7 text-[11px] font-black rounded-lg bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 uppercase">
+                    <button id="btn-cabecera-actrices" class="px-5 h-8 text-xs font-bold rounded-xl bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 uppercase tracking-wider">
                         Actrices
                     </button>
                 </div>
             </div>
 
-            <!-- Bloque inferior izquierdo: Botón Historial y Nombre grande -->
-            <div class="flex flex-col gap-1 z-10 items-start pb-0.5">
-                <!-- Botón de Nombres Antiguos (Se activará dinámicamente) -->
-                <button id="btn-nombres-antiguos" class="hidden px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-md shadow-md border border-cyan-400/20 text-[9px] font-black uppercase tracking-widest text-white transition-all active:scale-95 text-center">
+            <!-- Bloque inferior izquierdo: Botón Historial (azul degradado) y Nombre grande -->
+            <div class="flex flex-col gap-1.5 z-10 items-start pb-0.5">
+                <!-- El Botón azul que viste en tu imagen (oculto por defecto) -->
+                <button id="btn-nombres-antiguos" class="hidden px-4 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-lg shadow-md border border-cyan-400/20 text-[9px] font-black uppercase tracking-widest text-white transition-all active:scale-95 text-center">
                     Historial
                 </button>
                 <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
