@@ -374,7 +374,6 @@ function resetearAInicio() {
     window.scrollTo(0, 0);
 }
 
-// REEMPLÁZALO POR ESTA VERSIÓN:
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
         // 1. Ocultamos la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
@@ -402,7 +401,7 @@ function actualizarUIHeadernavigation() {
             };
         }
 
-        // 5. CONTROL DEL BOTÓN AZUL (HISTORIAL DE NOMBRES) DESDE LAS COLUMNAS G A K
+        // 5. CONTROL DEL BOTÓN CIRCULAR (HISTORIAL DE NOMBRES) DESDE LAS COLUMNAS G A K
         // Buscamos el registro de la actriz actual en tu base de datos
         const registroActriz = BD_ACTRICES.find(a => a.actriz && a.actriz.toLowerCase().trim() === actrizSeleccionada.toLowerCase().trim());
         
@@ -420,10 +419,10 @@ function actualizarUIHeadernavigation() {
             });
         }
 
-        // Si encontramos al menos un nombre registrado, activamos el botón discreto en la interfaz
+        // Si encontramos al menos un nombre registrado, activamos el botón circular en la barra superior de navegación
         if (tieneHistorial) {
             btnNombresAntiguos.classList.remove("hidden");
-            btnNombresAntiguos.classList.add("flex"); // Asegura el centrado del ícono
+            btnNombresAntiguos.classList.add("flex"); // Centra el ícono de reloj perfectamente dentro del círculo
             // Guardamos temporalmente el historial dentro del botón para usarlo al hacer clic
             btnNombresAntiguos.dataset.historial = JSON.stringify(listaNombresHistorial);
         } else {
