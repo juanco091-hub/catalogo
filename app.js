@@ -240,6 +240,9 @@ function configurarEventos() {
     btnVolverActrices.addEventListener("click", () => {
         resetearAInicio();
     });
+    btnCabeceraActrices.addEventListener("click", () => {
+        resetearAInicio();
+    });
 
     modalWhatsapp.addEventListener("click", (e) => {
         if (e.target === modalWhatsapp) {
