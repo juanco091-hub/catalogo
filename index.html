@@ -83,7 +83,7 @@
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-300 select-none">
 
     <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-xl">
-        <!-- VISTA GENERAL (Inicio, Actrices, etc.) -->
+        <!-- CABECERA POR DEFECTO (Se ocultará cuando se entre al perfil de una actriz) -->
         <div id="vista-general-cabecera" class="max-w-md mx-auto px-4 py-4 flex flex-col gap-3.5">
             <div class="flex items-center justify-between">
                 <div>
@@ -136,36 +136,33 @@
             </div>
         </div>
 
-        <!-- NUEVA VISTA PERFIL ACTRIZ (Banner completo con fondo e imagen) -->
-        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/9] relative flex flex-col justify-between p-4 overflow-hidden bg-cover bg-center">
-            <!-- Capa oscura/degradada de fondo para asegurar contraste y el difuminado hacia la izquierda de la imagen -->
+        <!-- NUEVA CABECERA DE LA ACTRIZ (Estructura idéntica a tu captura) -->
+        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/8] relative flex flex-col justify-between p-4 overflow-hidden bg-cover bg-center">
+            <!-- Capa de degradado oscuro que simula el fundido hacia la foto de la derecha -->
             <div class="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/70 to-transparent z-0"></div>
             
-            <!-- Contenedor Superior (Título e Íconos) -->
-            <div class="w-full flex justify-between items-start z-10">
+            <!-- Bloque superior izquierdo: Título y Botones de navegación debajo de él -->
+            <div class="flex flex-col gap-3 z-10 items-start">
                 <h1 class="text-2xl font-black tracking-tighter text-yellow-500 uppercase">
                     PORTAL <span class="text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">JAV</span>
                 </h1>
                 
-                <div class="flex gap-2">
-                    <button id="btn-volver-actrices" class="w-8 h-8 rounded-lg bg-gray-900/80 border border-gray-800 text-gray-300 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
+                <div class="flex gap-2.5 items-center">
+                    <button id="btn-volver-actrices" class="w-10 h-8 rounded-xl bg-gray-950 border border-gray-800 text-gray-300 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
-                    <button id="btn-cabecera-actrices" class="px-3 h-8 text-[11px] font-black rounded-lg bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 uppercase tracking-wider">
+                    <button id="btn-cabecera-actrices" class="px-5 h-8 text-xs font-bold rounded-xl bg-yellow-600 text-gray-950 shadow transition-all active:scale-95">
                         Actrices
                     </button>
                 </div>
             </div>
 
-            <!-- Contenedor Inferior (Botón Historial y Nombre) -->
-            <div class="w-full flex flex-col gap-1 z-10 pb-1">
-                <!-- Botón de Nombres Antiguos (Se muestra/oculta por JS) -->
-                <button id="btn-nombres-antiguos" class="hidden w-24 h-5 bg-gradient-to-b from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-md shadow-md border border-cyan-400/30 text-[9px] font-black uppercase tracking-widest text-white transition-all active:scale-95 text-center">
+            <!-- Bloque inferior izquierdo: Botón Historial y Nombre grande -->
+            <div class="flex flex-col gap-1.5 z-10 items-start pb-0.5">
+                <button id="btn-nombres-antiguos" class="hidden w-24 h-4.5 bg-gradient-to-b from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-md shadow-md border border-cyan-400/20 text-[9px] font-black uppercase tracking-widest text-white transition-all active:scale-95 text-center">
                     Historial
                 </button>
-                
-                <!-- Nombre de la Actriz -->
-                <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></h2>
+                <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
             </div>
         </div>
     </header>
@@ -251,21 +248,18 @@
         </div>
     </div>
 
+    <!-- MODAL PARA MOSTRAR HISTORIAL DE NOMBRES -->
     <div id="modal-nombres-antiguos" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 relative animate-in fade-in zoom-in duration-200">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 relative">
             <button id="btn-cerrar-modal-nombres" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center">✕</button>
-            
             <div class="text-center mt-1">
                 <h3 class="text-xs font-black text-yellow-500 uppercase tracking-wider">Historial de Nombres</h3>
-                <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Evolución de identidades artísticas</p>
+                <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Variantes registradas en el sistema</p>
             </div>
-    
-            <!-- Contenedor dinámico donde se inyectarán los nombres desde JavaScript -->
             <div id="lista-nombres-antiguos-contenedor" class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-1 scrollbar-personalizado">
-                <!-- Los nombres aparecerán aquí mediante JS -->
+                <!-- Se inyectarán dinámicamente -->
             </div>
-    
-            <button id="btn-entendido-nombres" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-lg active:scale-95 shrink-0">
+            <button id="btn-entendido-nombres" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-black text-xs py-2.5 rounded-xl transition-all active:scale-95">
                 CERRAR
             </button>
         </div>
