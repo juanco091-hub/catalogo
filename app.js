@@ -327,14 +327,14 @@ function resetearAInicio() {
 // REEMPLÁZALO POR ESTA VERSIÓN:
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
-        // Ocultamos por completo la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
+        // 1. Ocultamos la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
         vistaGeneralCabecera.classList.add("hidden");
         
-        // Mostramos el banner superior de la actriz
+        // 2. Mostramos el banner de la actriz
         vistaActrizCabecera.classList.remove("hidden");
         nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
 
-        // Asignamos dinámicamente la foto de la actriz como fondo de pantalla completa (bg-cover) del banner
+        // 3. Generamos el nombre limpio para buscar la foto de la actriz
         const nombreLimpio = actrizSeleccionada
             .toLowerCase()
             .normalize("NFD")
@@ -342,10 +342,45 @@ function actualizarUIHeadernavigation() {
             .replace(/ñ/g, "n")
             .replace(/\s+/g, "_");
 
-        vistaActrizCabecera.style.backgroundImage = `url('portadas/act/${nombreLimpio}.jpg')`;
+        // 4. Asignamos la imagen al elemento img interno del banner para que use la máscara de fusión
+        const imgCabecera = document.getElementById("imagen-actriz-cabecera");
+        if (imgCabecera) {
+            imgCabecera.src = `portadas/act/${nombreLimpio}.jpg`;
+            imgCabecera.onerror = () => {
+                imgCabecera.src = `portadas/act/${nombreLimpio}.png`;
+                imgCabecera.onerror = () => { imgCabecera.src = ''; };
+            };
+        }
+
+        // 5. CONTROL DEL BOTÓN AZUL (HISTORIAL DE NOMBRES) DESDE LAS COLUMNAS G A K
+        // Buscamos el registro de la actriz actual en tu base de datos
+        const registroActriz = BD_ACTRICES.find(a => a.actriz && a.actriz.toLowerCase().trim() === actrizSeleccionada.toLowerCase().trim());
+        
+        let tieneHistorial = false;
+        let listaNombresHistorial = [];
+
+        if (registroActriz) {
+            // Revisamos las columnas normalizadas de tu Google Sheet (Nombre 1, Nombre 2, Nombre 3...)
+            const columnasNombres = ["nombre1", "nombre2", "nombre3", "nombre4", "nombre5"];
+            columnasNombres.forEach(col => {
+                if (registroActriz[col] && registroActriz[col].trim() !== "" && registroActriz[col].trim() !== "---") {
+                    listaNombresHistorial.push(registroActriz[col].trim());
+                    tieneHistorial = true;
+                }
+            });
+        }
+
+        // Si encontramos al menos un nombre registrado, activamos el botón azul en la interfaz
+        if (tieneHistorial) {
+            btnNombresAntiguos.classList.remove("hidden");
+            // Guardamos temporalmente el historial dentro del botón para usarlo al hacer clic
+            btnNombresAntiguos.dataset.historial = JSON.stringify(listaNombresHistorial);
+        } else {
+            btnNombresAntiguos.classList.add("hidden");
+        }
         
     } else {
-        // Cuando no esté en el perfil de una actriz, restauramos la cabecera normal con CEN y S-CEN
+        // Cuando estemos en el inicio o pestañas generales, restauramos todo a la normalidad
         vistaGeneralCabecera.classList.remove("hidden");
         vistaActrizCabecera.classList.add("hidden");
         contenedorPestanasNav.classList.remove("hidden");
