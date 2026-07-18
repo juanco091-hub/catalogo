@@ -294,6 +294,56 @@ function configurarEventos() {
     modalAyuda.addEventListener("click", (e) => {
         if (e.target === modalAyuda) cerrarGlosarioAyuda();
     });
+
+    // ==========================================
+    // LÓGICA DE EVENTOS PARA EL MODAL DE HISTORIAL
+    // ==========================================
+    const modalNombres = document.getElementById("modal-nombres-antiguos");
+    const btnCerrarModalNombres = document.getElementById("btn-cerrar-modal-nombres");
+    const btnEntendidoNombres = document.getElementById("btn-entendido-nombres");
+    const contenedorListaNombres = document.getElementById("lista-nombres-antiguos-contenedor");
+
+    btnNombresAntiguos.addEventListener("click", () => {
+        if (!btnNombresAntiguos.dataset.historial) return;
+
+        const listaNombres = JSON.parse(btnNombresAntiguos.dataset.historial);
+        contenedorListaNombres.innerHTML = ""; // Limpiar contenido anterior
+
+        listaNombres.forEach((celdaTexto, index) => {
+            // Dividimos el contenido por comas: Romanización, Kanji, Tonalidad
+            const variantes = celdaTexto.split(",").map(v => v.trim());
+            const romanizacion = variantes[0] || "---";
+            const kanji = variantes[1] || "---";
+            const tonalidad = variantes[2] || "---";
+
+            // Creamos la estructura visual para cada tarjeta de nombre
+            const bloqueNombre = document.createElement("div");
+            bloqueNombre.className = "bg-gray-950/60 border border-gray-800 rounded-xl p-3 flex flex-col gap-1";
+            bloqueNombre.innerHTML = `
+                <div class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Identidad ${index + 1}</div>
+                <div class="text-sm font-black text-white">${romanizacion}</div>
+                <div class="flex justify-between items-center text-xs mt-0.5">
+                    <span class="text-yellow-600 font-bold font-sans">${kanji}</span>
+                    <span class="text-gray-400 font-medium text-[11px] font-sans">${tonalidad}</span>
+                </div>
+            `;
+            contenedorListaNombres.appendChild(bloqueNombre);
+        });
+
+        document.body.classList.add("modal-abierto");
+        modalNombres.classList.remove("hidden");
+    });
+
+    function cerrarModalNombres() {
+        document.body.classList.remove("modal-abierto");
+        modalNombres.classList.add("hidden");
+    }
+
+    btnCerrarModalNombres.addEventListener("click", cerrarModalNombres);
+    btnEntendidoNombres.addEventListener("click", cerrarModalNombres);
+    modalNombres.addEventListener("click", (e) => {
+        if (e.target === modalNombres) cerrarModalNombres();
+    });
 }
 
 function actualizarPlaceholderBuscador() {
