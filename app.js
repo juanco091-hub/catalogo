@@ -16,21 +16,17 @@ let criterioOrden = "reciente";
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
-
 const searchBarContainer = document.getElementById("search-bar-container");
 const inputBuscar = document.getElementById("input-buscar");
-
 const selectOrdenar = document.getElementById("select-ordenar");
 const mainTitle = document.getElementById("main-title");
 const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav");
 const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
 const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
-
 const btnVolverActrices = document.getElementById("btn-volver-actrices");
 const btnCatCen = document.getElementById("btn-cat-cen");
 const btnFooterWhatsapp = document.getElementById("btn-footer-whatsapp");
 const btnFooterSearch = document.getElementById("btn-footer-search");
-
 const modalWhatsapp = document.getElementById("modal-whatsapp");
 const btnCerrarModal = document.getElementById("btn-cerrar-modal");
 
@@ -38,6 +34,10 @@ let pestanaPreviaAyuda = "todos";
 const modalAyuda = document.getElementById("modal-ayuda");
 const btnCerrarAyuda = document.getElementById("btn-cerrar-ayuda");
 const btnEntendidoAyuda = document.getElementById("btn-entendido-ayuda");
+
+const vistaGeneralCabecera = document.getElementById("vista-general-cabecera");
+const btnCabeceraActrices = document.getElementById("btn-cabecera-actrices");
+const btnNombresAntiguos = document.getElementById("btn-nombres-antiguos");
 
 async function inicializarApp() {
     try {
@@ -321,14 +321,31 @@ function resetearAInicio() {
     window.scrollTo(0, 0);
 }
 
+// REEMPLÁZALO POR ESTA VERSIÓN:
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
-        contenedorPestanasNav.classList.add("hidden");
+        // Ocultamos por completo la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
+        vistaGeneralCabecera.classList.add("hidden");
+        
+        // Mostramos el banner superior de la actriz
         vistaActrizCabecera.classList.remove("hidden");
         nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
+
+        // Asignamos dinámicamente la foto de la actriz como fondo de pantalla completa (bg-cover) del banner
+        const nombreLimpio = actrizSeleccionada
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ñ/g, "n")
+            .replace(/\s+/g, "_");
+
+        vistaActrizCabecera.style.backgroundImage = `url('portadas/act/${nombreLimpio}.jpg')`;
+        
     } else {
-        contenedorPestanasNav.classList.remove("hidden");
+        // Cuando no esté en el perfil de una actriz, restauramos la cabecera normal con CEN y S-CEN
+        vistaGeneralCabecera.classList.remove("hidden");
         vistaActrizCabecera.classList.add("hidden");
+        contenedorPestanasNav.classList.remove("hidden");
 
         document.querySelectorAll(".tab-item").forEach(b => {
             const tabAttr = b.getAttribute("data-tab");
