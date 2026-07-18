@@ -26,9 +26,13 @@ const contenedorPestanasNav = document.getElementById("contenedor-pestanas-nav")
 const vistaActrizCabecera = document.getElementById("vista-actriz-cabecera");
 const nombreActrizTitulo = document.getElementById("nombre-actriz-titulo");
 
-// Nuevos selectores añadidos quirúrgicamente para el Banner e Historial
-const contenedorCategoriasHeader = document.getElementById("contenedor-categorias-header");
+// Selectores dinámicos del Banner Flotante e Historial[cite: 2]
+const mainHeader = document.getElementById("main-header");
 const imgActrizBanner = document.getElementById("img-actriz-banner");
+const overlayBanner1 = document.getElementById("overlay-banner-1");
+const overlayBanner2 = document.getElementById("overlay-banner-2");
+const contenedorCategoriasHeader = document.getElementById("contenedor-categorias-header");
+const contenedorHistorialFlotante = document.getElementById("contenedor-historial-flotante");
 const btnHistorial = document.getElementById("btn-historial");
 const dropdownHistorial = document.getElementById("dropdown-historial");
 const listaNombresAnteriores = document.getElementById("lista-nombres-anteriores");
@@ -250,7 +254,7 @@ function configurarEventos() {
         resetearAInicio();
     });
 
-    // Evento del botón Actrices integrado dentro del Banner Premium
+    // Pestaña colgada "Actrices" dentro del modo Banner
     if (btnBannerTabActrices) {
         btnBannerTabActrices.addEventListener("click", () => {
             pestañaActiva = "actrices";
@@ -267,7 +271,7 @@ function configurarEventos() {
         });
     }
 
-    // Evento para abrir e intercalar la ventana flotante del historial
+    // Acción interactiva para desplegar la ventana de Historial[cite: 2]
     if (btnHistorial && dropdownHistorial) {
         btnHistorial.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -359,18 +363,24 @@ function resetearAInicio() {
     window.scrollTo(0, 0);
 }
 
-// CONTROLADOR DE DISEÑO ADAPTATIVO CON BANNER INTEGRADO Y REDIRECCIÓN DE ESTADOS
+// ARQUITECTURA DE CONTROLADOR INMERSIVO DE CORTE STREAMING (SIN ROBAR ESPACIO VERTICAL)
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
-        contenedorPestanasNav.classList.add("hidden");
-        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.add("hidden"); // Ocultar CEN y S-CEN
-        vistaActrizCabecera.classList.remove("hidden");
+        // 1. Ocultar componentes innecesarios y activar capas del banner[cite: 1, 2]
+        contenedorPestanasNav.classList.add("hidden");[cite: 1]
+        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.add("hidden");
         
-        // Mantener tipografía y tamaño exactos originales
-        nombreActrizTitulo.className = "text-base font-black text-yellow-500 uppercase tracking-wide truncate w-full";
-        nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
+        if (imgActrizBanner) imgActrizBanner.classList.remove("hidden");
+        if (overlayBanner1) overlayBanner1.classList.remove("hidden");
+        if (overlayBanner2) overlayBanner2.classList.remove("hidden");
+        if (contenedorHistorialFlotante) contenedorHistorialFlotante.classList.remove("hidden");
+        vistaActrizCabecera.classList.remove("hidden");[cite: 1]
+
+        // Modificar el tamaño del título de la actriz (Hacerlo un punto más grande: text-lg)[cite: 2]
+        nombreActrizTitulo.className = "text-lg font-black text-yellow-500 uppercase tracking-wide truncate w-full drop-shadow-[0_2px_4px_rgba(0,0,0,1)]";
+        nombreActrizTitulo.textContent = `${actrizSeleccionada}`;[cite: 1]
         
-        // Generar el slug exacto para renderizar la foto de fondo derecha
+        // Slug de renderizado para portadas
         const slug = actrizSeleccionada.toLowerCase()
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
@@ -387,10 +397,10 @@ function actualizarUIHeadernavigation() {
             };
         }
 
-        // Renderizado automático de los nombres anteriores en la lista
+        // Carga dinámica de historial desde las celdas[cite: 1]
         if (listaNombresAnteriores) {
             listaNombresAnteriores.innerHTML = "";
-            const registrosActriz = BD_ACTRICES.filter(a => a.actriz && a.actriz.trim().toLowerCase() === actrizSeleccionada.toLowerCase().trim());
+            const registrosActriz = BD_ACTRICES.filter(a => a.actriz && a.actriz.trim().toLowerCase() === actrizSeleccionada.toLowerCase().trim());[cite: 1]
             let nombresEncontrados = [];
             registrosActriz.forEach(reg => {
                 const campoHistorial = reg.historial || reg.nombresanteriores || reg.nombres_anteriores;
@@ -405,20 +415,25 @@ function actualizarUIHeadernavigation() {
             if (nombresEncontrados.length > 0) {
                 nombresEncontrados.forEach(nom => {
                     const li = document.createElement("li");
-                    li.className = "px-1.5 py-0.5 hover:bg-gray-800 rounded text-gray-300 truncate font-medium";
+                    li.className = "px-1.5 py-0.5 hover:bg-gray-800 rounded text-gray-300 truncate font-semibold transition-colors";
                     li.textContent = nom;
                     listaNombresAnteriores.appendChild(li);
                 });
             } else {
-                listaNombresAnteriores.innerHTML = `<li class="px-1.5 py-0.5 text-gray-500 italic text-[10px]">Sin nombres anteriores</li>`;
+                listaNombresAnteriores.innerHTML = `<li class="px-1.5 py-0.5 text-gray-500 italic text-[10px] text-center">Sin cambios</li>`;
             }
         }
 
     } else {
-        // Restaurar estado global al salir del perfil individual
-        contenedorPestanasNav.classList.remove("hidden");
-        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.remove("hidden"); // Mostrar de nuevo CEN y S-CEN
-        vistaActrizCabecera.classList.add("hidden");
+        // Restaurar cabecera por defecto para el resto de pestañas[cite: 1, 2]
+        contenedorPestanasNav.classList.remove("hidden");[cite: 1]
+        if (contenedorCategoriasHeader) contenedorCategoriasHeader.classList.remove("hidden");
+        
+        if (imgActrizBanner) imgActrizBanner.classList.add("hidden");
+        if (overlayBanner1) overlayBanner1.classList.add("hidden");
+        if (overlayBanner2) overlayBanner2.classList.add("hidden");
+        if (contenedorHistorialFlotante) contenedorHistorialFlotante.classList.add("hidden");
+        vistaActrizCabecera.classList.add("hidden");[cite: 1]
         if (dropdownHistorial) dropdownHistorial.classList.add("hidden");
 
         document.querySelectorAll(".tab-item").forEach(b => {
@@ -729,7 +744,7 @@ function renderizarListaActrices() {
         item.innerHTML = `
             <div class="w-full aspect-[1/1.3333] rounded-lg bg-gray-950 border border-gray-800 overflow-hidden shadow">
                 <img src="portadas/act/${nombreLimpio}.jpg" 
-                     onerror="this.src='portadas/act/${nombreLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/300x400/111827/ffffff?text=${actrizObj.actriz.charAt(0)}'" 
+                     onerror="this.src='portadas/act/${nombreLoptio}.png'; this.onerror=()=>this.src='https://placehold.co/300x400/111827/ffffff?text=${actrizObj.actriz.charAt(0)}'" 
                      class="w-full h-full object-cover">
             </div>
             <h4 class="text-xs font-black text-gray-100 truncate w-full px-1 tracking-wide mt-1.5 uppercase">${actrizObj.actriz}</h4>
