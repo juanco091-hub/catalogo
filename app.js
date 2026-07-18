@@ -238,10 +238,30 @@ function configurarEventos() {
     });
 
     btnVolverActrices.addEventListener("click", () => {
-        resetearAInicio();
+        resetearAInicio(); // El botón de la casita te sigue llevando al inicio general ("todos")
     });
+
     btnCabeceraActrices.addEventListener("click", () => {
-        resetearAInicio();
+        // Redirección directa a la pestaña de la lista de actrices
+        pestañaActiva = "actrices";
+        actrizSeleccionada = null;
+        paginaActual = 1;
+        
+        searchBarContainer.classList.add("hidden");
+        inputBuscar.value = "";
+        actualizarPlaceholderBuscador();
+        actualizarUIHeadernavigation();
+        actualizarOpcionesSelectOrdenar();
+
+        // Actualizamos el historial de navegación del navegador (?tab=actrices)
+        history.pushState({ 
+            pestana: pestañaActiva, 
+            pagina: 1, 
+            actriz: null 
+        }, "", `?tab=${pestañaActiva}`);
+
+        aplicarFiltrosYRenderizar();
+        window.scrollTo(0, 0);
     });
 
     modalWhatsapp.addEventListener("click", (e) => {
