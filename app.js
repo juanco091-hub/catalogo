@@ -420,12 +420,14 @@ function actualizarUIHeadernavigation() {
             });
         }
 
-        // Si encontramos al menos un nombre registrado, activamos el botón azul en la interfaz
+        // Si encontramos al menos un nombre registrado, activamos el botón discreto en la interfaz
         if (tieneHistorial) {
             btnNombresAntiguos.classList.remove("hidden");
+            btnNombresAntiguos.classList.add("flex"); // Asegura el centrado del ícono
             // Guardamos temporalmente el historial dentro del botón para usarlo al hacer clic
             btnNombresAntiguos.dataset.historial = JSON.stringify(listaNombresHistorial);
         } else {
+            btnNombresAntiguos.classList.remove("flex");
             btnNombresAntiguos.classList.add("hidden");
         }
         
