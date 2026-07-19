@@ -139,22 +139,25 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- IMAGEN DE FONDO CÓSMICO (Ocupa el 65% y se suaviza al final) -->
-            <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
-                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center [mask-image:linear-gradient(to_right,rgba(0,0,0,1)_40%,rgba(0,0,0,0)_90%)] -webkit-mask-image:linear-gradient(to_right,rgba(0,0,0,1)_40%,rgba(0,0,0,0)_90%)">
+            <!-- CAPA 1: Imagen del Universo (Fondo base izquierdo) -->
+            <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-45">
+                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center">
             </div>
 
-            <!-- CONTENEDOR DE LA FOTO REAL (Corregido con doble prefijo nativo para Chrome Mobile y aislamiento webkit) -->
-            <div class="absolute top-0 right-0 h-full w-[45%] z-10 pointer-events-none overflow-hidden rounded-r-2xl transform translate-z-0">
-                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top" 
-                     style="-webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);">
+            <!-- CAPA 2: Foto Real de la Actriz (Fondo base derecho, sin estilos raros que el móvil pueda ignorar) -->
+            <div class="absolute top-0 right-0 h-full w-[45%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
+                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top">
             </div>
 
-            <!-- Degradado intermedio físico: Un puente de color negro absoluto que tapa el choque de bordes -->
-            <div class="absolute inset-y-0 right-[40%] w-[25%] bg-gradient-to-l from-gray-950 via-gray-950/80 to-transparent z-20 pointer-events-none"></div>
+            <!-- CAPA 3: EL PUENTE DE FUSIÓN (Degradado físico que borra el corte izquierdo de la actriz) -->
+            <!-- Se posiciona exactamente sobre el borde de la foto y se desvanece hacia la derecha, suavizando el corte radical -->
+            <div class="absolute inset-y-0 right-[35%] w-[25%] bg-gradient-to-r from-gray-950 via-gray-950/70 to-transparent z-10 pointer-events-none"></div>
 
-            <!-- Degradado izquierdo para proteger los textos -->
-            <div class="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-gray-950/70 to-transparent z-20 pointer-events-none"></div>
+            <!-- CAPA 4: El degradado del Universo hacia la derecha -->
+            <div class="absolute inset-y-0 left-[45%] w-[20%] bg-gradient-to-l from-gray-950 to-transparent z-10 pointer-events-none"></div>
+
+            <!-- CAPA 5: Degradado izquierdo de protección para los textos -->
+            <div class="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-gray-950/80 via-gray-950/40 to-transparent z-20 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
             <div class="flex flex-col gap-2 z-30 items-start w-[85%]">
