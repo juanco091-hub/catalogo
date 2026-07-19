@@ -413,11 +413,25 @@ function actualizarUIHeadernavigation() {
 
         // 4. Asignamos la imagen al elemento img interno del banner para que use la máscara de fusión
         const imgCabecera = document.getElementById("imagen-actriz-cabecera");
-        if (imgCabecera) {
-            imgCabecera.src = `portadas/act/${nombreLimpio}.jpg`;
+        const imgCabeceraFondo = document.getElementById("imagen-actriz-cabecera-fondo");
+
+        if (imgCabecera && imgCabeceraFondo) {
+            const rutaJpg = `portadas/act/${nombreLimpio}.jpg`;
+            const rutaPng = `portadas/act/${nombreLimpio}.png`;
+
+            // Intentamos cargar .jpg en ambos elementos
+            imgCabecera.src = rutaJpg;
+            imgCabeceraFondo.src = rutaJpg;
+
+            // Manejo de errores cruzado si la imagen es .png
             imgCabecera.onerror = () => {
-                imgCabecera.src = `portadas/act/${nombreLimpio}.png`;
+                imgCabecera.src = rutaPng;
                 imgCabecera.onerror = () => { imgCabecera.src = ''; };
+            };
+
+            imgCabeceraFondo.onerror = () => {
+                imgCabeceraFondo.src = rutaPng;
+                imgCabeceraFondo.onerror = () => { imgCabeceraFondo.src = ''; };
             };
         }
 
