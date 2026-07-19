@@ -137,15 +137,18 @@
         </div>
         
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
-        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
+        <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5 bg-[radial-gradient(ellipse_at_top_left,rgba(30,41,59,0.45),rgba(15,23,42,0.95)),radial-gradient(circle_at_left,rgba(8,145,178,0.12),transparent_50%)]">
             
-            <!-- CONTENEDOR DE LA FOTO (Alineada a la derecha con máscara de fusión fluida) -->
+            <!-- CAPA SUTIL DE ESTRELLAS CÓSMICAS (Generada por CSS para dar textura al lado izquierdo) -->
+            <div class="absolute inset-y-0 left-0 w-[60%] z-0 pointer-events-none opacity-[0.18]" style="background-image: radial-gradient(rgba(255,255,255,0.8) 1px, transparent 0); background-size: 20px 20px;"></div>
+
+            <!-- CONTENEDOR DE LA FOTO (Tu calibración original perfecta al 45% a la derecha) -->
             <div class="absolute top-0 right-0 h-full w-[45%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
                 <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]">
             </div>
 
-            <!-- Degradado de fondo protector para los textos del lado izquierdo -->
-            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950 via-gray-950/85 to-transparent z-0 pointer-events-none"></div>
+            <!-- Degradado de fusión protector: Une las estrellas izquierdas con el desvanecimiento de la foto derecha -->
+            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/70 via-gray-950/35 to-transparent z-0 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
             <div class="flex flex-col gap-2 z-10 items-start w-[85%]">
