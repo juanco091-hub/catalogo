@@ -396,6 +396,8 @@ function resetearAInicio() {
 
 function actualizarUIHeadernavigation() {
     if (pestañaActiva === "actriz_individual") {
+        document.querySelector('header').classList.replace('border-b', 'border-none');
+        document.querySelector('header').classList.remove('border-gray-800');
         // 1. Ocultamos la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
         vistaGeneralCabecera.classList.add("hidden");
         
