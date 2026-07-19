@@ -139,10 +139,9 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- IMAGEN DE FONDO: Nebulosa abstracta pura (Sin formas de planetas) -->
-            <!-- TIP: Cambia 'hue-rotate(0deg)' por 90deg, 180deg o 270deg en el style si quieres cambiar los colores a tu gusto -->
+            <!-- IMAGEN DE FONDO: Tu nebulosa personalizada a la izquierda -->
             <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
-                <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover object-center" style="filter: hue-rotate(0deg);">
+                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center">
             </div>
 
             <!-- CONTENEDOR DE LA FOTO REAL (Tu calibración original perfecta al 45% a la derecha) -->
@@ -150,8 +149,8 @@
                 <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]">
             </div>
 
-            <!-- Degradado de fusión protector: Mezcla la nebulosa con la foto -->
-            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/60 via-gray-950/30 to-transparent z-0 pointer-events-none"></div>
+            <!-- Degradado de fusión protector: Mezcla los gases coloridos con el desvanecimiento de la foto -->
+            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/40 via-gray-950/20 to-transparent z-0 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
             <div class="flex flex-col gap-2 z-10 items-start w-[85%]">
