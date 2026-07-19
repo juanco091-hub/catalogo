@@ -139,21 +139,21 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- IMAGEN DE FONDO: Tu nebulosa personalizada a la izquierda -->
+            <!-- IMAGEN DE FONDO CÓSMICO (Ahora se desvanece por completo al llegar al 55% usando su propia máscara) -->
             <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
-                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center">
+                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center [mask-image:linear-gradient(to_right,rgba(0,0,0,1)_35%,rgba(0,0,0,0)_85%)] -webkit-[mask-image:linear-gradient(to_right,rgba(0,0,0,1)_35%,rgba(0,0,0,0)_85%)]">
             </div>
 
             <!-- CONTENEDOR DE LA FOTO REAL (Tu calibración original perfecta al 45% a la derecha) -->
-            <div class="absolute top-0 right-0 h-full w-[45%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
+            <div class="absolute top-0 right-0 h-full w-[45%] z-10 pointer-events-none overflow-hidden rounded-r-2xl">
                 <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]">
             </div>
 
-            <!-- Degradado de fusión protector: Mezcla los gases coloridos con el desvanecimiento de la foto -->
-            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/40 via-gray-950/20 to-transparent z-0 pointer-events-none"></div>
+            <!-- Degradado sutil exclusivo para proteger los textos de la izquierda (No toca la foto de la actriz) -->
+            <div class="absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-gray-950/60 to-transparent z-20 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
-            <div class="flex flex-col gap-2 z-10 items-start w-[85%]">
+            <div class="flex flex-col gap-2 z-30 items-start w-[85%]">
                 <h1 class="text-xl font-black tracking-tighter text-yellow-500 uppercase">
                     PORTAL <span class="text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">JAV</span>
                 </h1>
@@ -179,7 +179,7 @@
             </div>
 
             <!-- Bloque inferior izquierdo: Nombre de la actriz -->
-            <div class="flex flex-col z-10 items-start pb-0.5">
+            <div class="flex flex-col z-30 items-start pb-0.5">
                 <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
             </div>
         </div>
