@@ -139,17 +139,19 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- IMAGEN DE FONDO CÓSMICO (Calibrada: Mantiene el color casi hasta el final y se desvanece rápido) -->
-            <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
-                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center [mask-image:linear-gradient(to_right,rgba(0,0,0,1)_75%,rgba(0,0,0,0)_98%)] -webkit-[mask-image:linear-gradient(to_right,rgba(0,0,0,1)_75%,rgba(0,0,0,0)_98%)]" style="-webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 98%); mask-image: linear-gradient(to right, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 98%);">
+            <!-- IMAGEN DE FONDO CÓSMICO (Se estira hasta el 62% para meterse por debajo de la actriz y se difumina en la zona de choque) -->
+            <div class="absolute inset-y-0 left-0 w-[62%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
+                <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center" 
+                     style="-webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to right, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);">
             </div>
 
-            <!-- CONTENEDOR DE LA FOTO REAL (Tu calibración original perfecta al 45% a la derecha) -->
+            <!-- CONTENEDOR DE LA FOTO REAL (En la capa superior z-10, con su desvanecimiento izquierdo integrándose sobre el universo) -->
             <div class="absolute top-0 right-0 h-full w-[45%] z-10 pointer-events-none overflow-hidden rounded-r-2xl">
-                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]" style="-webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);">
+                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top" 
+                     style="-webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);">
             </div>
 
-            <!-- Degradado sutil exclusivo para proteger los textos de la izquierda (No toca la foto de la actriz) -->
+            <!-- Degradado sutil para proteger los textos de la izquierda -->
             <div class="absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-gray-950/60 to-transparent z-20 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
