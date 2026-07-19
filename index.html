@@ -82,8 +82,8 @@
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-300 select-none">
 
-    <!-- CABECERA GLOBAL DE NAVEGACIÓN -->
     <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-xl">
+        <!-- CABECERA POR DEFECTO (Se ocultará cuando se entre al perfil de una actriz) -->
         <div id="vista-general-cabecera" class="max-w-md mx-auto px-4 py-4 flex flex-col gap-3.5">
             <div class="flex items-center justify-between">
                 <div>
@@ -135,31 +135,27 @@
                 </div>
             </div>
         </div>
-    </header>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-grow max-w-md w-full mx-auto pb-24 relative flex flex-col">
         
-        <!-- CONTENEDOR FIJO DE LA CABECERA DE LA ACTRIZ -->
-        <!-- Sincroniza el fondo idéntico de la web, añade márgenes simétricos y gestiona la ocultación limpia del scroll -->
-        <div id="wrapper-cabecera-actriz" class="hidden sticky top-[117px] z-40 w-full bg-gray-950 pt-2.5 pb-2.5 transition-all duration-300">
-            <div id="vista-actriz-cabecera" class="w-[calc(100%-1.75rem)] max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-900 border border-gray-900 rounded-2xl shadow-2xl">
+        <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (Ubicación original e intacta para app.js) -->
+        <!-- bg-gray-950 unifica el fondo de la web, border-b define el límite exacto y pb-3 / pt-1 crean el espacio inferior simétrico perfecto para el scroll -->
+        <div id="vista-actriz-cabecera" class="hidden w-full bg-gray-950 pb-3 pt-1 border-b border-gray-900 shadow-xl transition-all duration-300">
+            <div class="w-[calc(100%-1.75rem)] max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-900 border border-gray-800/60 rounded-2xl shadow-2xl">
                 
-                <!-- IMAGEN DE FONDO CÓSMICO (Ancho ganador al 80% sólido para solapamiento puro) -->
+                <!-- IMAGEN DE FONDO CÓSMICO (Ancho ganador al 80% sólido para solapamiento puro por debajo de la actriz) -->
                 <div class="absolute inset-y-0 left-0 w-[80%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
                     <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center">
                 </div>
 
-                <!-- CONTENEDOR DE LA FOTO REAL DE LA ACTRIZ (Encima en capa z-10, con su degradado izquierdo a partir del 40%) -->
+                <!-- CONTENEDOR DE LA FOTO REAL (Capa superior z-10, mantiene su degradado impecable en el lado izquierdo) -->
                 <div class="absolute top-0 right-0 h-full w-[45%] z-10 pointer-events-none overflow-hidden rounded-r-2xl">
                     <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top" 
                          style="-webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);">
                 </div>
 
-                <!-- Degradado de protección exclusivo para los textos de la izquierda -->
+                <!-- Degradado sutil para proteger los textos de la izquierda -->
                 <div class="absolute inset-y-0 left-0 w-[50%] bg-gradient-to-r from-gray-950/60 to-transparent z-20 pointer-events-none"></div>
                 
-                <!-- Bloque superior izquierdo: Título y Navegación Interna -->
+                <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
                 <div class="flex flex-col gap-2 z-30 items-start w-[85%]">
                     <h1 class="text-xl font-black tracking-tighter text-yellow-500 uppercase">
                         PORTAL <span class="text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">JAV</span>
@@ -180,34 +176,29 @@
                     </div>
                 </div>
 
-                <!-- Bloque inferior izquierdo: Nombre dinámico de la actriz -->
+                <!-- Bloque inferior izquierdo: Nombre de la actriz -->
                 <div class="flex flex-col z-30 items-start pb-0.5">
                     <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- CONTENEDOR DE LA BARRA DE BÚSQUEDA Y LISTADOS (Mantiene padding lateral nativo) -->
-        <div class="px-4 pt-3 flex-grow flex flex-col">
-            <div id="search-bar-container" class="hidden mb-4 transition-all duration-300">
-                <div class="relative">
-                    <input type="text" id="input-buscar" placeholder="Buscar..." 
-                           class="w-full bg-gray-900 text-white placeholder-gray-500 text-xs font-medium rounded-xl pl-9 pr-4 py-2.5 border border-yellow-600/40 focus:outline-none focus:border-yellow-500 shadow-lg">
-                    <div class="absolute left-3 top-3 text-gray-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
+    <main class="flex-grow max-w-md w-full mx-auto px-4 pt-3 pb-24">
+        <div id="search-bar-container" class="hidden mb-4 transition-all duration-300">
+            <div class="relative">
+                <input type="text" id="input-buscar" placeholder="Buscar..." 
+                       class="w-full bg-gray-900 text-white placeholder-gray-500 text-xs font-medium rounded-xl pl-9 pr-4 py-2.5 border border-yellow-600/40 focus:outline-none focus:border-yellow-500 shadow-lg">
+                <div class="absolute left-3 top-3 text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
-
-            <!-- Grilla Principal de Videos y Tarjetas -->
-            <div id="contenedor-principal" class="grid grid-cols-1 gap-4"></div>
-            
-            <!-- Contenedor Dinámico de Paginación -->
-            <div id="contenedor-paginacion" class="flex justify-center items-center gap-1.5 mt-6 py-2"></div>
         </div>
+
+        <div id="contenedor-principal" class="grid grid-cols-1 gap-4"></div>
+        <div id="contenedor-paginacion" class="flex justify-center items-center gap-1.5 mt-6 py-2"></div>
     </main>
 
-    <!-- VENTANA MODAL: CONTACTO WHATSAPP -->
     <div id="modal-whatsapp" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col items-center text-center gap-4 relative animate-in fade-in zoom-in duration-200">
             <button id="btn-cerrar-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center">✕</button>
@@ -226,17 +217,20 @@
         </div>
     </div>
 
-    <!-- VENTANA MODAL: GLOSARIO Y AYUDA -->
     <div id="modal-ayuda" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-sm w-full max-h-[70vh] flex flex-col gap-4 relative animate-in fade-in zoom-in duration-200">
+            
             <button id="btn-cerrar-ayuda" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center z-10">✕</button>
+            
             <div class="flex items-center justify-center w-full mt-1 shrink-0">
                 <div class="w-12 h-12 bg-yellow-500/10 rounded-full flex items-center justify-center border border-yellow-500/30 text-yellow-500">
                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
                 </div>
             </div>
+            
             <div class="w-full text-left overflow-y-scroll pr-2 scrollbar-personalizado flex-grow text-sm">
                 <h3 class="text-sm font-black text-center text-yellow-500 uppercase tracking-wider mb-4 sticky top-0 bg-gray-900 py-1">Guía de Abreviaciones</h3>
+                
                 <div class="space-y-4 text-gray-300 font-medium leading-relaxed">
                     <p>
                         <span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-1.5 py-0.5 rounded font-black mr-1.5 inline-block text-xs tracking-wide">SubEsp</span> 
@@ -252,7 +246,7 @@
                     </p>
                     <p>
                         <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded font-black mr-1.5 inline-block text-xs tracking-wide">Amateur</span> 
-                        Contenido básico, generalmente grabado de forma natural por los propios protagonists, sin el equipo técnico, la edición refinada ni el presupuesto de un trabajo profesional.
+                        Contenido básico, generalmente grabado de forma natural por los propios protagonistas, sin el equipo técnico, la edición refinada ni el presupuesto de un trabajo profesional.
                     </p>
                     <p>
                         <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded font-black mr-1.5 inline-block text-xs tracking-wide">Prod. Profesional</span> 
@@ -264,13 +258,14 @@
                     </p>
                 </div>
             </div>
+            
             <button id="btn-entendido-ayuda" class="w-full bg-yellow-600 hover:bg-yellow-500 text-gray-950 font-black text-xs py-2.5 rounded-xl transition-all shadow-lg active:scale-95 shrink-0">
                 ENTENDIDO
             </button>
         </div>
     </div>
 
-    <!-- VENTANA MODAL: HISTORIAL DE NOMBRES ANTIGUOS -->
+    <!-- MODAL PARA MOSTRAR HISTORIAL DE NOMBRES -->
     <div id="modal-nombres-antiguos" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 relative">
             <button id="btn-cerrar-modal-nombres" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center">✕</button>
@@ -279,7 +274,7 @@
                 <p class="text-[10px] text-gray-400 mt-0.5 font-medium">Variantes registradas en el sistema</p>
             </div>
             <div id="lista-nombres-antiguos-contenedor" class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-1 scrollbar-personalizado">
-                <!-- Se inyectarán dinámicamente mediante app.js -->
+                <!-- Se inyectarán dinámicamente -->
             </div>
             <button id="btn-entendido-nombres" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-black text-xs py-2.5 rounded-xl transition-all active:scale-95">
                 CERRAR
@@ -287,7 +282,6 @@
         </div>
     </div>
    
-    <!-- FOOTER FIJO DE OPERACIONES DE LA APP -->
     <footer class="bg-gray-900/95 border-t border-gray-800 fixed bottom-0 left-0 right-0 z-50 backdrop-blur-md">
         <div class="max-w-md mx-auto grid grid-cols-3 h-16">
             <button id="btn-footer-whatsapp" class="flex flex-col items-center justify-center text-green-500 font-bold text-xs gap-1 active:scale-95 transition-transform">
@@ -295,7 +289,7 @@
                 <span>WhatsApp</span>
             </button>
             <button id="btn-footer-search" class="flex flex-col items-center justify-center text-gray-400 hover:text-white font-bold text-xs gap-1 active:scale-95 transition-transform">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 <span>Buscar</span>
             </button>
             <div class="flex flex-col items-center justify-center relative px-1">
@@ -306,7 +300,6 @@
         </div>
     </footer>
 
-    <!-- CONTROLADOR JAVASCRIPT GLOBAL -->
     <script src="app.js"></script>
 </body>
 </html>
