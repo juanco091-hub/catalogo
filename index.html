@@ -139,14 +139,13 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- CONTENEDOR DE LA FOTO (Ampliado al 70% de ancho para que la máscara tenga espacio de difuminar con suavidad) -->
-            <div class="absolute top-0 right-0 h-full w-[70%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
-                <!-- La máscara ahora inicia su desvanecimiento mucho más a la derecha (desde el 30%) hasta volverse invisible a la izquierda (en el 80%) -->
-                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_30%,rgba(0,0,0,0.5)_55%,rgba(0,0,0,0)_80%)] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_30%,rgba(0,0,0,0.5)_55%,rgba(0,0,0,0)_80%)]">
+            <!-- CONTENEDOR DE LA FOTO (Alineada a la derecha con máscara de fusión fluida) -->
+            <div class="absolute top-0 right-0 h-full w-[45%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
+                <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]">
             </div>
 
-            <!-- Degradado de fondo negro que se extiende más a la derecha para cubrir el desvanecimiento de la foto -->
-            <div class="absolute inset-y-0 left-0 w-[75%] bg-gradient-to-r from-gray-950 via-gray-950/90 to-transparent z-0 pointer-events-none"></div>
+            <!-- Degradado de fondo protector para los textos del lado izquierdo -->
+            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950 via-gray-950/85 to-transparent z-0 pointer-events-none"></div>
             
             <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
             <div class="flex flex-col gap-2 z-10 items-start w-[85%]">
@@ -155,17 +154,17 @@
                 </h1>
                 
                 <div class="flex gap-2.5 items-center flex-wrap">
-                    <!-- Botón Casita -->
+                    <!-- Botón Casita (w-9 h-8) -->
                     <button id="btn-volver-actrices" class="w-9 h-8 rounded-xl bg-gray-950/80 border border-gray-800 text-gray-400 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
                     
-                    <!-- Botón Actrices -->
+                    <!-- Botón Actrices (h-8) -->
                     <button id="btn-cabecera-actrices" class="px-4 h-8 text-xs font-black rounded-xl bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 uppercase tracking-wider">
                         Actrices
                     </button>
 
-                    <!-- Botón Historial -->
+                    <!-- Botón Historial (Corregido a w-9 h-9 nativo, un poco más grande y visible a la derecha) -->
                     <button id="btn-nombres-antiguos" class="hidden w-9 h-9 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/10 text-cyan-400 items-center justify-center shadow-lg transition-all active:scale-90 shrink-0" title="Historial de nombres">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
