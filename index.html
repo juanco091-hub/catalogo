@@ -139,37 +139,33 @@
         <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (BOTÓN CÍRCULO EN NAVEGACIÓN) -->
         <div id="vista-actriz-cabecera" class="hidden w-full max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-950 border border-gray-900 rounded-2xl shadow-2xl mt-2.5">
             
-            <!-- IMAGEN DE FONDO: Nebulosa densa de gas y polvo cósmico a todo color (Atenuada y suavizada) -->
-            <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-35 filter blur-[2px]">
-                <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover object-center">
+            <!-- IMAGEN DE FONDO: Nebulosa abstracta pura (Sin formas ni planetas) -->
+            <!-- TIPO: Cambia 'hue-rotate(0deg)' por 90deg, 180deg o 270deg para cambiar el color único -->
+            <div class="absolute inset-y-0 left-0 w-[65%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-60" style="filter: hue-rotate(0deg);">
+                <img src="https://images.unsplash.com/photo-1543722530-d2c3401371e9?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover object-center">
             </div>
 
-            <!-- CONTENEDOR DE LA FOTO REAL (Tu calibración original perfecta al 45% a la derecha) -->
+            <!-- CONTENEDOR DE LA FOTO REAL (Tu calibración al 45%) -->
             <div class="absolute top-0 right-0 h-full w-[45%] z-0 pointer-events-none overflow-hidden rounded-r-2xl">
                 <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top [mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))] -webkit-[mask-image:linear-gradient(to_left,rgba(0,0,0,1)_40%,rgba(0,0,0,0))]">
             </div>
 
-            <!-- Degradado de fusión protector: Mezcla el gas colorido con el desvanecimiento de la foto -->
-            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/40 via-gray-950/20 to-transparent z-0 pointer-events-none"></div>
+            <!-- Degradado de fusión protector: Mezcla la nebulosa con la foto -->
+            <div class="absolute inset-y-0 left-0 w-[65%] bg-gradient-to-r from-gray-950/60 via-gray-950/30 to-transparent z-0 pointer-events-none"></div>
             
-            <!-- Bloque superior izquierdo: Título y Línea de Navegación -->
+            <!-- Bloque superior izquierdo: Navegación -->
             <div class="flex flex-col gap-2 z-10 items-start w-[85%]">
                 <h1 class="text-xl font-black tracking-tighter text-yellow-500 uppercase">
                     PORTAL <span class="text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">JAV</span>
                 </h1>
                 
                 <div class="flex gap-2.5 items-center flex-wrap">
-                    <!-- Botón Casita (w-9 h-8) -->
                     <button id="btn-volver-actrices" class="w-9 h-8 rounded-xl bg-gray-950/80 border border-gray-800 text-gray-400 flex items-center justify-center active:scale-95 transition-all" title="Inicio">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
-                    
-                    <!-- Botón Actrices (h-8) -->
                     <button id="btn-cabecera-actrices" class="px-4 h-8 text-xs font-black rounded-xl bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 uppercase tracking-wider">
                         Actrices
                     </button>
-
-                    <!-- Botón Historial -->
                     <button id="btn-nombres-antiguos" class="hidden w-9 h-9 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/10 text-cyan-400 items-center justify-center shadow-lg transition-all active:scale-90 shrink-0" title="Historial de nombres">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -178,7 +174,7 @@
                 </div>
             </div>
 
-            <!-- Bloque inferior izquierdo: Nombre de la actriz -->
+            <!-- Bloque inferior: Nombre -->
             <div class="flex flex-col z-10 items-start pb-0.5">
                 <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
             </div>
