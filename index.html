@@ -136,17 +136,16 @@
             </div>
         </div>
         
-        <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (Ubicación original e intacta para app.js) -->
-        <!-- bg-gray-950 unifica el fondo de la web, border-b define el límite exacto y pb-3 / pt-1 crean el espacio inferior simétrico perfecto para el scroll -->
-        <div id="vista-actriz-cabecera" class="hidden w-full bg-gray-950 pb-3 pt-1 border-b border-gray-900 shadow-xl transition-all duration-300">
+        <!-- CABECERA DE LA ACTRIZ ESTILO STREAMING (Línea eliminada y espacio inferior calibrado a pb-1.5) -->
+        <div id="vista-actriz-cabecera" class="hidden w-full bg-gray-950 pb-1.5 pt-1 shadow-xl transition-all duration-300">
             <div class="w-[calc(100%-1.75rem)] max-w-md mx-auto aspect-[16/6.2] relative flex flex-col justify-between p-3.5 overflow-hidden bg-gray-900 border border-gray-800/60 rounded-2xl shadow-2xl">
                 
-                <!-- IMAGEN DE FONDO CÓSMICO (Ancho ganador al 80% sólido para solapamiento puro por debajo de la actriz) -->
+                <!-- IMAGEN DE FONDO CÓSMICO (Ancho al 80% sólido para solapamiento puro) -->
                 <div class="absolute inset-y-0 left-0 w-[80%] z-0 pointer-events-none overflow-hidden rounded-l-2xl opacity-50">
                     <img src="portadas/act/univ.jpg" class="w-full h-full object-cover object-left-center">
                 </div>
 
-                <!-- CONTENEDOR DE LA FOTO REAL (Capa superior z-10, mantiene su degradado impecable en el lado izquierdo) -->
+                <!-- CONTENEDOR DE LA FOTO REAL (Capa superior z-10, con su degradado izquierdo impecable) -->
                 <div class="absolute top-0 right-0 h-full w-[45%] z-10 pointer-events-none overflow-hidden rounded-r-2xl">
                     <img id="imagen-actriz-cabecera" src="" class="w-full h-full object-cover object-top" 
                          style="-webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);">
@@ -289,7 +288,7 @@
                 <span>WhatsApp</span>
             </button>
             <button id="btn-footer-search" class="flex flex-col items-center justify-center text-gray-400 hover:text-white font-bold text-xs gap-1 active:scale-95 transition-transform">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 <span>Buscar</span>
             </button>
             <div class="flex flex-col items-center justify-center relative px-1">
