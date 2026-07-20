@@ -579,21 +579,29 @@ function aplicarFiltrosYRenderizar() {
     }
 
     if (criterioOrden === "reciente") {
-        videosFiltrados.sort((a, b) => new Date(b.fechadesubida) - new Date(a.fechadesubida));
+        // Ordena por Fecha de Subida (Más reciente primero)
+        videosFiltrados.sort((a, b) => new Date(b.fechadesubida || 0) - new Date(a.fechadesubida || 0));
     } else if (criterioOrden === "estreno") {
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno) - new Date(a.fechadeestreno));
+        // Ordena por Fecha de Estreno (Más reciente primero)
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "mr") {
         videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "fsc") {
         videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "amateur") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "prodprof") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     } else if (criterioOrden === "prodext") {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
+        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
     }
 
     datosFiltrados = videosFiltrados;
