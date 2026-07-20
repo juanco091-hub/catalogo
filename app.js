@@ -442,13 +442,17 @@ function resetearAInicio() {
 }
 
 function actualizarUIHeadernavigation() {
+    const headerElement = document.querySelector("header");
+
     if (pestañaActiva === "actriz_individual") {
-        // 1. Ocultamos la cabecera general (Evita que se duplique el título y aparezca CEN/S-CEN)
+        // Quitamos el borde inferior del header para borrar la línea blanca
+        if (headerElement) headerElement.classList.remove("border-b", "border-gray-800");
+
+        // 1. Ocultamos la cabecera general
         vistaGeneralCabecera.classList.add("hidden");
         
         // 2. Mostramos el banner de la actriz
         vistaActrizCabecera.classList.remove("hidden");
-        nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
 
         // 3. Generamos el nombre limpio para buscar la foto de la actriz
         const nombreLimpio = actrizSeleccionada
@@ -499,6 +503,8 @@ function actualizarUIHeadernavigation() {
         
     } else {
         // Cuando estemos en el inicio o pestañas generales, restauramos todo a la normalidad
+        if (headerElement) headerElement.classList.add("border-b", "border-gray-800");
+        
         vistaGeneralCabecera.classList.remove("hidden");
         vistaActrizCabecera.classList.add("hidden");
         contenedorPestanasNav.classList.remove("hidden");
