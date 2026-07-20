@@ -81,7 +81,6 @@ async function inicializarApp() {
 }
 
 window.addEventListener("popstate", (evento) => {
-    // 1. NUEVA VALIDACIÓN: Si el modal de nombres está abierto, solo lo cierra y detiene la navegación
     const modalNombres = document.getElementById("modal-nombres-antiguos");
     if (modalNombres && !modalNombres.classList.contains("hidden")) {
         document.body.classList.remove("modal-abierto");
@@ -89,7 +88,6 @@ window.addEventListener("popstate", (evento) => {
         return;
     }
 
-    // 2. Cierre del modal de ayuda (CÓDIGO EXISTENTE)
     if (pestañaActiva === "ayuda") {
         document.body.classList.remove("modal-abierto");
         modalAyuda.classList.add("hidden");
@@ -98,7 +96,6 @@ window.addEventListener("popstate", (evento) => {
         return;
     }
 
-    // 3. Manejo de navegación por historial (CÓDIGO EXISTENTE)
     if (evento && evento.state) {
         pestañaActiva = evento.state.pestana || "todos";
         paginaActual = evento.state.pagina || 1;
@@ -247,27 +244,29 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
+    // ==========================================
+    // CONTROL DE EVENTOS PARA EL SELECT DE ORDENAMIENTO
+    // ==========================================
     let opcionAlAbrir = selectOrdenar.value;
-    let menuAbierto = false;
+    let ejecutoChange = false;
 
-    // Detectamos el momento exacto en que el usuario abre el menú desplegable
-    const registrarAperturaMenu = () => {
+    selectOrdenar.addEventListener("focus", () => {
         opcionAlAbrir = selectOrdenar.value;
-        menuAbierto = true;
-    };
+        ejecutoChange = false;
+    });
 
-    selectOrdenar.addEventListener("focus", registrarAperturaMenu);
-    selectOrdenar.addEventListener("pointerdown", registrarAperturaMenu);
+    selectOrdenar.addEventListener("pointerdown", () => {
+        opcionAlAbrir = selectOrdenar.value;
+        ejecutoChange = false;
+    });
 
-    // Al seleccionar una opción en la ventana desplegada:
     selectOrdenar.addEventListener("change", (e) => {
         const opcionElegida = e.target.value;
+        ejecutoChange = true;
 
         if (opcionElegida === ultimoCriterioSeleccionado) {
-            // Si elige la misma opción que ya estaba activa -> Invertimos la dirección (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si elige una opción diferente -> Forzamos las fechas más recientes primero
             direccionOrden = "desc";
             ultimoCriterioSeleccionado = opcionElegida;
         }
@@ -276,26 +275,23 @@ function configurarEventos() {
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
-        menuAbierto = false;
     });
 
-    // Solución para Android/Navegadores: si vuelve a presionar la misma opción sin cambiar el valor del select
     selectOrdenar.addEventListener("click", () => {
-        if (!menuAbierto && selectOrdenar.value === ultimoCriterioSeleccionado) {
+        if (!ejecutoChange && selectOrdenar.value === opcionAlAbrir && selectOrdenar.value === ultimoCriterioSeleccionado) {
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
             paginaActual = 1;
             aplicarFiltrosYRenderizar();
             window.scrollTo(0, 0);
         }
-        menuAbierto = false;
+        ejecutoChange = false;
     });
 
     btnVolverActrices.addEventListener("click", () => {
-        resetearAInicio(); // El botón de la casita te sigue llevando al inicio general ("todos")
+        resetearAInicio();
     });
 
     btnCabeceraActrices.addEventListener("click", () => {
-        // Redirección directa a la pestaña de la lista de actrices
         pestañaActiva = "actrices";
         actrizSeleccionada = null;
         paginaActual = 1;
@@ -306,7 +302,6 @@ function configurarEventos() {
         actualizarUIHeadernavigation();
         actualizarOpcionesSelectOrdenar();
 
-        // Actualizamos el historial de navegación del navegador (?tab=actrices)
         history.pushState({ 
             pestana: pestañaActiva, 
             pagina: 1, 
@@ -368,9 +363,6 @@ function configurarEventos() {
         if (e.target === modalAyuda) cerrarGlosarioAyuda();
     });
 
-    // ==========================================
-    // LÓGICA DE EVENTOS PARA EL MODAL DE HISTORIAL DE NOMBRES
-    // ==========================================
     const modalNombres = document.getElementById("modal-nombres-antiguos");
     const btnCerrarModalNombres = document.getElementById("btn-cerrar-modal-nombres");
     const btnEntendidoNombres = document.getElementById("btn-entendido-nombres");
@@ -467,19 +459,14 @@ function actualizarUIHeadernavigation() {
     const headerElement = document.querySelector("header");
 
     if (pestañaActiva === "actriz_individual") {
-        // Quitamos el borde inferior del header para borrar la línea blanca
         if (headerElement) headerElement.classList.remove("border-b", "border-gray-800");
 
-        // 1. Ocultamos la cabecera general
         vistaGeneralCabecera.classList.add("hidden");
-        
-        // 2. Mostramos el banner de la actriz y asignamos su nombre
         vistaActrizCabecera.classList.remove("hidden");
         if (nombreActrizTitulo) {
             nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
         }
 
-        // 3. Generamos el nombre limpio para buscar la foto de la actriz
         const nombreLimpio = actrizSeleccionada
             .toLowerCase()
             .normalize("NFD")
@@ -487,7 +474,6 @@ function actualizarUIHeadernavigation() {
             .replace(/ñ/g, "n")
             .replace(/\s+/g, "_");
 
-        // 4. Asignamos la imagen al elemento img interno del banner para que use la máscara de fusión
         const imgCabecera = document.getElementById("imagen-actriz-cabecera");
         if (imgCabecera) {
             imgCabecera.src = `portadas/act/${nombreLimpio}.jpg`;
@@ -497,15 +483,12 @@ function actualizarUIHeadernavigation() {
             };
         }
 
-        // 5. CONTROL DEL BOTÓN CIRCULAR (HISTORIAL DE NOMBRES) DESDE LAS COLUMNAS G A K
-        // Buscamos el registro de la actriz actual en tu base de datos
         const registroActriz = BD_ACTRICES.find(a => a.actriz && a.actriz.toLowerCase().trim() === actrizSeleccionada.toLowerCase().trim());
         
         let tieneHistorial = false;
         let listaNombresHistorial = [];
 
         if (registroActriz) {
-            // Revisamos las columnas normalizadas de tu Google Sheet (Nombre 1, Nombre 2, Nombre 3...)
             const columnasNombres = ["nombre1", "nombre2", "nombre3", "nombre4", "nombre5"];
             columnasNombres.forEach(col => {
                 if (registroActriz[col] && registroActriz[col].trim() !== "" && registroActriz[col].trim() !== "---") {
@@ -515,11 +498,9 @@ function actualizarUIHeadernavigation() {
             });
         }
 
-        // Si encontramos al menos un nombre registrado, activamos el botón circular en la barra superior de navegación
         if (tieneHistorial) {
             btnNombresAntiguos.classList.remove("hidden");
-            btnNombresAntiguos.classList.add("flex"); // Centra el ícono de reloj perfectamente dentro del círculo
-            // Guardamos temporalmente el historial dentro del botón para usarlo al hacer clic
+            btnNombresAntiguos.classList.add("flex");
             btnNombresAntiguos.dataset.historial = JSON.stringify(listaNombresHistorial);
         } else {
             btnNombresAntiguos.classList.remove("flex");
@@ -527,7 +508,6 @@ function actualizarUIHeadernavigation() {
         }
         
     } else {
-        // Cuando estemos en el inicio o pestañas generales, restauramos todo a la normalidad
         if (headerElement) headerElement.classList.add("border-b", "border-gray-800");
         
         vistaGeneralCabecera.classList.remove("hidden");
@@ -634,17 +614,15 @@ function aplicarFiltrosYRenderizar() {
         });
     }
 
-    // Función auxiliar ultra-robusta para parsear y ordenar fechas correctamente
+    // Parser universal de fechas (soporta YYYY/MM/DD, DD/MM/YYYY, YYYY-MM-DD)
     const parsearFechaMs = (strFecha) => {
         if (!strFecha || strFecha.trim() === "" || strFecha.trim() === "---") return 0;
         const limpia = strFecha.trim().replace(/-/g, "/");
         const partes = limpia.split("/");
         
-        // Si viene en formato YYYY/MM/DD
         if (partes.length === 3 && partes[0].length === 4) {
             return new Date(partes[0], partes[1] - 1, partes[2]).getTime();
         }
-        // Si viene en formato DD/MM/YYYY
         if (partes.length === 3 && partes[2].length === 4) {
             return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
         }
@@ -661,7 +639,7 @@ function aplicarFiltrosYRenderizar() {
         });
     };
 
-    // Aplicamos filtrado según la opción escogida en "Ordenar por"
+    // Filtrado condicional según la opción seleccionada dentro de la actriz
     if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
     } else if (criterioOrden === "mr") {
@@ -676,11 +654,10 @@ function aplicarFiltrosYRenderizar() {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
     }
 
-    // Aplicamos ordenamiento por Fecha
+    // Aplicación estricta de orden por fechas
     if (criterioOrden === "reciente") {
         ordenarPorFecha(videosFiltrados, "fechadesubida");
     } else {
-        // Todas las demás opciones (Estreno, SubEsp, MR, FSC, Amateur, ProdProf, ProdExt) se ordenan por Fecha de Estreno
         ordenarPorFecha(videosFiltrados, "fechadeestreno");
     }
 
@@ -836,29 +813,25 @@ function renderizarCuadrículaVideos() {
         let timerPortada = null;
 
         portadaContenedor.addEventListener("click", (e) => {
-            // Si toca el botón de Play rojo, no hacemos nada de esto para que abra el video normal
             if (e.target.closest(".play-trigger")) return;
 
             clicksPortada++;
 
             if (clicksPortada === 1) {
-                // Esperamos 250 milisegundos para ver si el usuario da un segundo toque
                 timerPortada = setTimeout(() => {
-                    clicksPortada = 0; // Reiniciamos el contador
-                    conmutarEstado();   // Un toque: Expande la descripción e información
+                    clicksPortada = 0;
+                    conmutarEstado();
                 }, 250);
             } else if (clicksPortada === 2) {
-                clearTimeout(timerPortada); // Cancelamos la expansión del primer toque
-                clicksPortada = 0;          // Reiniciamos el contador
+                clearTimeout(timerPortada);
+                clicksPortada = 0;
                 
-                // Doble toque: Vamos directo al perfil de la actriz de este video
                 if (nombreActriz && nombreActriz.toLowerCase() !== "desconocida") {
                     irAPerfilActriz(nombreActriz);
                 }
             }
         });
 
-        // Mantenemos el click original solo si tocan explícitamente los botones de "ver más" / "ocultar"
         tarjeta.addEventListener("click", (e) => {
             if (e.target.classList.contains("btn-toggle-desc") || e.target.closest(".btn-toggle-desc")) {
                 conmutarEstado();
