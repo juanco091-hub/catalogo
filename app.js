@@ -605,30 +605,37 @@ function aplicarFiltrosYRenderizar() {
         });
     }
 
+    // Función auxiliar para ordenar fechas respetando la dirección (desc / asc)
+    const ordenarPorFecha = (lista, campoFecha) => {
+        return lista.sort((a, b) => {
+            const fechaA = new Date(a[campoFecha] || 0);
+            const fechaB = new Date(b[campoFecha] || 0);
+            return direccionOrden === "desc" ? fechaB - fechaA : fechaA - fechaB;
+        });
+    };
+
     if (criterioOrden === "reciente") {
-        // Ordena por Fecha de Subida (Más reciente primero)
-        videosFiltrados.sort((a, b) => new Date(b.fechadesubida || 0) - new Date(a.fechadesubida || 0));
+        ordenarPorFecha(videosFiltrados, "fechadesubida");
     } else if (criterioOrden === "estreno") {
-        // Ordena por Fecha de Estreno (Más reciente primero)
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "mr") {
         videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "fsc") {
         videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "amateur") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "prodprof") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "prodext") {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
-        videosFiltrados.sort((a, b) => new Date(b.fechadeestreno || 0) - new Date(a.fechadeestreno || 0));
+        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     }
 
     datosFiltrados = videosFiltrados;
