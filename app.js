@@ -246,8 +246,23 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
+    selectOrdenar.addEventListener("click", (e) => {
+        selectOrdenar.dataset.prevValue = selectOrdenar.value;
+    });
+
     selectOrdenar.addEventListener("change", (e) => {
-        criterioOrden = e.target.value;
+        const nuevoValor = e.target.value;
+        const valorAnterior = selectOrdenar.dataset.prevValue;
+
+        if (nuevoValor === valorAnterior) {
+            // Si hace clic en la misma opción que ya estaba seleccionada, invierte la dirección
+            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
+        } else {
+            // Si cambia a una opción diferente, reinicia a descendente (más recientes primero)
+            direccionOrden = "desc";
+        }
+
+        criterioOrden = nuevoValor;
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
@@ -357,18 +372,18 @@ function configurarEventos() {
             let htmlInterno = "";
 
             if (romanizacion) {
-                htmlInterno += `<div class="text-sm font-black text-white">${romanizacion}</div>`;
+                htmlInterno += `<div class="text-base font-black text-white tracking-wide">${romanizacion}</div>`;
             }
 
             if (kanji || tonalidad) {
-                htmlInterno += `<div class="flex justify-between items-center text-xs mt-0.5">`;
+                htmlInterno += `<div class="flex justify-between items-center text-sm mt-1">`;
                 if (kanji) {
                     htmlInterno += `<span class="text-yellow-600 font-bold font-sans">${kanji}</span>`;
                 } else {
                     htmlInterno += `<span></span>`;
                 }
                 if (tonalidad) {
-                    htmlInterno += `<span class="text-gray-400 font-medium text-[11px] font-sans">${tonalidad}</span>`;
+                    htmlInterno += `<span class="text-gray-300 font-medium text-xs font-sans">${tonalidad}</span>`;
                 }
                 htmlInterno += `</div>`;
             }
