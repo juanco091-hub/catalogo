@@ -247,30 +247,23 @@ function configurarEventos() {
     // ==========================================
     // CONTROL DE EVENTOS PARA EL SELECT DE ORDENAMIENTO
     // ==========================================
-    let opcionAlAbrir = selectOrdenar.value;
-    let ejecutoChange = false;
+    let valorPrevioAlAbrir = selectOrdenar.value;
 
-    // Cuando el usuario abre/enfoca el desplegable, guardamos el estado inicial sin ejecutar nada
+    // Al tocar o enfocar el desplegable para abrirlo, registramos el valor con el que se abrió
     selectOrdenar.addEventListener("focus", () => {
-        opcionAlAbrir = selectOrdenar.value;
-        ejecutoChange = false;
+        valorPrevioAlAbrir = selectOrdenar.value;
     });
 
     selectOrdenar.addEventListener("pointerdown", () => {
-        opcionAlAbrir = selectOrdenar.value;
-        ejecutoChange = false;
+        valorPrevioAlAbrir = selectOrdenar.value;
     });
 
-    // UNICAMENTE cuando se selecciona activamente una opción dentro de la ventana desplegada
-    selectOrdenar.addEventListener("change", (e) => {
-        const opcionElegida = e.target.value;
-        ejecutoChange = true;
-
+    function procesarSeleccionOrden(opcionElegida) {
         if (opcionElegida === ultimoCriterioSeleccionado) {
-            // Si selecciona la misma opción que ya estaba activa, invierte la dirección (desc <-> asc)
+            // Si vuelve a elegir la opción que YA ESTABA SELECCIONADA -> Invierte el orden (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si cambia a una opción diferente, siempre muestra los más recientes primero
+            // Si elige una opción NUEVA -> Pone los más recientes primero
             direccionOrden = "desc";
             ultimoCriterioSeleccionado = opcionElegida;
         }
@@ -279,17 +272,22 @@ function configurarEventos() {
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
+    }
+
+    // Evento 1: Cuando cambia el valor a una opción distinta
+    selectOrdenar.addEventListener("change", (e) => {
+        procesarSeleccionOrden(e.target.value);
     });
 
-    // Manejo de clic sobre el select cuando se vuelve a tocar la misma opción dentro del menú en dispositivos móviles
+    // Evento 2: Cuando se hace clic sobre la ventana desplegable para re-seleccionar la MISMA opción
     selectOrdenar.addEventListener("click", (e) => {
-        // Prevenimos cualquier activación si solo se está haciendo clic para abrir el menú
-        if (!ejecutoChange && selectOrdenar.value === opcionAlAbrir && selectOrdenar.value === ultimoCriterioSeleccionado) {
-            // No hacemos nada al hacer clic sobre el texto para abrir la ventana
-            ejecutoChange = false;
-            return;
+        // Si el valor no cambió respecto al que tenía al abrir, pero el usuario confirmó la misma opción activa
+        if (selectOrdenar.value === valorPrevioAlAbrir && selectOrdenar.value === ultimoCriterioSeleccionado) {
+            // Verificamos que el click sea un evento deliberado tras abrir la ventana
+            procesarSeleccionOrden(selectOrdenar.value);
+            // Actualizamos valorPrevioAlAbrir para evitar dobles disparos continuos
+            valorPrevioAlAbrir = "";
         }
-        ejecutoChange = false;
     });
 
     btnVolverActrices.addEventListener("click", () => {
@@ -560,6 +558,7 @@ function actualizarOpcionesSelectOrdenar() {
         `;
     }
     
+    // Mantener la sincronización inicial al cargar/cambiar de pestaña
     criterioOrden = "reciente";
     ultimoCriterioSeleccionado = "reciente";
     direccionOrden = "desc";
