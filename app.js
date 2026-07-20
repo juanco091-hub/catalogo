@@ -13,6 +13,7 @@ let actrizSeleccionada = null;
 let paginaActual = 1;
 const LIMITE_POR_PAGINA = 20; 
 let criterioOrden = "reciente"; 
+let ultimoCriterioSeleccionado = "reciente";
 let direccionOrden = "desc"; // 'desc' = más recientes primero, 'asc' = más antiguos primero 
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
@@ -246,25 +247,31 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    let opcionPreviaApertura = selectOrdenar.value;
+    let abriendoMenu = false;
 
-    // Guardamos la opción que estaba activa antes de que el usuario abra la ventana
-    const guardarOpcionPrevia = () => {
-        opcionPreviaApertura = selectOrdenar.value;
-    };
-    selectOrdenar.addEventListener("focus", guardarOpcionPrevia);
-    selectOrdenar.addEventListener("pointerdown", guardarOpcionPrevia);
+    selectOrdenar.addEventListener("focus", () => {
+        abriendoMenu = true;
+    });
 
-    // Se ejecuta ÚNICAMENTE cuando el usuario presiona/confirma una opción dentro del menú desplegable:
+    selectOrdenar.addEventListener("click", () => {
+        // Si el menú ya estaba abierto y el usuario hace clic nuevamente en la misma opción elegida
+        if (!abriendoMenu && selectOrdenar.value === ultimoCriterioSeleccionado) {
+            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
+            paginaActual = 1;
+            aplicarFiltrosYRenderizar();
+            window.scrollTo(0, 0);
+        }
+        abriendoMenu = false;
+    });
+
     selectOrdenar.addEventListener("change", (e) => {
         const opcionElegida = e.target.value;
 
-        if (opcionElegida === opcionPreviaApertura) {
-            // Si presionó la misma opción que ya estaba marcada, invierte la dirección (Recientes <-> Antiguos)
+        if (opcionElegida === ultimoCriterioSeleccionado) {
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si eligió una opción diferente, se reinicia con las fechas más recientes primero
             direccionOrden = "desc";
+            ultimoCriterioSeleccionado = opcionElegida;
         }
 
         criterioOrden = opcionElegida;
