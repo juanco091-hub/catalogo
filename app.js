@@ -13,6 +13,7 @@ let actrizSeleccionada = null;
 let paginaActual = 1;
 const LIMITE_POR_PAGINA = 20; 
 let criterioOrden = "reciente"; 
+let direccionOrden = "desc"; // 'desc' = más recientes primero, 'asc' = más antiguos primero 
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
@@ -234,6 +235,11 @@ function configurarEventos() {
 
     btnCatCen.addEventListener("click", () => resetearAInicio());
     mainTitle.addEventListener("click", () => resetearAInicio());
+    
+    const actrizMainTitle = document.getElementById("actriz-main-title");
+    if (actrizMainTitle) {
+        actrizMainTitle.addEventListener("click", () => resetearAInicio());
+    }
 
     inputBuscar.addEventListener("input", () => {
         paginaActual = 1;
