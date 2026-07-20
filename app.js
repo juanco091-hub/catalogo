@@ -623,12 +623,30 @@ function aplicarFiltrosYRenderizar() {
         });
     }
 
-    // Función auxiliar para ordenar fechas respetando la dirección (desc / asc)
+    // Función auxiliar ultra-robusta para parsear y ordenar fechas correctamente
+    const parsearFechaMs = (strFecha) => {
+        if (!strFecha || strFecha.trim() === "" || strFecha.trim() === "---") return 0;
+        const limpia = strFecha.trim().replace(/-/g, "/");
+        const partes = limpia.split("/");
+        
+        // Si viene en formato YYYY/MM/DD
+        if (partes.length === 3 && partes[0].length === 4) {
+            return new Date(partes[0], partes[1] - 1, partes[2]).getTime();
+        }
+        // Si viene en formato DD/MM/YYYY
+        if (partes.length === 3 && partes[2].length === 4) {
+            return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
+        }
+        
+        const timestamp = Date.parse(limpia);
+        return isNaN(timestamp) ? 0 : timestamp;
+    };
+
     const ordenarPorFecha = (lista, campoFecha) => {
         return lista.sort((a, b) => {
-            const fechaA = new Date(a[campoFecha] || 0);
-            const fechaB = new Date(b[campoFecha] || 0);
-            return direccionOrden === "desc" ? fechaB - fechaA : fechaA - fechaB;
+            const msA = parsearFechaMs(a[campoFecha]);
+            const msB = parsearFechaMs(b[campoFecha]);
+            return direccionOrden === "desc" ? msB - msA : msA - msB;
         });
     };
 
