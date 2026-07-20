@@ -661,27 +661,26 @@ function aplicarFiltrosYRenderizar() {
         });
     };
 
-    if (criterioOrden === "reciente") {
-        ordenarPorFecha(videosFiltrados, "fechadesubida");
-    } else if (criterioOrden === "estreno") {
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
-    } else if (criterioOrden === "subesp") {
+    // Aplicamos filtrado según la opción escogida en "Ordenar por"
+    if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "mr") {
         videosFiltrados = videosFiltrados.filter(v => v.mr && (v.mr.toLowerCase().trim() === "si" || v.mr.toLowerCase().trim() === "sí"));
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "fsc") {
         videosFiltrados = videosFiltrados.filter(v => v.fsc && (v.fsc.toLowerCase().trim() === "si" || v.fsc.toLowerCase().trim() === "sí"));
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "amateur") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "amateur");
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "prodprof") {
         videosFiltrados = videosFiltrados.filter(v => v.produccion && v.produccion.toLowerCase().trim() === "profesional");
-        ordenarPorFecha(videosFiltrados, "fechadeestreno");
     } else if (criterioOrden === "prodext") {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
+    }
+
+    // Aplicamos ordenamiento por Fecha
+    if (criterioOrden === "reciente") {
+        ordenarPorFecha(videosFiltrados, "fechadesubida");
+    } else {
+        // Todas las demás opciones (Estreno, SubEsp, MR, FSC, Amateur, ProdProf, ProdExt) se ordenan por Fecha de Estreno
         ordenarPorFecha(videosFiltrados, "fechadeestreno");
     }
 
