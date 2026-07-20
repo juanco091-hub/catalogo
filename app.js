@@ -326,7 +326,7 @@ function configurarEventos() {
     });
 
     // ==========================================
-    // LÓGICA DE EVENTOS PARA EL MODAL DE HISTORIAL
+    // LÓGICA DE EVENTOS PARA EL MODAL DE HISTORIAL DE NOMBRES
     // ==========================================
     const modalNombres = document.getElementById("modal-nombres-antiguos");
     const btnCerrarModalNombres = document.getElementById("btn-cerrar-modal-nombres");
@@ -337,36 +337,52 @@ function configurarEventos() {
         if (!btnNombresAntiguos.dataset.historial) return;
 
         const listaNombres = JSON.parse(btnNombresAntiguos.dataset.historial);
-        contenedorListaNombres.innerHTML = ""; // Limpiar contenido anterior
+        contenedorListaNombres.innerHTML = ""; 
 
-        listaNombres.forEach((celdaTexto, index) => {
-            // Dividimos el contenido por comas: Romanización, Kanji, Tonalidad
+        listaNombres.forEach((celdaTexto) => {
             const variantes = celdaTexto.split(",").map(v => v.trim());
-            const romanizacion = variantes[0] || "---";
-            const kanji = variantes[1] || "---";
-            const tonalidad = variantes[2] || "---";
+            const romanizacion = (variantes[0] && variantes[0] !== "---") ? variantes[0] : "";
+            const kanji = (variantes[1] && variantes[1] !== "---") ? variantes[1] : "";
+            const tonalidad = (variantes[2] && variantes[2] !== "---") ? variantes[2] : "";
 
-            // Creamos la estructura visual para cada tarjeta de nombre
             const bloqueNombre = document.createElement("div");
             bloqueNombre.className = "bg-gray-950/60 border border-gray-800 rounded-xl p-3 flex flex-col gap-1";
-            bloqueNombre.innerHTML = `
-                <div class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Identidad ${index + 1}</div>
-                <div class="text-sm font-black text-white">${romanizacion}</div>
-                <div class="flex justify-between items-center text-xs mt-0.5">
-                    <span class="text-yellow-600 font-bold font-sans">${kanji}</span>
-                    <span class="text-gray-400 font-medium text-[11px] font-sans">${tonalidad}</span>
-                </div>
-            `;
+
+            let htmlInterno = "";
+
+            if (romanizacion) {
+                htmlInterno += `<div class="text-sm font-black text-white">${romanizacion}</div>`;
+            }
+
+            if (kanji || tonalidad) {
+                htmlInterno += `<div class="flex justify-between items-center text-xs mt-0.5">`;
+                if (kanji) {
+                    htmlInterno += `<span class="text-yellow-600 font-bold font-sans">${kanji}</span>`;
+                } else {
+                    htmlInterno += `<span></span>`;
+                }
+                if (tonalidad) {
+                    htmlInterno += `<span class="text-gray-400 font-medium text-[11px] font-sans">${tonalidad}</span>`;
+                }
+                htmlInterno += `</div>`;
+            }
+
+            bloqueNombre.innerHTML = htmlInterno;
             contenedorListaNombres.appendChild(bloqueNombre);
         });
 
         document.body.classList.add("modal-abierto");
         modalNombres.classList.remove("hidden");
+        
+        history.pushState({ modalNombresAbierto: true }, "");
     });
 
     function cerrarModalNombres() {
         document.body.classList.remove("modal-abierto");
         modalNombres.classList.add("hidden");
+        if (history.state && history.state.modalNombresAbierto) {
+            history.back();
+        }
     }
 
     btnCerrarModalNombres.addEventListener("click", cerrarModalNombres);
