@@ -246,39 +246,31 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    let ultimoValorSeleccionado = selectOrdenar.value;
+    let opcionPreviaApertura = selectOrdenar.value;
 
-    selectOrdenar.addEventListener("focus", () => {
-        ultimoValorSeleccionado = selectOrdenar.value;
-    });
+    // Guardamos la opción que estaba activa antes de que el usuario abra la ventana
+    const guardarOpcionPrevia = () => {
+        opcionPreviaApertura = selectOrdenar.value;
+    };
+    selectOrdenar.addEventListener("focus", guardarOpcionPrevia);
+    selectOrdenar.addEventListener("pointerdown", guardarOpcionPrevia);
 
+    // Se ejecuta ÚNICAMENTE cuando el usuario presiona/confirma una opción dentro del menú desplegable:
     selectOrdenar.addEventListener("change", (e) => {
-        const nuevoValor = e.target.value;
+        const opcionElegida = e.target.value;
 
-        if (nuevoValor === ultimoValorSeleccionado) {
-            // Si se selecciona la misma opción que ya estaba activa, se invierte la dirección (desc -> asc -> desc)
+        if (opcionElegida === opcionPreviaApertura) {
+            // Si presionó la misma opción que ya estaba marcada, invierte la dirección (Recientes <-> Antiguos)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si cambia a una opción distinta, reinicia el orden con fechas más recientes primero
+            // Si eligió una opción diferente, se reinicia con las fechas más recientes primero
             direccionOrden = "desc";
-            ultimoValorSeleccionado = nuevoValor;
         }
 
-        criterioOrden = nuevoValor;
+        criterioOrden = opcionElegida;
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
-    });
-
-    // Soporte para hacer clic directo en la opción activa sin necesidad de desenfocar el selector
-    selectOrdenar.addEventListener("click", () => {
-        if (selectOrdenar.value === criterioOrden && selectOrdenar.dataset.clicked === "true") {
-            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
-            paginaActual = 1;
-            aplicarFiltrosYRenderizar();
-            window.scrollTo(0, 0);
-        }
-        selectOrdenar.dataset.clicked = "true";
     });
 
     btnVolverActrices.addEventListener("click", () => {
