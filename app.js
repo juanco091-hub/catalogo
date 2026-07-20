@@ -267,7 +267,7 @@ function configurarEventos() {
             // Si elige la misma opción que ya estaba activa -> Invertimos la dirección (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si elige una opción diferente -> Forzamos las fechas más recientes primero
+            // Si es la primera vez o elige una opción diferente -> Forzamos los más recientes primero
             direccionOrden = "desc";
             ultimoCriterioSeleccionado = opcionElegida;
         }
@@ -286,6 +286,10 @@ function configurarEventos() {
             paginaActual = 1;
             aplicarFiltrosYRenderizar();
             window.scrollTo(0, 0);
+        } else if (!menuAbierto && ultimoCriterioSeleccionado === null) {
+            // Si es la primera vez que hace clic sobre la opción activa
+            direccionOrden = "desc";
+            ultimoCriterioSeleccionado = selectOrdenar.value;
         }
         menuAbierto = false;
     });
@@ -576,7 +580,7 @@ function actualizarOpcionesSelectOrdenar() {
     }
     
     criterioOrden = "reciente";
-    ultimoCriterioSeleccionado = "reciente";
+    ultimoCriterioSeleccionado = null; // Al poner null, la primera vez que toques cualquier botón no lo tratará como 'repetido'
     direccionOrden = "desc";
     selectOrdenar.value = "reciente";
 }
