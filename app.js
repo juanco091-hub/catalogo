@@ -246,26 +246,39 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    selectOrdenar.addEventListener("click", (e) => {
-        selectOrdenar.dataset.prevValue = selectOrdenar.value;
+    let ultimoValorSeleccionado = selectOrdenar.value;
+
+    selectOrdenar.addEventListener("focus", () => {
+        ultimoValorSeleccionado = selectOrdenar.value;
     });
 
     selectOrdenar.addEventListener("change", (e) => {
         const nuevoValor = e.target.value;
-        const valorAnterior = selectOrdenar.dataset.prevValue;
 
-        if (nuevoValor === valorAnterior) {
-            // Si hace clic en la misma opción que ya estaba seleccionada, invierte la dirección
+        if (nuevoValor === ultimoValorSeleccionado) {
+            // Si se selecciona la misma opción que ya estaba activa, se invierte la dirección (desc -> asc -> desc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si cambia a una opción diferente, reinicia a descendente (más recientes primero)
+            // Si cambia a una opción distinta, reinicia el orden con fechas más recientes primero
             direccionOrden = "desc";
+            ultimoValorSeleccionado = nuevoValor;
         }
 
         criterioOrden = nuevoValor;
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
+    });
+
+    // Soporte para hacer clic directo en la opción activa sin necesidad de desenfocar el selector
+    selectOrdenar.addEventListener("click", () => {
+        if (selectOrdenar.value === criterioOrden && selectOrdenar.dataset.clicked === "true") {
+            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
+            paginaActual = 1;
+            aplicarFiltrosYRenderizar();
+            window.scrollTo(0, 0);
+        }
+        selectOrdenar.dataset.clicked = "true";
     });
 
     btnVolverActrices.addEventListener("click", () => {
