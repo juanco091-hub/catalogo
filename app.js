@@ -247,52 +247,47 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    // Guardamos la opción seleccionada actualmente
-    let opcionActivaEnVentana = selectOrdenar.value;
+    let opcionAlAbrir = selectOrdenar.value;
+    let menuAbierto = false;
 
-    // Al tocar el botón exterior para abrir la ventana, registramos la opción que está activa
-    selectOrdenar.addEventListener("pointerdown", () => {
-        opcionActivaEnVentana = selectOrdenar.value;
-    });
+    // Detectamos el momento exacto en que el usuario abre el menú desplegable
+    const registrarAperturaMenu = () => {
+        opcionAlAbrir = selectOrdenar.value;
+        menuAbierto = true;
+    };
 
-    // Se ejecuta EXCLUSIVAMENTE cuando el usuario elige/presiona una opción DENTRO de la ventana desplegada:
-    let opcionPrevioApertura = selectOrdenar.value;
+    selectOrdenar.addEventListener("focus", registrarAperturaMenu);
+    selectOrdenar.addEventListener("pointerdown", registrarAperturaMenu);
 
-    // Al abrir o interactuar con el selector, guardamos qué opción estaba activa
-    selectOrdenar.addEventListener("pointerdown", () => {
-        opcionPrevioApertura = selectOrdenar.value;
-    });
-    selectOrdenar.addEventListener("focus", () => {
-        opcionPrevioApertura = selectOrdenar.value;
-    });
+    // Al seleccionar una opción en la ventana desplegada:
+    selectOrdenar.addEventListener("change", (e) => {
+        const opcionElegida = e.target.value;
 
-    // Función unificada que procesa la selección realizada DENTRO de la ventana
-    const procesarSeleccionOpcion = (opcionElegida) => {
-        if (opcionElegida === opcionPrevioApertura) {
-            // Si en la ventana abierta vuelve a presionar la misma opción -> Invierte dirección (desc <-> asc)
+        if (opcionElegida === ultimoCriterioSeleccionado) {
+            // Si elige la misma opción que ya estaba activa -> Invertimos la dirección (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Si elige una opción diferente -> Reinicia a fechas más recientes primero
+            // Si elige una opción diferente -> Forzamos las fechas más recientes primero
             direccionOrden = "desc";
-            opcionPrevioApertura = opcionElegida;
+            ultimoCriterioSeleccionado = opcionElegida;
         }
 
         criterioOrden = opcionElegida;
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
-    };
-
-    // 1. Captura cuando cambia a una opción distinta en la ventana
-    selectOrdenar.addEventListener("change", (e) => {
-        procesarSeleccionOpcion(e.target.value);
+        menuAbierto = false;
     });
 
-    // 2. Captura cuando el usuario presiona la MISMA opción dentro de la ventana abierta
-    selectOrdenar.addEventListener("input", (e) => {
-        if (e.target.value === opcionPrevioApertura) {
-            procesarSeleccionOpcion(e.target.value);
+    // Solución para Android/Navegadores: si vuelve a presionar la misma opción sin cambiar el valor del select
+    selectOrdenar.addEventListener("click", () => {
+        if (!menuAbierto && selectOrdenar.value === ultimoCriterioSeleccionado) {
+            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
+            paginaActual = 1;
+            aplicarFiltrosYRenderizar();
+            window.scrollTo(0, 0);
         }
+        menuAbierto = false;
     });
 
     btnVolverActrices.addEventListener("click", () => {
