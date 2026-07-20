@@ -575,8 +575,9 @@ function actualizarOpcionesSelectOrdenar() {
         `;
     }
     
+    // Forzar el estado inicial a lo más reciente siempre que se recargan/cambian las opciones
     criterioOrden = "reciente";
-    ultimoCriterioSeleccionado = "reciente";
+    ultimoCriterioSeleccionado = null; // Se pone en null para que la primera elección sea tratada como "nuevo criterio"
     direccionOrden = "desc";
     selectOrdenar.value = "reciente";
 }
