@@ -564,7 +564,10 @@ function actualizarOpcionesSelectOrdenar() {
             <option value="estreno" class="bg-gray-900 text-white">Fecha de Estreno</option>
         `;
     }
-    criterioOrden = "reciente";
+    
+    criterioOrden = selectOrdenar.value || "reciente";
+    ultimoCriterioSeleccionado = criterioOrden;
+    direccionOrden = "desc";
 }
 
 function aplicarFiltrosYRenderizar() {
