@@ -250,6 +250,7 @@ function configurarEventos() {
     let opcionAlAbrir = selectOrdenar.value;
     let ejecutoChange = false;
 
+    // Cuando el usuario abre/enfoca el desplegable, guardamos el estado inicial sin ejecutar nada
     selectOrdenar.addEventListener("focus", () => {
         opcionAlAbrir = selectOrdenar.value;
         ejecutoChange = false;
@@ -260,13 +261,16 @@ function configurarEventos() {
         ejecutoChange = false;
     });
 
+    // UNICAMENTE cuando se selecciona activamente una opción dentro de la ventana desplegada
     selectOrdenar.addEventListener("change", (e) => {
         const opcionElegida = e.target.value;
         ejecutoChange = true;
 
         if (opcionElegida === ultimoCriterioSeleccionado) {
+            // Si selecciona la misma opción que ya estaba activa, invierte la dirección (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
+            // Si cambia a una opción diferente, siempre muestra los más recientes primero
             direccionOrden = "desc";
             ultimoCriterioSeleccionado = opcionElegida;
         }
@@ -277,12 +281,13 @@ function configurarEventos() {
         window.scrollTo(0, 0);
     });
 
-    selectOrdenar.addEventListener("click", () => {
+    // Manejo de clic sobre el select cuando se vuelve a tocar la misma opción dentro del menú en dispositivos móviles
+    selectOrdenar.addEventListener("click", (e) => {
+        // Prevenimos cualquier activación si solo se está haciendo clic para abrir el menú
         if (!ejecutoChange && selectOrdenar.value === opcionAlAbrir && selectOrdenar.value === ultimoCriterioSeleccionado) {
-            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
-            paginaActual = 1;
-            aplicarFiltrosYRenderizar();
-            window.scrollTo(0, 0);
+            // No hacemos nada al hacer clic sobre el texto para abrir la ventana
+            ejecutoChange = false;
+            return;
         }
         ejecutoChange = false;
     });
