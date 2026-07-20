@@ -575,9 +575,10 @@ function actualizarOpcionesSelectOrdenar() {
         `;
     }
     
-    criterioOrden = selectOrdenar.value || "reciente";
-    ultimoCriterioSeleccionado = criterioOrden;
+    criterioOrden = "reciente";
+    ultimoCriterioSeleccionado = "reciente";
     direccionOrden = "desc";
+    selectOrdenar.value = "reciente";
 }
 
 function aplicarFiltrosYRenderizar() {
