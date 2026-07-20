@@ -247,47 +247,34 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    let opcionAlAbrir = selectOrdenar.value;
-    let menuAbierto = false;
-
-    // Detectamos el momento exacto en que el usuario abre el menú desplegable
-    const registrarAperturaMenu = () => {
-        opcionAlAbrir = selectOrdenar.value;
-        menuAbierto = true;
-    };
-
-    selectOrdenar.addEventListener("focus", registrarAperturaMenu);
-    selectOrdenar.addEventListener("pointerdown", registrarAperturaMenu);
-
-    // Al seleccionar una opción en la ventana desplegada:
+    // Control inteligente para conmutar dirección solo al repetir el mismo criterio
     selectOrdenar.addEventListener("change", (e) => {
         const opcionElegida = e.target.value;
 
-        if (opcionElegida === ultimoCriterioSeleccionado) {
-            // Si elige la misma opción que ya estaba activa -> Invertimos la dirección (desc <-> asc)
-            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
-        } else {
-            // Si elige una opción diferente -> Forzamos las fechas más recientes primero
-            direccionOrden = "desc";
+        // Si viene de un criterio diferente (o es la primera interacción)
+        if (opcionElegida !== ultimoCriterioSeleccionado) {
+            direccionOrden = "desc"; // Forzar SIEMPRE más recientes primero
             ultimoCriterioSeleccionado = opcionElegida;
+        } else {
+            // Si elige exactamente la misma opción de forma consecutiva -> Invertir
+            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         }
 
         criterioOrden = opcionElegida;
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
-        menuAbierto = false;
     });
 
-    // Solución para Android/Navegadores: si vuelve a presionar la misma opción sin cambiar el valor del select
-    selectOrdenar.addEventListener("click", () => {
-        if (!menuAbierto && selectOrdenar.value === ultimoCriterioSeleccionado) {
+    // Soporte para navegadores móviles donde al presionar la misma opción seleccionada NO se dispara "change"
+    selectOrdenar.addEventListener("click", (e) => {
+        // Verificamos si el usuario hace clic sobre la misma opción que ya está activa
+        if (selectOrdenar.value === ultimoCriterioSeleccionado) {
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
             paginaActual = 1;
             aplicarFiltrosYRenderizar();
             window.scrollTo(0, 0);
         }
-        menuAbierto = false;
     });
 
     btnVolverActrices.addEventListener("click", () => {
