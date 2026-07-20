@@ -79,6 +79,15 @@ async function inicializarApp() {
 }
 
 window.addEventListener("popstate", (evento) => {
+    // 1. NUEVA VALIDACIÓN: Si el modal de nombres está abierto, solo lo cierra y detiene la navegación
+    const modalNombres = document.getElementById("modal-nombres-antiguos");
+    if (modalNombres && !modalNombres.classList.contains("hidden")) {
+        document.body.classList.remove("modal-abierto");
+        modalNombres.classList.add("hidden");
+        return;
+    }
+
+    // 2. Cierre del modal de ayuda (CÓDIGO EXISTENTE)
     if (pestañaActiva === "ayuda") {
         document.body.classList.remove("modal-abierto");
         modalAyuda.classList.add("hidden");
@@ -87,6 +96,7 @@ window.addEventListener("popstate", (evento) => {
         return;
     }
 
+    // 3. Manejo de navegación por historial (CÓDIGO EXISTENTE)
     if (evento && evento.state) {
         pestañaActiva = evento.state.pestana || "todos";
         paginaActual = evento.state.pagina || 1;
