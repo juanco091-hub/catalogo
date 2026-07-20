@@ -247,31 +247,25 @@ function configurarEventos() {
         aplicarFiltrosYRenderizar();
     });
 
-    let abriendoMenu = false;
+    // Guardamos la opción seleccionada actualmente
+    let opcionActivaEnVentana = selectOrdenar.value;
 
-    selectOrdenar.addEventListener("focus", () => {
-        abriendoMenu = true;
+    // Al tocar el botón exterior para abrir la ventana, registramos la opción que está activa
+    selectOrdenar.addEventListener("pointerdown", () => {
+        opcionActivaEnVentana = selectOrdenar.value;
     });
 
-    selectOrdenar.addEventListener("click", () => {
-        // Si el menú ya estaba abierto y el usuario hace clic nuevamente en la misma opción elegida
-        if (!abriendoMenu && selectOrdenar.value === ultimoCriterioSeleccionado) {
-            direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
-            paginaActual = 1;
-            aplicarFiltrosYRenderizar();
-            window.scrollTo(0, 0);
-        }
-        abriendoMenu = false;
-    });
-
+    // Se ejecuta EXCLUSIVAMENTE cuando el usuario elige/presiona una opción DENTRO de la ventana desplegada:
     selectOrdenar.addEventListener("change", (e) => {
         const opcionElegida = e.target.value;
 
-        if (opcionElegida === ultimoCriterioSeleccionado) {
+        if (opcionElegida === opcionActivaEnVentana) {
+            // Si en la ventana abierta vuelve a presionar la opción que ya estaba marcada -> Invierte dirección
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
+            // Si en la ventana abierta elige una opción distinta -> Reinicia a fechas más recientes primero
             direccionOrden = "desc";
-            ultimoCriterioSeleccionado = opcionElegida;
+            opcionActivaEnVentana = opcionElegida;
         }
 
         criterioOrden = opcionElegida;
