@@ -451,8 +451,11 @@ function actualizarUIHeadernavigation() {
         // 1. Ocultamos la cabecera general
         vistaGeneralCabecera.classList.add("hidden");
         
-        // 2. Mostramos el banner de la actriz
+        // 2. Mostramos el banner de la actriz y asignamos su nombre
         vistaActrizCabecera.classList.remove("hidden");
+        if (nombreActrizTitulo) {
+            nombreActrizTitulo.textContent = `${actrizSeleccionada}`;
+        }
 
         // 3. Generamos el nombre limpio para buscar la foto de la actriz
         const nombreLimpio = actrizSeleccionada
