@@ -356,19 +356,25 @@ function configurarEventos() {
         window.scrollTo(0, 0);
     });
 
-    modalWhatsapp.addEventListener("click", (e) => {
-        if (e.target === modalWhatsapp) {
+    function cerrarModalWhatsapp() {
+        if (history.state && history.state.modalAbierto === "whatsapp") {
+            history.back();
+        } else {
             document.body.classList.remove("modal-abierto");
             modalWhatsapp.classList.add("hidden");
         }
-    });
+    }
+
     btnFooterWhatsapp.addEventListener("click", () => {
+        actualizarEstadoActualSinNavegar();
         document.body.classList.add("modal-abierto");
         modalWhatsapp.classList.remove("hidden");
+        history.pushState(Object.assign(obtenerEstadoActual(), { modalAbierto: "whatsapp" }), "");
     });
-    btnCerrarModal.addEventListener("click", () => {
-        document.body.classList.remove("modal-abierto");
-        modalWhatsapp.classList.add("hidden");
+
+    btnCerrarModal.addEventListener("click", cerrarModalWhatsapp);
+    modalWhatsapp.addEventListener("click", (e) => {
+        if (e.target === modalWhatsapp) cerrarModalWhatsapp();
     });
 
     btnFooterSearch.addEventListener("click", () => {
