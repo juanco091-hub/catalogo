@@ -125,24 +125,11 @@ async function inicializarApp() {
 }
 
 window.addEventListener("popstate", (evento) => {
-    const modalNombres = document.getElementById("modal-nombres-antiguos");
-    if (modalNombres && !modalNombres.classList.contains("hidden")) {
-        document.body.classList.remove("modal-abierto");
-        modalNombres.classList.add("hidden");
-        return;
-    }
-
-    if (pestañaActiva === "ayuda") {
-        document.body.classList.remove("modal-abierto");
-        modalAyuda.classList.add("hidden");
-        pestañaActiva = pestanaPreviaAyuda;
-        actualizarUIHeadernavigation();
-        return;
-    }
-
     document.body.classList.remove("modal-abierto");
-    modalAyuda.classList.add("hidden");
-    modalWhatsapp.classList.add("hidden");
+    if (modalAyuda) modalAyuda.classList.add("hidden");
+    if (modalWhatsapp) modalWhatsapp.classList.add("hidden");
+    const modalNombres = document.getElementById("modal-nombres-antiguos");
+    if (modalNombres) modalNombres.classList.add("hidden");
 
     if (evento && evento.state) {
         restaurarEstado(evento.state);
