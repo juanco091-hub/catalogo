@@ -392,15 +392,19 @@ function configurarEventos() {
     });
 
     function cerrarGlosarioAyuda() {
-        document.body.classList.remove("modal-abierto");
-        modalAyuda.classList.add("hidden");
-        pestañaActiva = pestanaPreviaAyuda; 
-        actualizarUIHeadernavigation(); 
-            
-        if (history.state && history.state.pestana === "ayuda") {
+        if (history.state && history.state.modalAbierto === "ayuda") {
             history.back();
+        } else {
+            document.body.classList.remove("modal-abierto");
+            modalAyuda.classList.add("hidden");
         }
     }
+
+    btnCerrarAyuda.addEventListener("click", cerrarGlosarioAyuda);
+    btnEntendidoAyuda.addEventListener("click", cerrarGlosarioAyuda);
+    modalAyuda.addEventListener("click", (e) => {
+        if (e.target === modalAyuda) cerrarGlosarioAyuda();
+    });
 
     btnCerrarAyuda.addEventListener("click", cerrarGlosarioAyuda);
     btnEntendidoAyuda.addEventListener("click", cerrarGlosarioAyuda);
