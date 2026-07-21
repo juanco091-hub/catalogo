@@ -351,7 +351,7 @@ function configurarEventos() {
         actualizarUIHeadernavigation();
 
         contenedorPestanasNav.scrollLeft = 0;
-        
+
         actualizarOpcionesSelectOrdenar();
 
         history.pushState(obtenerEstadoActual(), "", `?tab=${pestañaActiva}`);
