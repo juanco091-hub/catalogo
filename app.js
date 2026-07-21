@@ -14,7 +14,7 @@ let paginaActual = 1;
 const LIMITE_POR_PAGINA = 20; 
 let criterioOrden = "reciente"; 
 let ultimoCriterioSeleccionado = "reciente";
-let direccionOrden = "desc"; // 'desc' = más recientes primero, 'asc' = más antiguos primero 
+let direccionOrden = "desc";
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
@@ -41,6 +41,54 @@ const vistaGeneralCabecera = document.getElementById("vista-general-cabecera");
 const btnCabeceraActrices = document.getElementById("btn-cabecera-actrices");
 const btnNombresAntiguos = document.getElementById("btn-nombres-antiguos");
 
+function obtenerEstadoActual() {
+    return {
+        pestana: pestañaActiva,
+        actriz: actrizSeleccionada,
+        pagina: paginaActual,
+        criterioOrden: criterioOrden,
+        ultimoCriterioSeleccionado: ultimoCriterioSeleccionado,
+        direccionOrden: direccionOrden,
+        textoBusqueda: inputBuscar.value,
+        scrollY: window.scrollY
+    };
+}
+
+function restaurarEstado(state) {
+    if (!state) return;
+    
+    pestañaActiva = state.pestana || "todos";
+    actrizSeleccionada = state.actriz || null;
+    paginaActual = state.pagina || 1;
+    criterioOrden = state.criterioOrden || "reciente";
+    ultimoCriterioSeleccionado = state.ultimoCriterioSeleccionado || "reciente";
+    direccionOrden = state.direccionOrden || "desc";
+    
+    if (inputBuscar) {
+        inputBuscar.value = state.textoBusqueda || "";
+    }
+
+    if (state.textoBusqueda && state.textoBusqueda.trim() !== "") {
+        searchBarContainer.classList.remove("hidden");
+    } else {
+        searchBarContainer.classList.add("hidden");
+    }
+
+    actualizarUIHeadernavigation();
+    actualizarOpcionesSelectOrdenar();
+    selectOrdenar.value = criterioOrden;
+    aplicarFiltrosYRenderizar();
+
+    const scrollDestino = state.scrollY || 0;
+    requestAnimationFrame(() => {
+        window.scrollTo(0, scrollDestino);
+    });
+}
+
+function actualizarEstadoActualSinNavegar() {
+    history.replaceState(obtenerEstadoActual(), "", window.location.href);
+}
+
 async function inicializarApp() {
     try {
         contenedorPrincipal.innerHTML = `
@@ -61,11 +109,7 @@ async function inicializarApp() {
         generarListaActricesUnicas();
         configurarEventos();
         
-        history.replaceState({ 
-            pestana: "todos", 
-            pagina: 1, 
-            actriz: null 
-        }, "", window.location.pathname);
+        history.replaceState(obtenerEstadoActual(), "", window.location.href);
 
         actualizarOpcionesSelectOrdenar();
         aplicarFiltrosYRenderizar();
@@ -96,18 +140,12 @@ window.addEventListener("popstate", (evento) => {
         return;
     }
 
-    if (evento && evento.state) {
-        pestañaActiva = evento.state.pestana || "todos";
-        paginaActual = evento.state.pagina || 1;
-        actrizSeleccionada = evento.state.actriz || null;
-        
-        document.body.classList.remove("modal-abierto");
-        modalAyuda.classList.add("hidden");
-        modalWhatsapp.classList.add("hidden");
+    document.body.classList.remove("modal-abierto");
+    modalAyuda.classList.add("hidden");
+    modalWhatsapp.classList.add("hidden");
 
-        actualizarUIHeadernavigation();
-        actualizarOpcionesSelectOrdenar();
-        aplicarFiltrosYRenderizar(); 
+    if (evento && evento.state) {
+        restaurarEstado(evento.state);
     } else {
         resetearAInicio();
     }
@@ -206,13 +244,20 @@ function configurarEventos() {
                 document.body.classList.add("modal-abierto");
                 modalAyuda.classList.remove("hidden");
                 actualizarUIHeadernavigation();
-                history.pushState({ pestana: "ayuda" }, "", window.location.pathname);
+                
+                actualizarEstadoActualSinNavegar();
+                history.pushState(obtenerEstadoActual(), "", window.location.href);
                 return; 
             }
+
+            actualizarEstadoActualSinNavegar();
 
             pestañaActiva = tabTarget;
             actrizSeleccionada = null;
             paginaActual = 1;
+            criterioOrden = "reciente";
+            ultimoCriterioSeleccionado = "reciente";
+            direccionOrden = "desc";
             
             searchBarContainer.classList.add("hidden");
             inputBuscar.value = "";
@@ -220,11 +265,7 @@ function configurarEventos() {
             actualizarUIHeadernavigation();
             actualizarOpcionesSelectOrdenar();
 
-            history.pushState({ 
-                pestana: pestañaActiva, 
-                pagina: 1, 
-                actriz: null 
-            }, "", `?tab=${pestañaActiva}`);
+            history.pushState(obtenerEstadoActual(), "", `?tab=${pestañaActiva}`);
 
             aplicarFiltrosYRenderizar();
             window.scrollTo(0, 0);
@@ -242,16 +283,12 @@ function configurarEventos() {
     inputBuscar.addEventListener("input", () => {
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
+        actualizarEstadoActualSinNavegar();
     });
 
-    // ==========================================
-    // CONTROL DE EVENTOS PARA EL SELECT DE ORDENAMIENTO
-    // ==========================================
     let desplegableAbierto = false;
     let opcionAlAbrir = selectOrdenar.value;
 
-    // Al tocar/enfocar para ABRIR el menú desplegable:
-    // Marcar que el menú se acaba de abrir y guardar el valor que tenía
     selectOrdenar.addEventListener("focus", () => {
         desplegableAbierto = true;
         opcionAlAbrir = selectOrdenar.value;
@@ -264,10 +301,8 @@ function configurarEventos() {
 
     function procesarSeleccionOrden(opcionElegida) {
         if (opcionElegida === ultimoCriterioSeleccionado) {
-            // Re-selección de la misma opción activa -> Invierte la dirección (desc <-> asc)
             direccionOrden = (direccionOrden === "desc") ? "asc" : "desc";
         } else {
-            // Opción nueva -> Siempre muestra más recientes primero
             direccionOrden = "desc";
             ultimoCriterioSeleccionado = opcionElegida;
         }
@@ -276,23 +311,21 @@ function configurarEventos() {
         paginaActual = 1;
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
+        
+        actualizarEstadoActualSinNavegar();
     }
 
-    // 1. Cuando el usuario cambia a una opción DIFERENTE dentro del menú
     selectOrdenar.addEventListener("change", (e) => {
         procesarSeleccionOrden(e.target.value);
         desplegableAbierto = false;
     });
 
-    // 2. Cuando el usuario hace clic para confirmar una opción dentro del menú
     selectOrdenar.addEventListener("click", () => {
-        // Si el clic es el primer toque que ABRE la ventana, no hacer nada
         if (desplegableAbierto) {
-            desplegableAbierto = false; // El siguiente clic dentro de las opciones ya será una confirmación
+            desplegableAbierto = false;
             return;
         }
 
-        // Si el usuario vuelve a presionar la misma opción activa dentro del menú abierto:
         if (selectOrdenar.value === opcionAlAbrir && selectOrdenar.value === ultimoCriterioSeleccionado) {
             procesarSeleccionOrden(selectOrdenar.value);
         }
@@ -303,9 +336,14 @@ function configurarEventos() {
     });
 
     btnCabeceraActrices.addEventListener("click", () => {
+        actualizarEstadoActualSinNavegar();
+
         pestañaActiva = "actrices";
         actrizSeleccionada = null;
         paginaActual = 1;
+        criterioOrden = "reciente";
+        ultimoCriterioSeleccionado = "reciente";
+        direccionOrden = "desc";
         
         searchBarContainer.classList.add("hidden");
         inputBuscar.value = "";
@@ -313,11 +351,7 @@ function configurarEventos() {
         actualizarUIHeadernavigation();
         actualizarOpcionesSelectOrdenar();
 
-        history.pushState({ 
-            pestana: pestañaActiva, 
-            pagina: 1, 
-            actriz: null 
-        }, "", `?tab=${pestañaActiva}`);
+        history.pushState(obtenerEstadoActual(), "", `?tab=${pestañaActiva}`);
 
         aplicarFiltrosYRenderizar();
         window.scrollTo(0, 0);
@@ -355,6 +389,7 @@ function configurarEventos() {
     
             inputBuscar.focus({ preventScroll: true });
         }
+        actualizarEstadoActualSinNavegar();
     });
 
     function cerrarGlosarioAyuda() {
@@ -420,7 +455,8 @@ function configurarEventos() {
         document.body.classList.add("modal-abierto");
         modalNombres.classList.remove("hidden");
         
-        history.pushState({ modalNombresAbierto: true }, "");
+        actualizarEstadoActualSinNavegar();
+        history.pushState(Object.assign(obtenerEstadoActual(), { modalNombresAbierto: true }), "");
     });
 
     function cerrarModalNombres() {
@@ -447,6 +483,8 @@ function resetearAInicio() {
     actrizSeleccionada = null;
     paginaActual = 1;
     criterioOrden = "reciente";
+    ultimoCriterioSeleccionado = "reciente";
+    direccionOrden = "desc";
     inputBuscar.value = "";
     searchBarContainer.classList.add("hidden");
     actualizarPlaceholderBuscador();
@@ -460,7 +498,7 @@ function resetearAInicio() {
 
     contenedorPestanasNav.scrollLeft = 0;
 
-    history.pushState({ pestana: "todos", pagina: 1, actriz: null }, "", window.location.pathname);
+    history.pushState(obtenerEstadoActual(), "", window.location.pathname);
     
     aplicarFiltrosYRenderizar();
     window.scrollTo(0, 0);
@@ -566,11 +604,7 @@ function actualizarOpcionesSelectOrdenar() {
         `;
     }
     
-    // Mantener la sincronización inicial al cargar/cambiar de pestaña
-    criterioOrden = "reciente";
-    ultimoCriterioSeleccionado = "reciente";
-    direccionOrden = "desc";
-    selectOrdenar.value = "reciente";
+    selectOrdenar.value = criterioOrden;
 }
 
 function aplicarFiltrosYRenderizar() {
@@ -626,7 +660,6 @@ function aplicarFiltrosYRenderizar() {
         });
     }
 
-    // Parser universal de fechas (soporta YYYY/MM/DD, DD/MM/YYYY, YYYY-MM-DD)
     const parsearFechaMs = (strFecha) => {
         if (!strFecha || strFecha.trim() === "" || strFecha.trim() === "---") return 0;
         const limpia = strFecha.trim().replace(/-/g, "/");
@@ -651,7 +684,6 @@ function aplicarFiltrosYRenderizar() {
         });
     };
 
-    // Filtrado condicional según la opción seleccionada dentro de la actriz
     if (criterioOrden === "subesp") {
         videosFiltrados = videosFiltrados.filter(v => v.subtitulos && v.subtitulos.toLowerCase().trim() === "sub español");
     } else if (criterioOrden === "mr") {
@@ -666,7 +698,6 @@ function aplicarFiltrosYRenderizar() {
         videosFiltrados = videosFiltrados.filter(v => v.produccionextranjera && (v.produccionextranjera.toLowerCase().trim() === "si" || v.produccionextranjera.toLowerCase().trim() === "sí"));
     }
 
-    // Aplicación estricta de orden por fechas
     if (criterioOrden === "reciente") {
         ordenarPorFecha(videosFiltrados, "fechadesubida");
     } else {
@@ -681,9 +712,14 @@ function aplicarFiltrosYRenderizar() {
 function irAPerfilActriz(nombreActriz) {
     if (!nombreActriz || nombreActriz.toLowerCase() === "desconocida") return;
     
+    actualizarEstadoActualSinNavegar();
+
     actrizSeleccionada = nombreActriz;
     pestañaActiva = "actriz_individual";
     paginaActual = 1;
+    criterioOrden = "reciente";
+    ultimoCriterioSeleccionado = "reciente";
+    direccionOrden = "desc";
     inputBuscar.value = "";
     searchBarContainer.classList.add("hidden");
     actualizarPlaceholderBuscador();
@@ -697,11 +733,7 @@ function irAPerfilActriz(nombreActriz) {
           .replace(/ñ/g, "n")
           .replace(/\s+/g, "_");
 
-    history.pushState({ 
-        pestana: "actriz_individual", 
-        pagina: 1, 
-        actriz: actrizSeleccionada 
-    }, "", `?actriz=${slug}`);
+    history.pushState(obtenerEstadoActual(), "", `?actriz=${slug}`);
 
     aplicarFiltrosYRenderizar();
     window.scrollTo(0, 0);
@@ -912,6 +944,8 @@ function renderizarPaginacion(totalElementos) {
         botonPagina.className = `w-8 h-8 rounded-lg text-xs font-black transition-all active:scale-90 ${paginaActual === i ? 'bg-yellow-600 text-gray-950 shadow-md scale-105' : 'bg-gray-900 text-gray-400 border border-gray-800'}`;
         
         botonPagina.addEventListener("click", () => {
+            actualizarEstadoActualSinNavegar();
+
             paginaActual = i;
             
             let nuevaUrl = `?p=${i}`;
@@ -926,11 +960,7 @@ function renderizarPaginacion(totalElementos) {
                 nuevaUrl = `?tab=${pestañaActiva}&p=${i}`;
             }
 
-            history.pushState({ 
-                pestana: pestañaActiva, 
-                pagina: paginaActual, 
-                actriz: actrizSeleccionada 
-            }, "", nuevaUrl);
+            history.pushState(obtenerEstadoActual(), "", nuevaUrl);
 
             if (pestañaActiva === "actrices") {
                 renderizarListaActrices();
