@@ -469,6 +469,70 @@ function configurarEventos() {
     modalNombres.addEventListener("click", (e) => {
         if (e.target === modalNombres) cerrarModalNombres();
     });
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    contenedorPrincipal.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    contenedorPrincipal.addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+
+        const diferenciaX = touchEndX - touchStartX;
+        const diferenciaY = touchEndY - touchStartY;
+
+        // Umbral mínimo de movimiento horizontal (60px)
+        const UMBRAL_SWIPE = 60;
+
+        // Verifica que el gesto sea predominantemente horizontal y no un scroll vertical
+        if (Math.abs(diferenciaX) > Math.abs(diferenciaY) && Math.abs(diferenciaX) > UMBRAL_SWIPE) {
+            const totalPaginas = Math.ceil(datosFiltrados.length / LIMITE_POR_PAGINA);
+            if (totalPaginas <= 1) return;
+
+            let cambioPagina = false;
+
+            // Arrastrar hacia la izquierda -> Siguiente página
+            if (diferenciaX < 0 && paginaActual < totalPaginas) {
+                paginaActual++;
+                cambioPagina = true;
+            } 
+            // Arrastrar hacia la derecha -> Página anterior
+            else if (diferenciaX > 0 && paginaActual > 1) {
+                paginaActual--;
+                cambioPagina = true;
+            }
+
+            if (cambioPagina) {
+                actualizarEstadoActualSinNavegar();
+
+                let nuevaUrl = `?p=${paginaActual}`;
+                if (pestañaActiva === "actriz_individual" && actrizSeleccionada) {
+                    const slug = actrizSeleccionada.toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/ñ/g, "n")
+                        .replace(/\s+/g, "_");
+                    nuevaUrl = `?actriz=${slug}&p=${paginaActual}`;
+                } else if (pestañaActiva !== "todos") {
+                    nuevaUrl = `?tab=${pestañaActiva}&p=${paginaActual}`;
+                }
+
+                history.pushState(obtenerEstadoActual(), "", nuevaUrl);
+
+                if (pestañaActiva === "actrices") {
+                    renderizarListaActrices();
+                } else {
+                    renderizarCuadrículaVideos();
+                }
+                renderizarPaginacion(datosFiltrados.length);
+                window.scrollTo(0, 0);
+            }
+        }
+    }, { passive: true });
 }
 
 function actualizarPlaceholderBuscador() {
