@@ -465,14 +465,15 @@ function configurarEventos() {
         modalNombres.classList.remove("hidden");
         
         actualizarEstadoActualSinNavegar();
-        history.pushState(Object.assign(obtenerEstadoActual(), { modalNombresAbierto: true }), "");
+        history.pushState(Object.assign(obtenerEstadoActual(), { modalAbierto: "nombres" }), "");
     });
 
     function cerrarModalNombres() {
-        document.body.classList.remove("modal-abierto");
-        modalNombres.classList.add("hidden");
-        if (history.state && history.state.modalNombresAbierto) {
+        if (history.state && history.state.modalAbierto === "nombres") {
             history.back();
+        } else {
+            document.body.classList.remove("modal-abierto");
+            modalNombres.classList.add("hidden");
         }
     }
 
@@ -481,7 +482,6 @@ function configurarEventos() {
     modalNombres.addEventListener("click", (e) => {
         if (e.target === modalNombres) cerrarModalNombres();
     });
-}
 
 function actualizarPlaceholderBuscador() {
     inputBuscar.placeholder = pestañaActiva === "actrices" ? "Buscar actriz..." : "Buscar...";
