@@ -238,15 +238,11 @@ function configurarEventos() {
             if (tabTarget === "ayuda") {
                 if (pestañaActiva === "ayuda") return;
                 
-                pestanaPreviaAyuda = pestañaActiva; 
-                pestañaActiva = "ayuda";
-                
+                actualizarEstadoActualSinNavegar();
                 document.body.classList.add("modal-abierto");
                 modalAyuda.classList.remove("hidden");
-                actualizarUIHeadernavigation();
                 
-                actualizarEstadoActualSinNavegar();
-                history.pushState(obtenerEstadoActual(), "", window.location.href);
+                history.pushState(Object.assign(obtenerEstadoActual(), { modalAbierto: "ayuda" }), "");
                 return; 
             }
 
