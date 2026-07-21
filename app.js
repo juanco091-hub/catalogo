@@ -469,6 +469,7 @@ function configurarEventos() {
     modalNombres.addEventListener("click", (e) => {
         if (e.target === modalNombres) cerrarModalNombres();
     });
+}
 
 function actualizarPlaceholderBuscador() {
     inputBuscar.placeholder = pestañaActiva === "actrices" ? "Buscar actriz..." : "Buscar...";
