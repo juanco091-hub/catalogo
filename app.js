@@ -349,6 +349,9 @@ function configurarEventos() {
         inputBuscar.value = "";
         actualizarPlaceholderBuscador();
         actualizarUIHeadernavigation();
+
+        contenedorPestanasNav.scrollLeft = 0;
+        
         actualizarOpcionesSelectOrdenar();
 
         history.pushState(obtenerEstadoActual(), "", `?tab=${pestañaActiva}`);
