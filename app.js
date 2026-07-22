@@ -839,7 +839,7 @@ function renderizarCuadrículaVideos() {
                 <div class="relative bg-gray-950 aspect-[1.5/1] w-full flex items-center justify-center overflow-hidden rounded-lg border border-gray-800">
                     <img src="portadas/vid/${codigoLimpio}.jpg" 
                          onerror="this.src='portadas/vid/${codigoLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/600x400/111827/4b5563?text=${codigoLimpio}'" 
-                         class="w-full h-full object-cover">
+                         class="w-full h-full object-fill">
                     
                     <div class="absolute inset-0 flex items-center justify-center transition-colors duration-300">
                         <a href="${video.url || '#'}" target="_blank" class="play-trigger w-12 h-12 flex items-center justify-center rounded-full bg-red-600 text-white shadow-lg hover:scale-110 active:scale-95 transition-transform duration-300 pl-0.5 z-20">
