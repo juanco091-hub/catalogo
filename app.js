@@ -3,7 +3,10 @@ const CONFIG = {
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
 
-
+let BD_ACTRICES = []; 
+let BD_VIDEOS = [];
+let LISTA_ACTRICES_UNICAS = []; 
+let datosFiltrados = []; 
 
 let pestañaActiva = "todos"; 
 let actrizSeleccionada = null; 
