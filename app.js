@@ -399,12 +399,6 @@ function configurarEventos() {
         if (e.target === modalAyuda) cerrarGlosarioAyuda();
     });
 
-    btnCerrarAyuda.addEventListener("click", cerrarGlosarioAyuda);
-    btnEntendidoAyuda.addEventListener("click", cerrarGlosarioAyuda);
-    modalAyuda.addEventListener("click", (e) => {
-        if (e.target === modalAyuda) cerrarGlosarioAyuda();
-    });
-
     const modalNombres = document.getElementById("modal-nombres-antiguos");
     const btnCerrarModalNombres = document.getElementById("btn-cerrar-modal-nombres");
     const btnEntendidoNombres = document.getElementById("btn-entendido-nombres");
@@ -485,22 +479,18 @@ function configurarEventos() {
         const diferenciaX = touchEndX - touchStartX;
         const diferenciaY = touchEndY - touchStartY;
 
-        // Umbral mínimo de movimiento horizontal (60px)
         const UMBRAL_SWIPE = 60;
 
-        // Verifica que el gesto sea predominantemente horizontal y no un scroll vertical
         if (Math.abs(diferenciaX) > Math.abs(diferenciaY) && Math.abs(diferenciaX) > UMBRAL_SWIPE) {
             const totalPaginas = Math.ceil(datosFiltrados.length / LIMITE_POR_PAGINA);
             if (totalPaginas <= 1) return;
 
             let cambioPagina = false;
 
-            // Arrastrar hacia la izquierda -> Siguiente página
             if (diferenciaX < 0 && paginaActual < totalPaginas) {
                 paginaActual++;
                 cambioPagina = true;
             } 
-            // Arrastrar hacia la derecha -> Página anterior
             else if (diferenciaX > 0 && paginaActual > 1) {
                 paginaActual--;
                 cambioPagina = true;
@@ -823,9 +813,25 @@ function renderizarCuadrículaVideos() {
         const nombreActriz = video.actriz || 'Desconocida';
         const descripcionOriginal = video.descripcion || 'Sin descripción disponible.';
 
+        // LÓGICA MÁSCARA / PUBLICAR CÓDIGO
+        const publicarCodigoVal = video.publicarcodigovideo ? video.publicarcodigovideo.trim().toLowerCase() : "si";
+        let codigoHtml = "";
+        if (publicarCodigoVal === "si" || publicarCodigoVal === "sí") {
+            codigoHtml = `<span class="text-yellow-500 font-black uppercase text-xs">[${codigoLimpio}]</span>`;
+        } else if (publicarCodigoVal === "no") {
+            codigoHtml = `<span></span>`;
+        } else {
+            const mascaraCodigo = video.publicarcodigovideo.trim();
+            codigoHtml = `<span class="text-yellow-500 font-black uppercase text-xs">[${mascaraCodigo}]</span>`;
+        }
+
+        // LÓGICA MÁSCARA / PUBLICAR NOMBRE ACTRIZ
+        const publicarActrizVal = video.publicarnombreactriz ? video.publicarnombreactriz.trim().toLowerCase() : "si";
+        const nombreActrizMostrar = (publicarActrizVal === "si" || publicarActrizVal === "sí") ? nombreActriz : "S/N";
+
         tarjeta.innerHTML = `
             <div class="flex justify-between items-center text-xs font-mono tracking-wide w-full px-0.5">
-                <span class="text-yellow-500 font-black uppercase text-xs">[${codigoLimpio}]</span>
+                ${codigoHtml}
                 <span class="text-gray-400 font-bold text-[11px]">${formato} ${resolucion} / ${tamano}</span>
             </div>
 
@@ -886,7 +892,7 @@ function renderizarCuadrículaVideos() {
                 metaExpandido.innerHTML = `
                     <div class="flex flex-col gap-1.5 text-xs">
                         <a href="#" data-actriz="${nombreActriz}" class="link-actriz inline-block text-base font-black text-yellow-500 hover:text-yellow-400 hover:underline transition-colors tracking-wide uppercase py-0.5">
-                            ${nombreActriz}
+                            ${nombreActrizMostrar}
                         </a>
                         <div class="flex flex-col gap-0.5">
                             <p><span class="text-yellow-500 font-bold">Fecha de subida:</span> <span class="text-white">${video.fechadesubida || '---'}</span></p>
