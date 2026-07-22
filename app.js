@@ -984,7 +984,7 @@ function renderizarListaActrices() {
             <div class="w-full aspect-[1/1.3333] rounded-lg bg-gray-950 border border-gray-800 overflow-hidden shadow">
                 <img src="portadas/act/${nombreLimpio}.jpg" 
                      onerror="this.src='portadas/act/${nombreLimpio}.png'; this.onerror=()=>this.src='https://placehold.co/300x400/111827/ffffff?text=${actrizObj.actriz.charAt(0)}'" 
-                     class="w-full h-full object-cover">
+                     class="w-full h-full object-fill">
             </div>
             <h4 class="text-xs font-black text-gray-100 truncate w-full px-1 tracking-wide mt-1.5 uppercase">${actrizObj.actriz}</h4>
         `;
