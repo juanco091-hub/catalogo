@@ -846,13 +846,16 @@ function actualizarOpcionesSelectOrdenar() {
 }
 
 function aplicarFiltrosYRenderizar() {
-    const textoBusqueda = inputBuscar.value.toLowerCase().trim();
+    const textoBusqueda = quitarAcentos(inputBuscar.value.toLowerCase().trim());
 
     if (pestañaActiva === "actrices") {
         let actricesFiltradas = [...LISTA_ACTRICES_UNICAS];
 
         if (textoBusqueda !== "") {
-            actricesFiltradas = actricesFiltradas.filter(a => a.actriz && a.actriz.toLowerCase().includes(textoBusqueda));
+            actricesFiltradas = actricesFiltradas.filter(a => {
+                const nombreLimpio = quitarAcentos(a.actriz ? a.actriz.toLowerCase() : "");
+                return nombreLimpio.includes(textoBusqueda);
+            });
         }
 
         if (criterioOrden === "reciente") {
@@ -908,9 +911,9 @@ function aplicarFiltrosYRenderizar() {
 
     if (textoBusqueda !== "") {
         videosFiltrados = videosFiltrados.filter(v => {
-            const matchCodigo = v.codigovideo && v.codigovideo.toLowerCase().includes(textoBusqueda);
-            const matchActriz = v.nombreactriz && v.nombreactriz.toLowerCase().includes(textoBusqueda);
-            const matchDesc = v.descripcion && v.descripcion.toLowerCase().includes(textoBusqueda);
+            const matchCodigo = quitarAcentos(v.codigovideo ? v.codigovideo.toLowerCase() : "").includes(textoBusqueda);
+            const matchActriz = quitarAcentos(v.nombreactriz ? v.nombreactriz.toLowerCase() : "").includes(textoBusqueda);
+            const matchDesc = quitarAcentos(v.descripcion ? v.descripcion.toLowerCase() : "").includes(textoBusqueda);
             return matchCodigo || matchActriz || matchDesc;
         });
     }
