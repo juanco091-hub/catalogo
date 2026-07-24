@@ -208,6 +208,13 @@ window.addEventListener("popstate", (evento) => {
     }
 });
 
+function quitarAcentos(texto) {
+    if (!texto) return "";
+    return texto
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
 function normalizarEncabezado(titulo) {
     return titulo
         .trim()
