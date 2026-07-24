@@ -36,7 +36,7 @@
             border: 1px solid #111827 !important;
         }
         .scrollbar-personalizado::-webkit-scrollbar-thumb:hover {
-            background-color: #ca8a04 !important;
+            background-color: var(--env-color-iluminacion-pestanas-home, #ca8a04) !important;
         }
         .scrollbar-personalizado {
             scrollbar-width: thin !important;
@@ -80,6 +80,50 @@
             line-height: 1.35rem;
             text-align: justify;
         }
+
+        /* Clases personalizadas dinámicas mediante CSS Variables */
+        .dinamico-btn-cen {
+            background-color: var(--env-color-iluminacion-btn-cen, #ca8a04) !important;
+            box-shadow: 0 4px 14px var(--env-color-iluminacion-btn-cen-alpha, rgba(202, 138, 4, 0.4)) !important;
+        }
+        .dinamico-tab-activa {
+            background-color: var(--env-color-iluminacion-pestanas-home, #ca8a04) !important;
+            box-shadow: 0 4px 12px var(--env-color-iluminacion-pestanas-home-alpha, rgba(202, 138, 4, 0.3)) !important;
+        }
+        .dinamico-tab-activa-actriz {
+            background-color: var(--env-color-iluminacion-pestanas-actriz, #ca8a04) !important;
+            box-shadow: 0 4px 12px var(--env-color-iluminacion-pestanas-actriz-alpha, rgba(202, 138, 4, 0.3)) !important;
+        }
+        .dinamico-codigo-video {
+            color: var(--env-color-codigo-video, #eab308) !important;
+        }
+        .dinamico-btn-vermas {
+            color: var(--env-color-btn-ver-mas-ocultar, #eab308) !important;
+        }
+        .dinamico-nombre-actriz-desc {
+            color: var(--env-color-nombre-actriz-descripcion, #eab308) !important;
+        }
+        .dinamico-etiquetas-fechas {
+            color: var(--env-color-etiquetas-fechas, #eab308) !important;
+        }
+        .dinamico-nombre-actriz-pagina {
+            color: var(--env-color-nombre-actriz-pagina, #eab308) !important;
+        }
+        .dinamico-subtexto-ordenar {
+            color: var(--env-color-subtexto-ordenar-por, #9ca3af) !important;
+        }
+        .dinamico-borde-buscador {
+            border-color: var(--env-color-borde-buscador, #ca8a04) !important;
+        }
+        .dinamico-icono-ayuda-bg {
+            background-color: var(--env-color-iluminacion-pestanas-home-alpha10, rgba(202, 138, 4, 0.1)) !important;
+            border-color: var(--env-color-iluminacion-pestanas-home-alpha30, rgba(202, 138, 4, 0.3)) !important;
+            color: var(--env-color-iluminacion-pestanas-home, #ca8a04) !important;
+        }
+        .dinamico-btn-entendido {
+            color: var(--env-color-texto-btn-entendido, #030712) !important;
+            background-color: var(--env-color-fondo-btn-entendido, #ca8a04) !important;
+        }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-300 select-none">
@@ -93,7 +137,7 @@
                     </h1>
                 </div>
                 <div class="flex bg-gray-950 p-1.5 rounded-xl border border-yellow-600/30 shadow-inner items-center">
-                    <button id="btn-cat-cen" class="px-5 py-2 text-sm font-black rounded-lg bg-gradient-to-r from-yellow-600 to-yellow-500 text-gray-950 shadow-md transition-all active:scale-95">
+                    <button id="btn-cat-cen" class="px-5 py-2 text-sm font-black rounded-lg text-gray-950 transition-all active:scale-95 dinamico-btn-cen">
                         CEN
                     </button>
                     <a id="btn-cat-scen" href="https://catalogojavscen.vercel.app/" target="_blank" class="px-5 py-2 text-sm font-black rounded-lg text-gray-400 hover:text-white transition-all active:scale-95 text-center block">
@@ -104,7 +148,7 @@
 
             <div id="contenedor-pestanas-nav" class="w-full overflow-x-auto scrollbar-none py-0.5">
                 <div id="nav-tabs" class="flex gap-2.5 whitespace-nowrap min-w-max px-0.5 items-center">
-                    <button id="btn-tab-home" class="tab-item px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center" title="Inicio">
+                    <button id="btn-tab-home" class="tab-item px-4 py-2 rounded-full text-sm font-bold text-gray-950 dinamico-tab-activa active:scale-95 flex items-center justify-center" title="Inicio">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
                     <button data-tab="actrices" class="tab-item px-5 py-2 rounded-full text-sm font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95">
@@ -160,7 +204,7 @@
                         <button id="btn-volver-actrices" class="px-4 py-2 rounded-full text-sm font-bold bg-gray-800 text-gray-300 border border-gray-700 active:scale-95 flex items-center justify-center" title="Inicio">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                         </button>
-                        <button id="btn-cabecera-actrices" class="px-5 py-2 rounded-full text-sm font-bold bg-yellow-600 text-gray-950 shadow transition-all active:scale-95 flex items-center justify-center">
+                        <button id="btn-cabecera-actrices" class="px-5 py-2 rounded-full text-sm font-bold text-gray-950 dinamico-tab-activa-actriz active:scale-95 flex items-center justify-center">
                             Actrices
                         </button>
                         <button id="btn-nombres-antiguos" class="hidden w-9 h-9 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/10 text-cyan-400 items-center justify-center shadow-lg transition-all active:scale-90 shrink-0" title="Historial de nombres">
@@ -168,11 +212,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </button>
+                        <button id="btn-filtro-protagonismo" class="hidden w-9 h-9 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/10 text-yellow-500 items-center justify-center shadow-lg transition-all active:scale-90 shrink-0" title="Filtro de Protagonismo">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
                 <div class="flex flex-col z-30 items-start pb-0.5">
-                    <h2 id="nombre-actriz-titulo" class="text-xl font-black text-yellow-500 uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
+                    <h2 id="nombre-actriz-titulo" class="text-xl font-black uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] dinamico-nombre-actriz-pagina"></h2>
                 </div>
             </div>
         </div>
@@ -182,7 +231,7 @@
         <div id="search-bar-container" class="hidden mb-4 transition-all duration-300">
             <div class="relative">
                 <input type="text" id="input-buscar" placeholder="Buscar..." 
-                       class="w-full bg-gray-900 text-white placeholder-gray-500 text-xs font-medium rounded-xl pl-9 pr-4 py-2.5 border border-yellow-600/40 focus:outline-none focus:border-yellow-500 shadow-lg">
+                       class="w-full bg-gray-900 text-white placeholder-gray-500 text-xs font-medium rounded-xl pl-9 pr-4 py-2.5 border dinamico-borde-buscador focus:outline-none shadow-lg">
                 <div class="absolute left-3 top-3 text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
@@ -217,13 +266,13 @@
             <button id="btn-cerrar-ayuda" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center z-10">✕</button>
             
             <div class="flex items-center justify-center w-full mt-1 shrink-0">
-                <div class="w-12 h-12 bg-yellow-500/10 rounded-full flex items-center justify-center border border-yellow-500/30 text-yellow-500">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center border dinamico-icono-ayuda-bg">
                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
                 </div>
             </div>
             
             <div class="w-full text-left overflow-y-scroll pr-2 scrollbar-personalizado flex-grow text-sm">
-                <h3 class="text-sm font-black text-center text-yellow-500 uppercase tracking-wider mb-4 sticky top-0 bg-gray-900 py-1">Guía de Abreviaciones</h3>
+                <h3 id="titulo-modal-ayuda" class="text-sm font-black text-center uppercase tracking-wider mb-4 sticky top-0 bg-gray-900 py-1 dinamico-codigo-video">Guía de Abreviaciones</h3>
                 
                 <div class="space-y-4 text-gray-300 font-medium leading-relaxed">
                     <p>
@@ -253,7 +302,7 @@
                 </div>
             </div>
             
-            <button id="btn-entendido-ayuda" class="w-full bg-yellow-600 hover:bg-yellow-500 text-gray-950 font-black text-xs py-2.5 rounded-xl transition-all shadow-lg active:scale-95 shrink-0">
+            <button id="btn-entendido-ayuda" class="w-full font-black text-xs py-2.5 rounded-xl transition-all shadow-lg active:scale-95 shrink-0 dinamico-btn-entendido">
                 ENTENDIDO
             </button>
         </div>
@@ -263,7 +312,7 @@
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 relative">
             <button id="btn-cerrar-modal-nombres" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center">✕</button>
             <div class="text-center mt-1">
-                <h3 class="text-sm font-black text-yellow-500 uppercase tracking-wider">NOMBRES ARTÍSTICOS</h3>
+                <h3 id="titulo-modal-nombres" class="text-sm font-black uppercase tracking-wider dinamico-codigo-video">NOMBRES ARTÍSTICOS</h3>
                 <p class="text-xs text-gray-400 mt-1 font-medium">Historial de nombres de la actriz</p>
             </div>
             <div id="lista-nombres-antiguos-contenedor" class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-1 scrollbar-personalizado">
@@ -271,6 +320,30 @@
             <button id="btn-entendido-nombres" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-black text-xs py-2.5 rounded-xl transition-all active:scale-95">
                 CERRAR
             </button>
+        </div>
+    </div>
+
+    <div id="modal-protagonismo" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-4 relative">
+            <button id="btn-cerrar-modal-protagonismo" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold text-sm bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center">✕</button>
+            <div class="text-center mt-1">
+                <h3 class="text-sm font-black uppercase tracking-wider dinamico-codigo-video">FILTRAR VIDEOS</h3>
+                <p class="text-xs text-gray-400 mt-1 font-medium">Tipo de protagonismo</p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button data-filtro-protagonismo="todos" class="btn-opcion-protagonismo w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-gray-800 text-white hover:bg-gray-700 transition-colors text-left flex items-center justify-between">
+                    <span>Todos los videos</span>
+                    <span class="checkmark hidden text-yellow-500">✓</span>
+                </button>
+                <button data-filtro-protagonismo="solitario" class="btn-opcion-protagonismo w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-gray-800 text-white hover:bg-gray-700 transition-colors text-left flex items-center justify-between">
+                    <span>En solitario</span>
+                    <span class="checkmark hidden text-yellow-500">✓</span>
+                </button>
+                <button data-filtro-protagonismo="colaboracion" class="btn-opcion-protagonismo w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-gray-800 text-white hover:bg-gray-700 transition-colors text-left flex items-center justify-between">
+                    <span>Con otras actrices</span>
+                    <span class="checkmark hidden text-yellow-500">✓</span>
+                </button>
+            </div>
         </div>
     </div>
    
@@ -285,8 +358,8 @@
                 <span>Buscar</span>
             </button>
             <div class="flex flex-col items-center justify-center relative px-1 w-full h-full cursor-pointer">
-                <label for="select-ordenar" class="text-[9px] text-gray-400 font-bold uppercase block tracking-tight pointer-events-none">Ordenar por:</label>
-                <select id="select-ordenar" class="bg-transparent text-[11px] font-black text-yellow-500 focus:outline-none cursor-pointer w-full text-center py-0.5">
+                <label for="select-ordenar" class="text-[9px] font-bold uppercase block tracking-tight pointer-events-none dinamico-subtexto-ordenar">Ordenar por:</label>
+                <select id="select-ordenar" class="bg-transparent text-[11px] font-black focus:outline-none cursor-pointer w-full text-center py-0.5 dinamico-codigo-video">
                 </select>
             </div>
         </div>
