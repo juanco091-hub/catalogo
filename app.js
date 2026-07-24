@@ -1034,7 +1034,7 @@ function renderizarCuadrículaVideos() {
             const listaNombres = video.nombreactriz.split(',').map(n => n.trim()).filter(n => n);
             const partes = listaNombres.map(nombreReal => {
                 const visible = obtenerNombreVisibleActriz(nombreReal);
-                return `<a href="#" data-actriz="${nombreReal}" class="link-actriz inline-block text-base font-black dinamico-nombre-actriz-desc hover:underline transition-colors tracking-wide uppercase py-0.5">${visible}</a>`;
+                return `<a href="#" data-actriz="${nombreReal}" class="link-actriz inline-block text-base font-black dinamico-nombre-actriz-desc hover:underline transition-colors tracking-wide py-0.5">${visible}</a>`;
             });
             htmlActricesEnlaces = partes.join('<span class="text-gray-400 font-bold mx-1">,</span>');
         } else {
