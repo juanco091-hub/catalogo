@@ -316,13 +316,18 @@ function generarListaActricesUnicas() {
 function configurarEventos() {
     document.querySelectorAll(".tab-item").forEach(boton => {
         boton.addEventListener("click", (e) => {
-            const tabTarget = e.currentTarget.getAttribute("data-tab");
+            const tabTarget = e.currentTarget.getAttribute("data-tab") || "todos";
             
-            if (!tabTarget) {
-                resetearAInicio();
-                return;
+            // 1. Si el usuario presiona la MISMA pestaña activa (excepto ayuda):
+            if (tabTarget === pestañaActiva && pestañaActiva !== "ayuda") {
+                const scrollActual = window.scrollY || document.documentElement.scrollTop;
+                if (scrollActual > 10) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                return; // Si el scroll es <= 10, ignora el clic por completo
             }
 
+            // 2. Si abre el modal de Ayuda / Glosario
             if (tabTarget === "ayuda") {
                 if (pestañaActiva === "ayuda") return;
                 
@@ -334,6 +339,7 @@ function configurarEventos() {
                 return; 
             }
 
+            // 3. Cambio a una nueva pestaña distinta
             actualizarEstadoActualSinNavegar();
 
             pestañaActiva = tabTarget;
