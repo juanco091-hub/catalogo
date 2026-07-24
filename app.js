@@ -101,48 +101,6 @@ function hexToRgba(hex, alpha) {
     return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
 }
 
-function aplicarEnvVars() {
-    const root = document.documentElement;
-
-    const setVar = (nombre, varEnv, valDefecto) => {
-        const val = ENV_VARS[varEnv] || valDefecto;
-        root.style.setProperty(nombre, val);
-        return val;
-    };
-
-    const btnCenColor = setVar('--env-color-iluminacion-btn-cen', 'COLOR_ILUMINACION_BTN_CEN', '#ca8a04');
-    root.style.setProperty('--env-color-iluminacion-btn-cen-alpha', hexToRgba(btnCenColor, 0.4));
-
-    const pestanasHomeColor = setVar('--env-color-iluminacion-pestanas-home', 'COLOR_ILUMINACION_PESTANAS_HOME', '#ca8a04');
-    root.style.setProperty('--env-color-iluminacion-pestanas-home-alpha', hexToRgba(pestanasHomeColor, 0.3));
-    root.style.setProperty('--env-color-iluminacion-pestanas-home-alpha10', hexToRgba(pestanasHomeColor, 0.1));
-    root.style.setProperty('--env-color-iluminacion-pestanas-home-alpha30', hexToRgba(pestanasHomeColor, 0.3));
-
-    setVar('--env-color-codigo-video', 'COLOR_CODIGO_VIDEO', '#eab308');
-    setVar('--env-color-btn-ver-mas-ocultar', 'COLOR_BTN_VER_MAS_OCULTAR', '#eab308');
-    setVar('--env-color-nombre-actriz-descripcion', 'COLOR_NOMBRE_ACTRIZ_DESCRIPCION', '#eab308');
-    setVar('--env-color-etiquetas-fechas', 'COLOR_ETIQUETAS_FECHAS', '#eab308');
-
-    const pestanasActrizColor = setVar('--env-color-iluminacion-pestanas-actriz', 'COLOR_ILUMINACION_PESTANAS_ACTRIZ', '#ca8a04');
-    root.style.setProperty('--env-color-iluminacion-pestanas-actriz-alpha', hexToRgba(pestanasActrizColor, 0.3));
-
-    setVar('--env-color-nombre-actriz-pagina', 'COLOR_NOMBRE_ACTRIZ_PAGINA', '#eab308');
-    setVar('--env-color-subtexto-ordenar-por', 'COLOR_SUBTEXTO_ORDENAR_POR', '#9ca3af');
-    setVar('--env-color-borde-buscador', 'COLOR_BORDE_BUSCADOR', '#ca8a04');
-
-    setVar('--env-color-texto-btn-entendido', 'COLOR_TEXTO_BTN_ENTENDIDO', '#030712');
-    setVar('--env-color-fondo-btn-entendido', 'COLOR_FONDO_BTN_ENTENDIDO', '#ca8a04');
-
-    if (ENV_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS']) {
-        const el = document.getElementById('titulo-modal-nombres');
-        if (el) el.textContent = ENV_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS'];
-    }
-    if (ENV_VARS['TITULO_MODAL_GUIA_ABREVIACIONES']) {
-        const el = document.getElementById('titulo-modal-ayuda');
-        if (el) el.textContent = ENV_VARS['TITULO_MODAL_GUIA_ABREVIACIONES'];
-    }
-}
-
 function obtenerEstadoActual() {
     return {
         pestana: pestañaActiva,
@@ -202,11 +160,18 @@ async function inicializarApp() {
             </div>
         `;
         
-        await cargarEnvVars();
+        // Se llama a la función sincrónica correcta
+        aplicarEnvVars();
 
         const [resActrices, resVideos] = await Promise.all([
-            fetch(CONFIG.urlSheetsActrices).then(r => r.text()),
-            fetch(CONFIG.urlSheetsVideos).then(r => r.text())
+            fetch(CONFIG.urlSheetsActrices).then(r => {
+                if (!r.ok) throw new Error("Error al obtener actrices");
+                return r.text();
+            }),
+            fetch(CONFIG.urlSheetsVideos).then(r => {
+                if (!r.ok) throw new Error("Error al obtener videos");
+                return r.text();
+            })
         ]);
 
         BD_ACTRICES = parsearCSV(resActrices);
