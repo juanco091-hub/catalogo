@@ -1145,8 +1145,19 @@ function renderizarCuadrículaVideos() {
                 if (video.nombreactriz) {
                     const primerNombre = video.nombreactriz.split(',')[0].trim();
                     if (primerNombre && primerNombre.toLowerCase() !== "desconocida") {
-                        irAPerfilActriz(primerNombre);
+                        // Si ya estamos en el perfil de ESTA MISMA actriz, no redirigir ni saturar el historial
+                        if (pestañaActiva === "actriz_individual" && actrizSeleccionada && 
+                            actrizSeleccionada.toLowerCase().trim() === primerNombre.toLowerCase().trim()) {
+                            // Ejecutamos simplemente la expansión/contracción
+                            conmutarEstado();
+                        } else {
+                            irAPerfilActriz(primerNombre);
+                        }
+                    } else {
+                        conmutarEstado();
                     }
+                } else {
+                    conmutarEstado();
                 }
             }
         });
