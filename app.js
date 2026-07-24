@@ -3,7 +3,7 @@ const CONFIG = {
     urlSheetsVideos: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0YbDSS-cHA_kEaYIw8Kq0ko0nFmzgczzQm2F769-I-n9frt-FKlwalmijrUHxDcRswlfSIwGl1QPg/pub?gid=1597144864&single=true&output=csv"
 };
 
-let ENV_VARS = {};
+let CONFIG_VARS = {};
 
 let BD_ACTRICES = []; 
 let BD_VIDEOS = [];
@@ -17,7 +17,7 @@ const LIMITE_POR_PAGINA = 20;
 let criterioOrden = "reciente"; 
 let ultimoCriterioSeleccionado = "reciente";
 let direccionOrden = "desc";
-let filtroProtagonismo = "todos"; // "todos", "solitario", "colaboracion"
+let filtroProtagonismo = "todos";
 
 const contenedorPrincipal = document.getElementById("contenedor-principal");
 const contenedorPaginacion = document.getElementById("contenedor-paginacion");
@@ -45,16 +45,15 @@ const btnNombresAntiguos = document.getElementById("btn-nombres-antiguos");
 const btnFiltroProtagonismo = document.getElementById("btn-filtro-protagonismo");
 const modalProtagonismo = document.getElementById("modal-protagonismo");
 
-function aplicarEnvVars() {
-    // Si existe la configuración de config.js, la usamos
+function aplicarConfiguracion() {
     if (typeof CONFIG_ENV !== 'undefined') {
-        ENV_VARS = CONFIG_ENV;
+        CONFIG_VARS = CONFIG_ENV;
     }
 
     const root = document.documentElement;
 
-    const setVar = (nombre, varEnv, valDefecto) => {
-        const val = ENV_VARS[varEnv] || valDefecto;
+    const setVar = (nombre, varConfig, valDefecto) => {
+        const val = CONFIG_VARS[varConfig] || valDefecto;
         root.style.setProperty(nombre, val);
         return val;
     };
@@ -82,13 +81,13 @@ function aplicarEnvVars() {
     setVar('--env-color-texto-btn-entendido', 'COLOR_TEXTO_BTN_ENTENDIDO', '#030712');
     setVar('--env-color-fondo-btn-entendido', 'COLOR_FONDO_BTN_ENTENDIDO', '#ca8a04');
 
-    if (ENV_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS']) {
+    if (CONFIG_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS']) {
         const el = document.getElementById('titulo-modal-nombres');
-        if (el) el.textContent = ENV_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS'];
+        if (el) el.textContent = CONFIG_VARS['TITULO_MODAL_NOMBRES_ARTISTICOS'];
     }
-    if (ENV_VARS['TITULO_MODAL_GUIA_ABREVIACIONES']) {
+    if (CONFIG_VARS['TITULO_MODAL_GUIA_ABREVIACIONES']) {
         const el = document.getElementById('titulo-modal-ayuda');
-        if (el) el.textContent = ENV_VARS['TITULO_MODAL_GUIA_ABREVIACIONES'];
+        if (el) el.textContent = CONFIG_VARS['TITULO_MODAL_GUIA_ABREVIACIONES'];
     }
 }
 
@@ -160,8 +159,7 @@ async function inicializarApp() {
             </div>
         `;
         
-        // Se llama a la función sincrónica correcta
-        aplicarEnvVars();
+        aplicarConfiguracion();
 
         const [resActrices, resVideos] = await Promise.all([
             fetch(CONFIG.urlSheetsActrices).then(r => {
@@ -306,17 +304,23 @@ function configurarEventos() {
     document.querySelectorAll(".tab-item").forEach(boton => {
         boton.addEventListener("click", (e) => {
             const tabTarget = e.currentTarget.getAttribute("data-tab") || "todos";
+            const scrollActual = window.scrollY || document.documentElement.scrollTop;
             
-            // 1. Si el usuario presiona la MISMA pestaña activa (excepto ayuda):
             if (tabTarget === pestañaActiva && pestañaActiva !== "ayuda") {
-                const scrollActual = window.scrollY || document.documentElement.scrollTop;
-                if (scrollActual > 10) {
+                if (scrollActual <= 10) {
+                    return;
+                } else {
+                    paginaActual = 1;
+                    inputBuscar.value = "";
+                    searchBarContainer.classList.add("hidden");
+                    actualizarPlaceholderBuscador();
+                    aplicarFiltrosYRenderizar();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    actualizarEstadoActualSinNavegar();
+                    return;
                 }
-                return; // Si el scroll es <= 10, ignora el clic por completo
             }
 
-            // 2. Si abre el modal de Ayuda / Glosario
             if (tabTarget === "ayuda") {
                 if (pestañaActiva === "ayuda") return;
                 
@@ -328,7 +332,6 @@ function configurarEventos() {
                 return; 
             }
 
-            // 3. Cambio a una nueva pestaña distinta
             actualizarEstadoActualSinNavegar();
 
             pestañaActiva = tabTarget;
@@ -352,12 +355,29 @@ function configurarEventos() {
         });
     });
 
-    btnCatCen.addEventListener("click", () => resetearAInicio());
-    mainTitle.addEventListener("click", () => resetearAInicio());
+    const manejarClickInicio = () => {
+        const scrollActual = window.scrollY || document.documentElement.scrollTop;
+        const estaEnInicio = (pestañaActiva === "todos" && !actrizSeleccionada);
+        const estaSinModificaciones = (paginaActual === 1 && inputBuscar.value.trim() === "" && filtroProtagonismo === "todos" && criterioOrden === "reciente");
+
+        if (estaEnInicio && estaSinModificaciones && scrollActual <= 10) {
+            return;
+        }
+
+        resetearAInicio();
+    };
+
+    btnCatCen.addEventListener("click", manejarClickInicio);
+    mainTitle.addEventListener("click", manejarClickInicio);
+    
+    const btnTabHome = document.getElementById("btn-tab-home");
+    if (btnTabHome) {
+        btnTabHome.addEventListener("click", manejarClickInicio);
+    }
     
     const actrizMainTitle = document.getElementById("actriz-main-title");
     if (actrizMainTitle) {
-        actrizMainTitle.addEventListener("click", () => resetearAInicio());
+        actrizMainTitle.addEventListener("click", manejarClickInicio);
     }
 
     inputBuscar.addEventListener("input", () => {
@@ -562,7 +582,6 @@ function configurarEventos() {
         if (e.target === modalNombres) cerrarModalNombres();
     });
 
-    // Eventos Modal Filtro de Protagonismo
     btnFiltroProtagonismo.addEventListener("click", () => {
         actualizarUIModalProtagonismo();
         document.body.classList.add("modal-abierto");
@@ -754,7 +773,6 @@ function actualizarUIHeadernavigation() {
             btnNombresAntiguos.classList.add("hidden");
         }
 
-        // Verificar si la actriz tiene colaboraciones (videos compartidos con otras actrices)
         const tieneColaboracion = BD_VIDEOS.some(v => {
             if (!v.nombreactriz) return false;
             const actricesArr = v.nombreactriz.split(',').map(n => n.trim().toLowerCase());
@@ -856,7 +874,6 @@ function aplicarFiltrosYRenderizar() {
             return arr.includes(nombreSel);
         });
 
-        // Aplicar Filtro de Protagonismo si aplica
         if (filtroProtagonismo === "solitario") {
             videosFiltrados = videosFiltrados.filter(v => {
                 const arr = v.nombreactriz.split(',').map(n => n.trim());
@@ -1017,7 +1034,6 @@ function renderizarCuadrículaVideos() {
         const tamano = video.tamano || "GB";
         const descripcionOriginal = video.descripcion || 'Sin descripción disponible.';
 
-        // Generar enlaces/máscara para las actrices de este video
         let htmlActricesEnlaces = "";
         if (video.nombreactriz && video.nombreactriz.trim() !== "" && video.nombreactriz.toLowerCase() !== "desconocida") {
             const listaNombres = video.nombreactriz.split(',').map(n => n.trim()).filter(n => n);
@@ -1140,10 +1156,8 @@ function renderizarCuadrículaVideos() {
                 if (video.nombreactriz) {
                     const primerNombre = video.nombreactriz.split(',')[0].trim();
                     if (primerNombre && primerNombre.toLowerCase() !== "desconocida") {
-                        // Si ya estamos en el perfil de ESTA MISMA actriz, no redirigir ni saturar el historial
                         if (pestañaActiva === "actriz_individual" && actrizSeleccionada && 
                             actrizSeleccionada.toLowerCase().trim() === primerNombre.toLowerCase().trim()) {
-                            // Ejecutamos simplemente la expansión/contracción
                             conmutarEstado();
                         } else {
                             irAPerfilActriz(primerNombre);
