@@ -1084,6 +1084,9 @@ function renderizarCuadrículaVideos() {
         const tamano = video.tamano || "GB";
         const descripcionOriginal = video.descripcion || 'Sin descripción disponible.';
 
+        // Variable individual por tarjeta para controlar el zoom (por defecto 12px)
+        let tamanoLetraActual = 12;
+
         let htmlActricesEnlaces = "";
         if (video.nombreactriz && video.nombreactriz.trim() !== "" && video.nombreactriz.toLowerCase() !== "desconocida") {
             const listaNombres = video.nombreactriz.split(',').map(n => n.trim()).filter(n => n);
@@ -1150,14 +1153,30 @@ function renderizarCuadrículaVideos() {
                 metaExpandido.innerHTML = ""; 
                 tarjeta.className = "bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl flex flex-col p-3 gap-2 transition-all duration-300";
                 textoDesc.className = "texto-descripcion text-xs text-gray-300 font-medium leading-relaxed lineas-limitadas-2";
+                
+                // Restablece el tamaño original al contraer
+                textoDesc.style.fontSize = "";
+                tamanoLetraActual = 12;
+
                 wrapperFlotante.classList.remove("hidden");
             } else {
                 tarjeta.className = "bg-gray-900 border-2 border-red-600/50 rounded-xl overflow-hidden shadow-xl flex flex-col p-3 gap-2 transition-all duration-300";
-                textoDesc.className = "texto-descripcion text-xs text-gray-300 font-medium lineas-expandidas";
+                textoDesc.className = "texto-descripcion text-gray-300 font-medium lineas-expandidas";
+                textoDesc.style.fontSize = `${tamanoLetraActual}px`;
                 wrapperFlotante.classList.add("hidden");
 
                 metaExpandido.innerHTML = `
-                    <div class="flex flex-col gap-1.5 text-xs">
+                    <!-- Barra de control de Zoom -->
+                    <div class="flex items-center justify-between bg-gray-950/80 px-2.5 py-1.5 rounded-lg border border-gray-800/80 mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Tamaño de texto</span>
+                        <div class="flex items-center gap-1.5">
+                            <button class="btn-zoom-disminuir px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 font-black text-[11px] transition-all active:scale-90" title="Reducir texto">A-</button>
+                            <span class="indicador-tamano-texto text-[11px] font-mono text-yellow-500 font-bold px-1">${tamanoLetraActual}px</span>
+                            <button class="btn-zoom-aumentar px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 font-black text-[11px] transition-all active:scale-90" title="Aumentar texto">A+</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 text-xs pt-1">
                         <div class="flex items-center flex-wrap">
                             ${htmlActricesEnlaces}
                         </div>
@@ -1172,6 +1191,29 @@ function renderizarCuadrículaVideos() {
                         </button>
                     </div>
                 `;
+
+                // Controladores de eventos para los botones de Zoom A- y A+
+                const btnAumentar = metaExpandido.querySelector(".btn-zoom-aumentar");
+                const btnDisminuir = metaExpandido.querySelector(".btn-zoom-disminuir");
+                const indicadorTamano = metaExpandido.querySelector(".indicador-tamano-texto");
+
+                btnAumentar.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    if (tamanoLetraActual < 22) { // Límite máximo de legibilidad
+                        tamanoLetraActual += 2;
+                        textoDesc.style.fontSize = `${tamanoLetraActual}px`;
+                        indicadorTamano.textContent = `${tamanoLetraActual}px`;
+                    }
+                });
+
+                btnDisminuir.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    if (tamanoLetraActual > 10) { // Límite mínimo
+                        tamanoLetraActual -= 2;
+                        textoDesc.style.fontSize = `${tamanoLetraActual}px`;
+                        indicadorTamano.textContent = `${tamanoLetraActual}px`;
+                    }
+                });
 
                 metaExpandido.querySelectorAll(".link-actriz").forEach(link => {
                     link.addEventListener("click", (el) => {
