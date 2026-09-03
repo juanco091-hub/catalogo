@@ -144,6 +144,30 @@
         .dinamico-titulo-modal-ayuda {
             color: var(--config-color-titulo-modal-ayuda, #eab308) !important;
         }
+        /* Estilos para el control de Zoom en tarjetas ampliadas */
+        .lineas-expandidas {
+            display: block !important;
+            overflow: visible !important;
+            max-height: none !important;
+            text-align: justify;
+            line-height: 1.5em !important; /* Mantiene proporciones cómodas al cambiar de tamaño */
+        }
+        
+        /* Estilo para los botones A- y A+ */
+        .btn-zoom-texto {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            border: 1px solid #374151;
+            font-weight: 900;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-zoom-texto:active {
+            transform: scale(0.92);
+            background-color: #374151;
+        }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-300 select-none">
